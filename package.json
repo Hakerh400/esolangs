@@ -1,6 +1,6 @@
 {
   "name": "Esolangs",
-  "description": "Collection of emulators for esoteric programming languages",
+  "description": "Collection of interpreters for esoteric programming languages",
   "version": "1.0.0",
   "author": "Thomas <hakerh403@gmail.com>",
   "main": "index.js",
@@ -8,7 +8,7 @@
   "keywords": [
     "esolangs",
     "programming-languages",
-    "emulators"
+    "interpreters"
   ],
   "homepage": "https://github.com/Hakerh400/esolangs",
   "repository": "git://github.com/Hakerh400/esolangs.git",
@@ -16,7 +16,7 @@
     "test": "mocha test/*.test.js"
   },
   "dependencies": {
-    "omikron": "^1.1.1"
+    "omikron": "^1.2.0"
   },
   "devDependencies": {
     "mocha": "^5.2.0"

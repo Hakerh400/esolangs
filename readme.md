@@ -1,6 +1,10 @@
+# Esolangs
+
+![](https://api.travis-ci.org/Hakerh400/esolangs.svg?branch=master)
+
 ## What is this
 
-This is a collection of emulators for [esoteric programming languages](https://esolangs.org/wiki/Main_Page).
+This is a collection of interpreters for [esoteric programming languages](https://esolangs.org/wiki/Main_Page).
 
 ## How to install
 
