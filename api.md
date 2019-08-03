@@ -28,3 +28,11 @@ Names and IDs are unique among all languages. If the language with the given nam
 ### Method `esolangs.run(name, source, input)`
 
 Execute the source code `source` that is written in `name` language, having `input` as the string on stdin. `name` is a string, while `source` and `input` can be either strings or buffers. `name` is the language name. The return value is always a buffer. This method may throw an error.
+
+### Method `esolangs.getStrs()`
+
+Returns an array containing names of all supported common strings sorted alphabetically that are used by various programming languages.
+
+### Method `esolangs.getStr(name)`
+
+Returns common string named `name`. If the string with the given name does not exist, this method returns `null`.

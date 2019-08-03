@@ -3,12 +3,15 @@
 const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
+const esolangs = require('../..');
 
 const run = (src, input) => {
+  src = src.toString();
+
   const insts = [];
   const loops = [];
 
-  for(const c of src.toString()){
+  for(const c of src){
     switch(c){
       case '<': insts.push(0); break;
       case '>': insts.push(1); break;

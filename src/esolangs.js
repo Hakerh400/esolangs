@@ -5,6 +5,7 @@ const path = require('path');
 const O = require('omikron');
 const packageJson = require('../package');
 const langsList = require('./langs-list');
+const commonStrs = require('./common-strs');
 
 const langsObj = O.obj();
 
@@ -34,6 +35,16 @@ const esolangs = {
     const output = func(Buffer.from(src), Buffer.from(input));
 
     return output;
+  },
+
+  getStrs(){
+    return commonStrs.names.slice();
+  },
+
+  getStr(name){
+    const {strs} = commonStrs;
+    if(!(name in strs)) return null;
+    return strs[name];
   },
 };
 

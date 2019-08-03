@@ -7,6 +7,6 @@ const esolangs = require('../..');
 
 module.exports = src => {
   return [
-    ['', esolangs.getStr('hello-world')],
+    ['', esolangs.getStr('99-bottles')],
   ];
 };

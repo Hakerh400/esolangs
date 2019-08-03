@@ -4,9 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
+const hq9Plus = require('../hq9-plus');
 
-module.exports = src => {
-  return [
-    ['', esolangs.getStr('hello-world')],
-  ];
+const run = (src, input) => {
+  return hq9Plus(src, input);
 };
+
+module.exports = run;
