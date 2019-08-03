@@ -10,16 +10,21 @@ const esolangs = require('eso-langs');
 
 Version of the module.
 
-### Method `esolangs.getInfo(lang)`
+### Method `esolangs.getLangs()`
 
-Get information about the language with name `lang`. The return value is an object containing properties:
+Returns an array containing names of all supported languages sorted alphabetically.
 
+### Method `esolangs.getInfo(name)`
+
+Get information about the language with name `name`. The return value is an object containing properties:
+
+* `name` - Equal to the `name` argument
 * `id` - ID of the language
 * `version` version of the emulator for that language
 * `details` - reference (usually a URL) where more details about the language can be found.
 
-If the language with the given name does not exist in the list of supported languages, the return value is `null`.
+Names and IDs are unique among all languages. If the language with the given name does not exist in the list of supported languages, the return value is `null`.
 
-### Method `esolangs.run(lang, source, input)`
+### Method `esolangs.run(name, source, input)`
 
-Execute the source code `source` that is written in `lang` language, having `input` as the string on stdin. `lang` is a string, while `source` and `input` can be either strings or buffers. `lang` is full language name, not the language ID. The return value is always a buffer. This method may throw an error.
+Execute the source code `source` that is written in `name` language, having `input` as the string on stdin. `name` is a string, while `source` and `input` can be either strings or buffers. `name` is the language name. The return value is always a buffer. This method may throw an error.

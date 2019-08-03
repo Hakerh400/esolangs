@@ -26,7 +26,7 @@ To run this program as a console application, open command line, navigate to the
 node index <language> <source> <input> <output>
 ```
 
-* `<language>` - the ID (not the name) of the esoteric language you want to use. For the list of supported languages and their IDs see [lang-list.json](./lang-list.json).
+* `<language>` - the ID (not the name) of the esoteric language you want to use. For the list of supported languages and their IDs see [esolangs.json](./esolangs.json).
 * `<source>` - path to the file containing the source code of the program you want to run.
 * `<input>` - path to the file containing program's standard input.
 * `<output>` - path to the file which the program's output will be written into. The file will be overwritten if exists.
