@@ -6,8 +6,9 @@ const O = require('omikron');
 
 module.exports = src => {
   return [
-    ['abcde', 'abcde'],
-    ['1234xyz', '1234xyz'],
-    [src, src],
-  ];
+    'abcde',
+    '1234xyz',
+    src,
+    Buffer.from(O.ca(O.rand(50, 100), () => 32 + O.rand(95))),
+  ].map(a => [a, a]);
 };

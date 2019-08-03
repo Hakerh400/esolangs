@@ -34,7 +34,7 @@ for(const name of esolangs.getLangs()){
 
         for(const [input, expectedOutput] of formFunc(src)){
           const actualOutput = esolangs.run(name, src, input);
-          ok(actualOutput.equals(Buffer.from(expectedOutput)));
+          eq(actualOutput.toString('binary'), Buffer.from(expectedOutput).toString('binary'));
         }
       });
     }
