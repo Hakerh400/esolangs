@@ -1,0 +1,546 @@
+0, 1,
+==, =, var, [],
+read, write, eof,
+
+//////////////////////////////////////////////////////////////////////////////////////////////////,
+
+var(.head, []()()),
+var(.tail, []()()),
+var(.push, []()()),
+var(.pop, []()()),
+var(.unshift, []()()),
+var(.shift, []()()),
+var(.append, []()()),
+var(.clone, []()()),
+var(.forEach, []()()),
+var(.write, []()()),
+
+//////////////////////////////////////////////////////////////////////////////////////////////////,
+
+var(not, [](a)(==(a, 0))),
+var(bool, [](a)(not(not(a)))),
+
+var(&&, [](a, b)(a(b))),
+var(||, [](a, b)(a(1, b))),
+var(^^, [](a, b)(a(not(b), b))),
+
+//////////////////////////////////////////////////////////////////////////////////////////////////,
+
+var(while, [](cond, func)(
+  var(temp, bool(cond()))(while)(cond, func, temp(func)())
+)),
+
+//////////////////////////////////////////////////////////////////////////////////////////////////,
+
+var(Pair, [](a, b)(
+  [](mode, index, val)(
+    =(index, not(index)),
+    not(mode)([]()(
+      index(a, b)
+    ), []()(
+      index([]()(
+        =(a, val)
+      ), []()(
+        =(b, val)
+      ))()
+    ))()
+  )
+)),
+
+//////////////////////////////////////////////////////////////////////////////////////////////////,
+
+var(Byte, [](a, b, c, d, e, f, g, h)(
+  var(pair, Pair(Pair(Pair(a, b), Pair(c, d)), Pair(Pair(e, f), Pair(g, h)))),
+  [](mode, i0, i1, i2, val)(
+    pair(0, i2)(0, i1)(mode, i0, val)
+  )
+)),
+
+var(clone, [](byte)(
+  Byte(
+    byte(0, 0, 0, 0), byte(0, 1, 0, 0),
+    byte(0, 0, 1, 0), byte(0, 1, 1, 0),
+    byte(0, 0, 0, 1), byte(0, 1, 0, 1),
+    byte(0, 0, 1, 1), byte(0, 1, 1, 1)
+  )
+)),
+
+var(forEach, [](byte, func)(
+  func(byte(0, 0, 0, 0), 0, 0, 0), func(byte(0, 1, 0, 0), 1, 0, 0),
+  func(byte(0, 0, 1, 0), 0, 1, 0), func(byte(0, 1, 1, 0), 1, 1, 0),
+  func(byte(0, 0, 0, 1), 0, 0, 1), func(byte(0, 1, 0, 1), 1, 0, 1),
+  func(byte(0, 0, 1, 1), 0, 1, 1), func(byte(0, 1, 1, 1), 1, 1, 1),
+  byte
+)),
+
+var(map, [](byte, func)(
+  =(byte, clone(byte)),
+  forEach(byte, [](bit, i0, i1, i2)(
+    byte(1, i0, i1, i2, func(bit, i0, i1, i2))
+  ))
+)),
+
+var(cmp, [](b1, b2)(
+  var(eq),
+  var(gt),
+  var(lt),
+
+  forEach(b1, [](bit1, i0, i1, i2)(
+    var(bit2, b2(0, i0, i1, i2)),
+    var(eq1, ==(bit1, bit2)),
+
+    =(gt, ||(&&(gt, eq1), &&(bit1, not(bit2)))),
+    =(lt, ||(&&(lt, eq1), &&(not(bit1), bit2))),
+    =(eq, &&(eq, eq1))
+  )),
+
+  Pair(gt, lt)
+)),
+
+var(eq, [](b1, b2)(
+  var(temp, cmp(b1, b2)),
+  not(||(temp(0, 0), temp(0, 1)))
+)),
+
+var(neq, [](b1, b2)(
+  not(eq(b1, b2))
+)),
+
+var(gt, [](b1, b2)(
+  cmp(b1, b2)(0, 0)
+)),
+
+var(lt, [](b1, b2)(
+  cmp(b1, b2)(0, 1)
+)),
+
+var(gte, [](b1, b2)(
+  not(lt(b1, b2))
+)),
+
+var(lte, [](b1, b2)(
+  not(gt(b1, b2))
+)),
+
+var(&, [](b1, b2)(
+  map(a, [](bit, i0, i1, i2)(&&(bit, b2(0, i0, i1, i2))))
+)),
+
+var(|, [](b1, b2)(
+  map(a, [](bit, i0, i1, i2)(||(bit, b2(0, i0, i1, i2))))
+)),
+
+var(^, [](b1, b2)(
+  map(a, [](bit, i0, i1, i2)(^^(bit, b2(0, i0, i1, i2))))
+)),
+
+var(+c, [](b1, b2)(
+  var(carry, 0),
+  Pair(map(b1, [](bit1, i0, i1, i2)(
+    var(bit2, b2(0, i0, i1, i2)),
+    var(temp, ^^(carry, ^^(bit1, bit2))),
+    =(carry, ||(&&(bit1, bit2), ||(&&(bit1, carry), &&(bit2, carry)))),
+    temp
+  )), carry)
+)),
+
+var(+, [](b1, b2)(
+  +c(b1, b2)(0, 0)
+)),
+
+var(neg, [](byte)(
+  +(map(byte, [](bit)(not(bit))), 1n)
+)),
+
+var(-, [](b1, b2)(
+  +(b1, neg(b2))
+)),
+
+var(*, [](b1, b2)(
+  var(b3, Byte()),
+
+  while([]()(not(eq(b2, Byte()))), []()(
+    =(b3, +(b3, b1)),
+    =(b2, -(b2, 1n))
+  )),
+
+  b3
+)),
+
+var(/, [](b1, b2)(
+  var(b3, clone(b2)),
+  var(b4, 0n),
+  var(carry, 0),
+
+  while([]()(not(||(gt(b3, b1), carry))), []()(
+    =(b4, +(b4, 1n)),
+
+    var(sum, +c(b3, b2)),
+    =(b3, sum(0, 0)),
+    =(carry, sum(0, 1))
+  )),
+
+  b4
+)),
+
+var(%, [](b1, b2)(
+  -(b1, *(/(b1, b2), b2))
+)),
+
+var(Iterator, [](byte)(
+  var(1n, Byte(1)),
+
+  not(byte)([]()(
+    =(byte, Byte())
+  ))(),
+
+  []()(
+    var(prev, byte),
+    =(byte, +(byte, 1n)),
+    prev
+  )
+)),
+
+[]()(
+  var(next, Iterator()),
+
+  =(0n, next()), =(1n, next()), =(2n, next()), =(3n, next()),
+  =(4n, next()), =(5n, next()), =(6n, next()), =(7n, next()),
+  =(8n, next()), =(9n, next()), =(10n, next()), =(11n, next()),
+  =(12n, next()), =(13n, next()), =(14n, next()), =(15n, next()),
+  =(16n, next()), =(17n, next()), =(18n, next()), =(19n, next()),
+  =(20n, next()), =(21n, next()), =(22n, next()), =(23n, next()),
+  =(24n, next()), =(25n, next()), =(26n, next()), =(27n, next()),
+  =(28n, next()), =(29n, next()), =(30n, next()), =(31n, next()),
+  =(32n, next()), =(33n, next()), =(34n, next()), =(35n, next()),
+  =(36n, next()), =(37n, next()), =(38n, next()), =(39n, next()),
+  =(40n, next()), =(41n, next()), =(42n, next()), =(43n, next()),
+  =(44n, next()), =(45n, next()), =(46n, next()), =(47n, next()),
+  =(48n, next()), =(49n, next()), =(50n, next()), =(51n, next()),
+  =(52n, next()), =(53n, next()), =(54n, next()), =(55n, next()),
+  =(56n, next()), =(57n, next()), =(58n, next()), =(59n, next()),
+  =(60n, next()), =(61n, next()), =(62n, next()), =(63n, next()),
+  =(64n, next()), =(65n, next()), =(66n, next()), =(67n, next()),
+  =(68n, next()), =(69n, next()), =(70n, next()), =(71n, next()),
+  =(72n, next()), =(73n, next()), =(74n, next()), =(75n, next()),
+  =(76n, next()), =(77n, next()), =(78n, next()), =(79n, next()),
+  =(80n, next()), =(81n, next()), =(82n, next()), =(83n, next()),
+  =(84n, next()), =(85n, next()), =(86n, next()), =(87n, next()),
+  =(88n, next()), =(89n, next()), =(90n, next()), =(91n, next()),
+  =(92n, next()), =(93n, next()), =(94n, next()), =(95n, next()),
+  =(96n, next()), =(97n, next()), =(98n, next()), =(99n, next()),
+  =(100n, next()), =(101n, next()), =(102n, next()), =(103n, next()),
+  =(104n, next()), =(105n, next()), =(106n, next()), =(107n, next()),
+  =(108n, next()), =(109n, next()), =(110n, next()), =(111n, next()),
+  =(112n, next()), =(113n, next()), =(114n, next()), =(115n, next()),
+  =(116n, next()), =(117n, next()), =(118n, next()), =(119n, next()),
+  =(120n, next()), =(121n, next()), =(122n, next()), =(123n, next()),
+  =(124n, next()), =(125n, next()), =(126n, next()), =(127n, next()),
+  =(128n, next()), =(129n, next()), =(130n, next()), =(131n, next()),
+  =(132n, next()), =(133n, next()), =(134n, next()), =(135n, next()),
+  =(136n, next()), =(137n, next()), =(138n, next()), =(139n, next()),
+  =(140n, next()), =(141n, next()), =(142n, next()), =(143n, next()),
+  =(144n, next()), =(145n, next()), =(146n, next()), =(147n, next()),
+  =(148n, next()), =(149n, next()), =(150n, next()), =(151n, next()),
+  =(152n, next()), =(153n, next()), =(154n, next()), =(155n, next()),
+  =(156n, next()), =(157n, next()), =(158n, next()), =(159n, next()),
+  =(160n, next()), =(161n, next()), =(162n, next()), =(163n, next()),
+  =(164n, next()), =(165n, next()), =(166n, next()), =(167n, next()),
+  =(168n, next()), =(169n, next()), =(170n, next()), =(171n, next()),
+  =(172n, next()), =(173n, next()), =(174n, next()), =(175n, next()),
+  =(176n, next()), =(177n, next()), =(178n, next()), =(179n, next()),
+  =(180n, next()), =(181n, next()), =(182n, next()), =(183n, next()),
+  =(184n, next()), =(185n, next()), =(186n, next()), =(187n, next()),
+  =(188n, next()), =(189n, next()), =(190n, next()), =(191n, next()),
+  =(192n, next()), =(193n, next()), =(194n, next()), =(195n, next()),
+  =(196n, next()), =(197n, next()), =(198n, next()), =(199n, next()),
+  =(200n, next()), =(201n, next()), =(202n, next()), =(203n, next()),
+  =(204n, next()), =(205n, next()), =(206n, next()), =(207n, next()),
+  =(208n, next()), =(209n, next()), =(210n, next()), =(211n, next()),
+  =(212n, next()), =(213n, next()), =(214n, next()), =(215n, next()),
+  =(216n, next()), =(217n, next()), =(218n, next()), =(219n, next()),
+  =(220n, next()), =(221n, next()), =(222n, next()), =(223n, next()),
+  =(224n, next()), =(225n, next()), =(226n, next()), =(227n, next()),
+  =(228n, next()), =(229n, next()), =(230n, next()), =(231n, next()),
+  =(232n, next()), =(233n, next()), =(234n, next()), =(235n, next()),
+  =(236n, next()), =(237n, next()), =(238n, next()), =(239n, next()),
+  =(240n, next()), =(241n, next()), =(242n, next()), =(243n, next()),
+  =(244n, next()), =(245n, next()), =(246n, next()), =(247n, next()),
+  =(248n, next()), =(249n, next()), =(250n, next()), =(251n, next()),
+  =(252n, next()), =(253n, next()), =(254n, next()), =(255n, next())
+)(),
+
+//////////////////////////////////////////////////////////////////////////////////////////////////,
+
+var(List, []()(
+  var(head, 0),
+  var(tail, 0),
+
+  var(push, [](val, elem)(
+    =(elem, Pair(val, Pair(tail))),
+
+    not(head)([]()(
+      =(head, =(tail, elem))
+    ), []()(
+      tail(0, 1)(1, 1, elem),
+      =(tail, elem)
+    ))()
+  )),
+
+  var(pop, [](val)(
+    =(val, tail(0, 0)),
+    =(tail, tail(0, 1)(0, 0)),
+
+    not(tail)([]()(
+      =(head, 0)
+    ), []()(
+      tail(0, 1)(1, 1, 0)
+    ))(),
+
+    val
+  )),
+
+  var(unshift, [](val, elem)(
+    =(elem, Pair(val, Pair(0, head))),
+
+    not(head)([]()(
+      =(head, =(tail, elem))
+    ), []()(
+      head(0, 1)(1, 0, elem),
+      =(head, elem)
+    ))()
+  )),
+
+  var(shift, [](val)(
+    =(val, head(0, 0)),
+    =(head, head(0, 1)(0, 1)),
+
+    not(head)([]()(
+      =(tail, 0)
+    ), []()(
+      head(0, 1)(1, 0, 0)
+    ))(),
+
+    val
+  )),
+
+  var(forEach, [](func)(
+    var(head, this .head),
+
+    while([]()(head), []()(
+      func(head(0, 0)),
+      =(head, head(0, 1)(0, 1))
+    )),
+
+    this
+  )),
+
+  var(this, [](prop)(
+    ==(prop, .head)(head,
+    ==(prop, .tail)(tail,
+    ==(prop, .push)(push,
+    ==(prop, .pop)(pop,
+    ==(prop, .unshift)(unshift,
+    ==(prop, .shift)(shift,
+    ==(prop, .forEach)(forEach
+    )))))))
+  ))
+)),
+
+//////////////////////////////////////////////////////////////////////////////////////////////////,
+
+var(String, [](byte)(
+  var(list, List()),
+
+  var(concat, [](str)(
+    str .forEach([](byte)(
+      list .push(byte)
+    )),
+
+    this
+  )),
+
+  var(clone, []()(
+    var(str, String()),
+
+    list .forEach([](byte)(
+      str .append(byte)
+    )),
+
+    str
+  )),
+
+  var(write, []()(
+    list .forEach([](byte)(
+      writeByte(byte)
+    )),
+
+    this
+  )),
+
+  var(append, [](byte)(
+    list .push(byte)
+  )),
+
+  bool(byte)(append)(byte),
+
+  var(this, [](prop)(
+    var(ret, 0),
+
+    &&(not(ret), ==(prop, .head))([]()(=(ret, list .head)))(),
+    &&(not(ret), ==(prop, .tail))([]()(=(ret, list .tail)))(),
+    &&(not(ret), ==(prop, .push))([]()(=(ret, list .push)))(),
+    &&(not(ret), ==(prop, .pop))([]()(=(ret, list .pop)))(),
+    &&(not(ret), ==(prop, .unshift))([]()(=(ret, list .unshift)))(),
+    &&(not(ret), ==(prop, .shift))([]()(=(ret, list .shift)))(),
+    &&(not(ret), ==(prop, .forEach))([]()(=(ret, list .forEach)))(),
+
+    &&(not(ret), ==(prop, .clone))([]()(=(ret, clone)))(),
+    &&(not(ret), ==(prop, .append))([]()(=(ret, append)))(),
+    &&(not(ret), ==(prop, .write))([]()(=(ret, write)))(),
+
+    not(ret)([]()(=(ret, concat(prop))))(),
+
+    ret
+  ))
+)),
+
+[]()(
+  var(iter, Iterator(33n)),
+
+  var(next, []()(
+    String(iter())
+  )),
+
+  =(_, String()),
+  =(_newLine, String(10n)),
+  =(_space, String(32n)),
+
+  =(_!, next()), =(_", next()), =(_#, next()), =(_$, next()),
+  =(_%, next()), =(_&, next()), =(_', next()),
+
+  =(_openParen, String(40n)),
+  =(_closedParen, String(41n)),
+  next(), next(),
+
+  =(_*, next()), =(_+, next()),
+
+  =(_comma, String(44n)),
+  next(),
+
+  =(_-, next()), =(_., next()), =(_/, next()), =(_0, next()),
+  =(_1, next()), =(_2, next()), =(_3, next()), =(_4, next()),
+  =(_5, next()), =(_6, next()), =(_7, next()), =(_8, next()),
+  =(_9, next()), =(_:, next()), =(_;, next()), =(_<, next()),
+  =(_=, next()), =(_>, next()), =(_?, next()), =(_@, next()),
+  =(_A, next()), =(_B, next()), =(_C, next()), =(_D, next()),
+  =(_E, next()), =(_F, next()), =(_G, next()), =(_H, next()),
+  =(_I, next()), =(_J, next()), =(_K, next()), =(_L, next()),
+  =(_M, next()), =(_N, next()), =(_O, next()), =(_P, next()),
+  =(_Q, next()), =(_R, next()), =(_S, next()), =(_T, next()),
+  =(_U, next()), =(_V, next()), =(_W, next()), =(_X, next()),
+  =(_Y, next()), =(_Z, next()), =(_[, next()), =(\\, next()),
+  =(_], next()), =(_^, next()), =(__, next()), =(_`, next()),
+  =(_a, next()), =(_b, next()), =(_c, next()), =(_d, next()),
+  =(_e, next()), =(_f, next()), =(_g, next()), =(_h, next()),
+  =(_i, next()), =(_j, next()), =(_k, next()), =(_l, next()),
+  =(_m, next()), =(_n, next()), =(_o, next()), =(_p, next()),
+  =(_q, next()), =(_r, next()), =(_s, next()), =(_t, next()),
+  =(_u, next()), =(_v, next()), =(_w, next()), =(_x, next()),
+  =(_y, next()), =(_z, next()), =(_{, next()), =(_|, next()),
+  =(_}, next()), =(_~, next())
+)(),
+
+//////////////////////////////////////////////////////////////////////////////////////////////////,
+
+var(readByte, []()(
+  Byte(
+    read(), read(), read(), read(),
+    read(), read(), read(), read()
+  )
+)),
+
+var(writeByte, [](byte)(
+  forEach(byte, write)
+)),
+
+var(writeDigit, [](byte)(
+  writeByte(+(byte, 48n))
+)),
+
+var(writeInt, [](byte)(
+  gte(byte, 100n)([]()(
+    writeDigit(/(byte, 100n)),
+    writeDigit(%(/(byte, 10n), 10n)),
+    writeDigit(%(byte, 10n))
+  ), []()(
+    gte(byte, 10n)([]()(
+      writeDigit(/(byte, 10n)),
+      writeDigit(%(byte, 10n))
+    ), []()(
+      writeDigit(byte)
+    ))()
+  ))(),
+  byte
+)),
+
+[]()(
+  var(space, 32n),
+  var('0', 48n),
+
+  var(num1, List()),
+  var(num2, List()),
+
+  var(mode, 0),
+
+  while([]()(
+    not(eof())
+  ), []()(
+    var(byte, readByte()),
+
+    eq(byte, space)([]()(
+      =(mode, 1)
+    ), []()(
+      mode(num2, num1).push(byte)
+    ))()
+  )),
+
+  var(num3, List()),
+  var(carry, 0n),
+
+  while([]()(
+    ||(bool(num1 .head), bool(num2 .head))
+  ), []()(
+    var(b1, not(=(b1, num1 .pop()))([]()(
+      0n
+    ), []()(
+      -(b1, '0')
+    ))()),
+
+    var(b2, not(=(b2, num2 .pop()))([]()(
+      0n
+    ), []()(
+      -(b2, '0')
+    ))()),
+
+    var(byte, +(carry, +(b1, b2))),
+
+    =(carry, gt(byte, 9n))([]()(
+      =(byte, -(byte, 10n))
+    ))(),
+
+    =(carry, carry(1n, 0n)),
+    num3 .push(byte)
+  )),
+
+  eq(carry, 1n)([]()(
+    num3 .push(1n)
+  ))(),
+
+  while([]()(
+    num3 .head
+  ), []()(
+    var(byte, num3 .pop()),
+    writeByte(+(byte, '0'))
+  ))
+)()

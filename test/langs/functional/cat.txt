@@ -1,0 +1,9 @@
+0, 1, ==, =, var, [],
+read, write, eof,
+
+var(f, []()(
+  eof()(0, []()(
+    write(read()),
+    f()
+  ))()
+))()

@@ -7,9 +7,6 @@ const esolangs = require('../..');
 
 module.exports = src => {
   return [
-    '',
-    'abcde',
-    '1234xyz',
-    src,
-  ].map(a => [a, a]);
+    ['', esolangs.getStr('fizz-buzz')],
+  ];
 };

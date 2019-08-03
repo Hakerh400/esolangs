@@ -17,7 +17,7 @@ for(const name of esolangs.getLangs()){
   describe(`Language ${O.sf(name)}`, () => {
     const info = esolangs.getInfo(name);
     const dir = path.join(langsDir, info.id);
-    const fileNames = fs.readdirSync(dir);
+    const fileNames = O.sortAsc(fs.readdirSync(dir));
 
     for(const fileName of fileNames){
       if(!fileName.endsWith('.txt')) continue;

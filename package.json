@@ -13,7 +13,7 @@
   "homepage": "https://github.com/Hakerh400/esolangs",
   "repository": "git://github.com/Hakerh400/esolangs.git",
   "scripts": {
-    "test": "mocha --timeout 0 test/*.test.js"
+    "test": "mocha --timeout 0 --slow 18446744073709551616 test/*.test.js"
   },
   "dependencies": {
     "omikron": "^1.2.0"

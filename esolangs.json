@@ -14,5 +14,10 @@
     "id": "hq9-plus-plus",
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/HQ9%2B%2B"
+  }, {
+    "name": "Functional()",
+    "id": "functional",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Functional()"
   }
 ]
