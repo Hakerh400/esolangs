@@ -1,5 +1,5 @@
 {
-  "name": "Esolangs",
+  "name": "@hakerh400/esolangs",
   "description": "Collection of interpreters for esoteric programming languages",
   "version": "1.0.0",
   "author": "Thomas <hakerh403@gmail.com>",

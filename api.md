@@ -1,7 +1,7 @@
 ## Requiring the module
 
 ```js
-const esolangs = require('eso-langs');
+const esolangs = require('@hakerh400/esolangs');
 ```
 
 ## API functionalities

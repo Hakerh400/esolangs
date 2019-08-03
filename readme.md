@@ -11,16 +11,16 @@ This is a collection of interpreters for [esoteric programming languages](https:
 First install [Node.js](https://nodejs.org/en/) version v12.x or newer, then run:
 
 ```
-npm i eso-langs
+npm i @hakerh400/esolangs
 ```
 
-It will create folder `node_modules` and `eso-langs` inside it.
+It will create folder `node_modules` and `@hakerh400/esolangs` inside it.
 
 ## How to run
 
 ### CLI
 
-To run this program as a console application, open command line, navigate to the `node_modules/eso-langs` directory and type:
+To run this program as a console application, open command line, navigate to the `node_modules/@hakerh400/esolangs` directory and type:
 
 ```
 node index <language> <source> <input> <output>
@@ -35,12 +35,12 @@ If any error occurs, it will be written to the console and the output file will 
 
 ### API
 
-Example of using `eso-langs` in a Node.js application:
+Example of using `@hakerh400/esolangs` in a Node.js application:
 
 ```js
 'use strict';
 
-const esolangs = require('eso-langs');
+const esolangs = require('@hakerh400/esolangs');
 
 const lang = 'brainfuck';
 const source = '+[-->-[>>+>-----<<]<--<---]>-.>>>+.>>..+++[.>]<<<<.+++.------.<<-.>>>>+.';
