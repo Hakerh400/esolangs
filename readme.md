@@ -55,3 +55,9 @@ For the full API documentation, see [api.md](./api.md).
 ## Contributing
 
 See [contributing.md](./contributing.md).
+
+# Mirrors
+
+* https://github.com/Hakerh400/esolangs
+* https://gitlab.com/Hakerh400/esolangs
+* https://bitbucket.org/Hakerh400/esolangs/src/master/
