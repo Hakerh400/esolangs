@@ -8,7 +8,7 @@ const jstest = require('@hakerh400/jstest');
 const esolangs = require('..');
 const skipList = require('./skip-langs');
 
-const SINGLE_LANG = 'Examinable Invocation Vector';
+const SINGLE_LANG = null//'Examinable Invocation Vector';
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
