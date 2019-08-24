@@ -19,5 +19,35 @@
     "id": "functional",
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Functional()"
+  }, {
+    "name": "Bitwise Trance",
+    "id": "bitwise-trance",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Bitwise_Trance"
+  }, {
+    "name": "Unary",
+    "id": "unary",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Unary"
+  }, {
+    "name": "BitBounce",
+    "id": "bit-bounce",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/BitBounce"
+  }, {
+    "name": "Functasy",
+    "id": "functasy",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Functasy"
+  }, {
+    "name": "Examinable Invocation Vector",
+    "id": "eiv",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Examinable_Invocation_Vector"
+  }, {
+    "name": "Realm",
+    "id": "realm",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Realm"
   }
 ]

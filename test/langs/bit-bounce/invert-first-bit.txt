@@ -1,0 +1,46 @@
+*** Header ***
+
+1110.0000  ; Memory cell size:    8
+0100.0000  ; Registers pointer:   2
+1010.0000  ; Instruction pointer: 5
+1111.1111  ; Stack pointer:       255
+
+*** Program ***
+
+1000.0000  ; flag
+
+0111.0000  ; IN
+1111.0000  ; OUT
+0111.0000  ; IN
+
+0000.0000  ; CONST SEVENTEEN
+ 1000.1000
+0100.0000  ; CALL (Function)
+
+1111.0000  ; OUT
+0000.0000  ; CONST ZERO
+ 0000.0000
+0000.0000  ; CONST FIVE
+ 1010.0000
+1000.0000  ; JZ
+
+Function:
+  0000.0000  ; CONST TWO
+   0100.0000
+  0110.0000  ; GET
+  0000.0000  ; CONST FOUR
+   0010.0000
+  0001.0000  ; READ
+
+  0000.0000  ; CONST ZERO
+   0000.0000
+  0000.0000  ; CONST FOUR
+   0010.0000
+  1001.0000  ; WRITE
+
+  1011.0000  ; ADD
+  0000.0000  ; CONST THREE
+   1100.0000
+  1110.0000  ; SET
+
+  1100.0000  ; RET
