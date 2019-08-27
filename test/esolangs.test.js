@@ -6,9 +6,11 @@ const assert = require('assert');
 const O = require('omikron');
 const jstest = require('@hakerh400/jstest');
 const esolangs = require('..');
+const cli = require('./cli');
 const skipList = require('./skip-langs');
 
-const SINGLE_LANG = null//'Examinable Invocation Vector';
+const TEST_CLI = 1;
+const SINGLE_LANG = null;
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
@@ -20,6 +22,8 @@ const {part, test} = jstest;
 
 const langs = SINGLE_LANG !== null ? [SINGLE_LANG] : esolangs.getLangs();
 const skipObj = O.arr2obj(skipList);
+
+if(TEST_CLI) cli.test();
 
 for(const name of langs){
   if(name in skipObj) continue;

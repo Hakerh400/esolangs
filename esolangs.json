@@ -40,11 +40,6 @@
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Functasy"
   }, {
-    "name": "Examinable Invocation Vector",
-    "id": "eiv",
-    "version": "1.0.0",
-    "details": "https://esolangs.org/wiki/Examinable_Invocation_Vector"
-  }, {
     "name": "Realm",
     "id": "realm",
     "version": "1.0.0",

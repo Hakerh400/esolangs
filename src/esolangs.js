@@ -8,9 +8,12 @@ const langsList = require('./langs-list');
 const commonStrs = require('./common-strs');
 
 const langsObj = O.obj();
+const langsIdsObj = O.obj();
 
-for(const info of langsList)
+for(const info of langsList){
   langsObj[info.name] = info;
+  langsIdsObj[info.id] = info;
+}
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
@@ -25,6 +28,11 @@ const esolangs = {
   getInfo(name){
     if(!(name in langsObj)) return null;
     return langsObj[name];
+  },
+
+  getInfoById(id){
+    if(!(id in langsIdsObj)) return null;
+    return langsIdsObj[id];
   },
 
   run(name, src, input){

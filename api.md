@@ -29,6 +29,10 @@ Names and IDs are unique among all languages. Besides the above properties, the 
 
 If the language with the given name does not exist in the list of supported languages, the return value is `null`.
 
+### Method `esolangs.getInfoById(id)`
+
+Similar to `esolangs.getInfo(name)`. Returns information about the language with id `id`.
+
 ### Method `esolangs.run(name, source, input)`
 
 Execute the source code `source` that is written in `name` language, having `input` as the string on stdin. `name` is a string, while `source` and `input` can be either strings or buffers. `name` is the language name. The return value either a buffer or a promise. This method may throw an error.
