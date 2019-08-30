@@ -8,5 +8,4 @@ const cli = require('./cli');
 
 module.exports = esolangs;
 
-if(cli.isInvoked())
-  return cli.exec();
+if(cli.isInvoked()) cli.exec();

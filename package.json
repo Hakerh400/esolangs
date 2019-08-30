@@ -16,7 +16,7 @@
     "test": "node test"
   },
   "dependencies": {
-    "omikron": "^1.2.2"
+    "omikron": "^1.2.3"
   },
   "devDependencies": {
     "@hakerh400/jstest": "^1.1.1"

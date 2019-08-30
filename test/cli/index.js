@@ -31,6 +31,7 @@ const runTest = () => {
       O.wfs(srcFile, src);
       O.wfs(inputFile, input);
       O.wfs(outputFile, '');
+      eq(O.rfs(outputFile, 1), '');
 
       const {stdout, stderr} = cp.spawnSync(nodeExe, [
         mainScript,

@@ -35,7 +35,7 @@ Similar to `esolangs.getInfo(name)`. Returns information about the language with
 
 ### Method `esolangs.run(name, source, input)`
 
-Execute the source code `source` that is written in `name` language, having `input` as the string on stdin. `name` is a string, while `source` and `input` can be either strings or buffers. `name` is the language name. The return value either a buffer or a promise. This method may throw an error.
+Execute the source code `source` that is written in `name` language, having `input` as the string on stdin. `name` is a string, while `source` and `input` can be either strings or buffers. `name` is the language name. The return value is either a buffer or a promise. This method may throw an error.
 
 ### Method `esolangs.getStrs()`
 

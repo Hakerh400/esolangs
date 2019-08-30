@@ -22,6 +22,7 @@ const exec = () => {
   const src = read(fsrc);
   const input = read(fin);
   const output = esolangs.run(info.name, src, input);
+
   write(fout, output);
 };
 

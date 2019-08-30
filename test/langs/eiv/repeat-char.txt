@@ -1,0 +1,23 @@
+(input.
+(0 1 P.
+(E.
+(Byte.
+(first.
+(print.
+  (f.f (f (f E)))(e.
+    print e first
+  )
+)(str b.
+  (P 1 (P (b 0 0 0) (P 1 (P (b 0 0 1) (P 1 (P (b 0 1 0) (P 1 (P (b 0 1 1)
+  (P 1 (P (b 1 0 0) (P 1 (P (b 1 0 1) (P 1 (P (b 1 1 0) (P 1 (P (b 1 1 1)
+  str))))))))))))))))
+))(
+  Byte
+    (input 1 0) (input 1 1 1 0) (input 1 1 1 1 1 0) (input 1 1 1 1 1 1 1 0)
+    (input 1 1 1 1 1 1 1 1 1 0) (input 1 1 1 1 1 1 1 1 1 1 1 0)
+    (input 1 1 1 1 1 1 1 1 1 1 1 1 1 0) (input 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0)
+))(
+  b0 b1 b2 b3 b4 b5 b6 b7 i j k.
+  i(j(k b7 b6)(k b5 b4))(j(k b3 b2)(k b1 b0))
+))((f.f f)(f.P 0(f f)))
+)(a b.b)(a b.a)(a b c.c b a))

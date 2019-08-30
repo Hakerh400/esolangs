@@ -3,12 +3,10 @@
 const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
-const esolangs = require('../..');
+const esolangs = require('../../..');
 
 module.exports = src => {
   return [
-    '',
-    'abcde',
-    '1234xyz',
-  ].map(a => [a, a]);
+    ['abc', '7bc'],
+  ];
 };
