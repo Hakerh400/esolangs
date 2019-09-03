@@ -49,5 +49,15 @@
     "id": "realm",
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Realm"
+  }, {
+    "name": "Grid",
+    "id": "grid",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Grid"
+  }, {
+    "name": "Boolfuck",
+    "id": "boolfuck",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Boolfuck"
   }
 ]

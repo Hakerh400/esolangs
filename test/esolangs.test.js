@@ -7,7 +7,7 @@ const O = require('omikron');
 const jstest = require('@hakerh400/jstest');
 const esolangs = require('..');
 const cli = require('./cli');
-const skipList = require('./skip-langs');
+const skipTests = require('./skip-tests');
 
 const TEST_CLI = 1;
 const SINGLE_LANG = null;
@@ -21,12 +21,28 @@ const ok = assert.ok;
 const {part, test} = jstest;
 
 const langs = SINGLE_LANG !== null ? [SINGLE_LANG] : esolangs.getLangs();
-const skipObj = O.arr2obj(skipList);
+const skipTestsObj = O.obj();
+
+for(const skipTest of skipTests){
+  if(typeof skipTests === 'string'){
+    skipTestsObj[skipTest] = O.obj();
+    skipTestsObj[skipTest]['*'] = 1;
+    continue;
+  }
+
+  const [lang, test] = skipTest;
+
+  if(!(lang in skipTestsObj))
+    skipTestsObj[lang] = O.obj();
+
+  skipTestsObj[lang][test] = 1;
+}
 
 if(TEST_CLI) cli.test();
 
 for(const name of langs){
-  if(name in skipObj) continue;
+  const skipTest = name in skipTestsObj ? skipTestsObj[name] : null;
+  if(skipTest !== null && '*' in skipTest) continue;
 
   part(`Language ${O.sf(name)}`, () => {
     const info = esolangs.getInfo(name);
@@ -36,9 +52,11 @@ for(const name of langs){
     for(const fileName of fileNames){
       if(!fileName.endsWith('.txt')) continue;
 
+      const programName = fileName.slice(0, fileName.length - 4);
+      if(skipTest !== null && programName in skipTest) continue;
+
       const filePath = path.join(dir, fileName);
       const src = O.rfs(filePath);
-      const programName = fileName.slice(0, fileName.length - 4);
 
       test(programName, () => {
         const formFile = `${programName}.js`;

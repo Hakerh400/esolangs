@@ -1,7 +1,7 @@
 {
   "name": "@hakerh400/esolangs",
   "description": "Collection of interpreters for esoteric programming languages",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Thomas <hakerh403@gmail.com>",
   "main": "index.js",
   "contributors": [],
@@ -16,7 +16,7 @@
     "test": "node test"
   },
   "dependencies": {
-    "omikron": "^1.2.3"
+    "omikron": "^1.2.4"
   },
   "devDependencies": {
     "@hakerh400/jstest": "^1.1.1"
