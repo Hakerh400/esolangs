@@ -59,5 +59,10 @@
     "id": "boolfuck",
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Boolfuck"
+  }, {
+    "name": "Intramodular Transaction",
+    "id": "intramodular-transaction",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Intramodular_Transaction"
   }
 ]

@@ -8,7 +8,7 @@ const esolangs = require('../..');
 module.exports = src => {
   return [
     '',
-    '35'
+    'A',
   ].map(a => {
     return [a, Buffer.from(a).reverse().map(a => {
       return parseInt(a.toString(2).split('').reverse().join('').padEnd(8, '0'), 2);

@@ -12,7 +12,6 @@ If you want to request support for a specific esoteric language, you can open an
 
 * Languages which lack clean specification
 * Languages whose specification is not free and publicly available
-* Languages which, for trivial input strings, give an output string which may be considered as a copyrighted material
 * Interpreters or compilers that are not licensed under an [Unlicense](https://unlicense.org/)-compatible license
 * Nondeterministic languages where nondeterminism is the core part of the language
 * Languages which perform file system operations, network connections, or other side-effects
