@@ -13,14 +13,14 @@ const run = (src, input) => {
   const io = new O.IO(input, 0, 1);
 
   const err = msg => {
-    O.exit(`ERROR: ${msg}`);
+    throw new SyntaxError(`ERROR: ${msg}`);
   };
 
   src = src.replace(/\-\-.*?(?:[\r\n]|$)/gs, ' ');
 
   const defs = src.split(';');
   if(defs.length === 1) err('Expected at least one definition');
-  if(defs.pop().match(/\S/)) err('Missing semicolon after the last definition');
+  if(/\S/.test(defs.pop())) err('Missing semicolon after the last definition');
 
   const ops = O.obj();
   const names = O.obj();

@@ -3,10 +3,9 @@
 const O = require('omikron');
 const esolangs = require('../..');
 const TilesGrid = require('./tiles-grid');
-const BitStream = require('./bit-stream');
 const Vector = require('./vector');
 
-const run = (src, input, output) => {
+const run = (src, input) => {
   src = src.toString();
 
   const io = new O.IO(input, 0, 1);
