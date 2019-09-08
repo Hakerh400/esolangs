@@ -1,0 +1,7 @@
+main str = invert str;
+p a b = ? a 0 b 1 b;
+z = 0 z;
+
+invert str = ? str
+  1 p .str invert ..str
+  z;
