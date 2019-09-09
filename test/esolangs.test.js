@@ -9,8 +9,8 @@ const esolangs = require('..');
 const cli = require('./cli');
 const skipTests = require('./skip-tests');
 
-const TEST_CLI = 1;
 const SINGLE_LANG = null;
+const TEST_CLI = SINGLE_LANG === null;
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');

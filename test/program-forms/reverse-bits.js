@@ -10,8 +10,8 @@ module.exports = src => {
     '',
     'A',
   ].map(a => {
-    return [a, Buffer.from(a).reverse().map(a => {
+    return [a, Buffer.from(Buffer.from(a).reverse().map(a => {
       return parseInt(a.toString(2).split('').reverse().join('').padEnd(8, '0'), 2);
-    })];
+    }), 'binary')];
   });
 };

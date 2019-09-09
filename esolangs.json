@@ -64,5 +64,10 @@
     "id": "intramodular-transaction",
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Intramodular_Transaction"
+  }, {
+    "name": "Encapsulation",
+    "id": "encapsulation",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Encapsulation"
   }
 ]

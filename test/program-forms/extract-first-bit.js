@@ -11,8 +11,8 @@ module.exports = src => {
     'A',
     '123',
   ].map(a => {
-    return [a, Buffer.from(Buffer.from(a).map(a => {
-      return a ^ 255;
-    }), 'binary')];
+    return [a, Buffer.from(O.match(O.str2bits(Buffer.from(a).toString('binary')).slice(0, 1), /.{8}|.+/g).map(a => {
+      return O.sfcc(parseInt(O.rev(a), 2));
+    }).join(''), 'binary')];
   });
 };
