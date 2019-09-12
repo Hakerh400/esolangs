@@ -1,4 +1,4 @@
-main str = str;main input = reverse input;
+main input = reverse input;
 p a b = ? a 1 b 0 b;
 
 reverse str = ? str

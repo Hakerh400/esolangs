@@ -67,6 +67,7 @@ const run = (src, input) => {
     const arity = opnds.length;
 
     if(content.trim() === '') err(`Missing definition of operator ${O.sf(id2name(opId))}`);
+    if(opId in ops) err(`Duplicate definition of ${O.sf(id2name(opId))}`);
 
     ops[opId] = {
       id: opId,
