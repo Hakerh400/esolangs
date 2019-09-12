@@ -9,6 +9,5 @@ module.exports = src => {
   return [
     'abcde',
     '1234xyz',
-    src,
   ].map(a => [a, Buffer.from(a).slice(0, 1)]);
 };
