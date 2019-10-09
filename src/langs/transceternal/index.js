@@ -5,7 +5,7 @@ const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
 
-const INCLUDE_INPUT = 1;
+const EXCLUDE_INPUT = 0;
 const OUTPUT_BITS = 0;
 const CHECK_SNAPSHOT = 0;
 const NORMALIZE = 0;
@@ -29,7 +29,7 @@ const run = (src, input) => {
     for(const token of tokens){
       const last = O.last(stack);
       const isNew = !(token in nodes);
-      const node =  isNew ? [] : nodes[token];
+      const node = isNew ? [] : nodes[token];
 
       if(isNew) nodes[token] = node;
       last.push(node);
@@ -100,7 +100,7 @@ const run = (src, input) => {
     log(str);
   }
 
-  if(INCLUDE_INPUT){
+  if(!EXCLUDE_INPUT){
     root = [root];
 
     const b0 = getB0();
