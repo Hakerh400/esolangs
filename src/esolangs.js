@@ -19,7 +19,7 @@ const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
 
 const esolangs = {
-  version: `v${packageJson.version}`,
+  version: packageJson.version,
 
   getLangs(){
     return langsList.map(a => a.name);

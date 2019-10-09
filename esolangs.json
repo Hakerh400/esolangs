@@ -69,5 +69,10 @@
     "id": "encapsulation",
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Encapsulation"
+  }, {
+    "name": "Transceternal",
+    "id": "transceternal",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Transceternal"
   }
 ]

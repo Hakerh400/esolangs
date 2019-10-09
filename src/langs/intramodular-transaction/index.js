@@ -90,7 +90,7 @@ const run = (src, input) => {
     const stack = [];
 
     const errOp = msg => {
-      err(`${msg} while parsing ${O.sf(id2name(opId))}`)
+      err(`${msg} while parsing ${O.sf(id2name(opId))}`);
     };
 
     const push = elem => {
