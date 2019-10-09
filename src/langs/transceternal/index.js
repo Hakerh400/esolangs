@@ -8,6 +8,7 @@ const esolangs = require('../..');
 const INCLUDE_INPUT = 1;
 const OUTPUT_BITS = 0;
 const CHECK_SNAPSHOT = 0;
+const NORMALIZE = 0;
 
 const run = (src, input) => {
   src = src.toString();
@@ -86,6 +87,18 @@ const run = (src, input) => {
 
   const getB0 = () => root[0][0][0];
   const getB1 = () => root[0][0][1];
+
+  if(NORMALIZE){
+    const arr = ser(root);
+    let str = '';
+
+    for(let i = 0; i !== arr.length; i++){
+      if(i !== 0) str += i % 32 === 0 ? '\n' : ' ';
+      str += O.hex(arr[i], 1);
+    }
+
+    log(str);
+  }
 
   if(INCLUDE_INPUT){
     root = [root];
