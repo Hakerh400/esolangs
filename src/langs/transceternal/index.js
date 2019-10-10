@@ -40,7 +40,6 @@ const run = (src, input) => {
       }
 
       if(isNew) stack.push(node);
-      if(stack.length === 0) break;
     }
 
     for(const node of stack)
