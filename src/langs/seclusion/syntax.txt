@@ -1,0 +1,48 @@
+script{ insts }
+
+insts{ s0 inst*s0 s0 }
+inst{ move | inc | put | control }
+
+move{ arr }
+inc{ "+" }
+put{ putNum | putArr }
+control{ if | while | thread | jump }
+block{ "{" insts "}" }
+
+putNum{ "." s0 arr }
+putArr{ "!" s0 arr }
+
+if{ ifNz | ifOdd }
+ifNz{ "?" s0 ifBlock }
+ifOdd{ ":" s0 ifBlock }
+ifBlock{ "{" insts{2}";" "}" }
+
+while{ whileNz | whileOdd }
+whileNz{ "-" s0 block }
+whileOdd{ "/" s0 block }
+
+thread{ block }
+jump{ "^" s0 arr }
+
+arr{
+  num |
+  "(" s0 arr*arrSep s0 ")" |
+  get |
+  bridge
+}
+arrSep{ s0 "," s0 }
+
+num{ [0-9]+ }
+get{ getNum | getArr }
+getNum{ "~" s0 arr }
+getArr{ "%" s0 arr }
+bridge{ "*" s0 arr }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n\t]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment | "|" }
+s0{ s* }
+s1{ s+ }

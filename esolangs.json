@@ -74,5 +74,10 @@
     "id": "transceternal",
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Transceternal"
+  }, {
+    "name": "Seclusion",
+    "id": "seclusion",
+    "version": "1.0.0",
+    "details": ""
   }
 ]
