@@ -29,10 +29,6 @@ class Thread{
     }
 
     this.inst.tick(this);
-  }
-
-  advance(){
-    this.inst = this.inst.next;
     this.eng.th = this.next;
   }
 }

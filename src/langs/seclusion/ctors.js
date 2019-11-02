@@ -27,6 +27,17 @@ class Instruction extends Base{
 }
 
 class Move extends Instruction{
+  constructor(arr){
+    super();
+    this.arr = arr;
+  }
+
+  tick(th){
+    const {node} = th;
+
+    th.node = node.nav(this.arr.eval(node));
+    th.inst = this.next;
+  }
 }
 
 class Increment extends Instruction{
@@ -34,7 +45,7 @@ class Increment extends Instruction{
     const {node} = th;
 
     node.val++;
-    th.advance();
+    th.inst = this.next;
   }
 }
 
@@ -45,17 +56,17 @@ class Put extends Instruction{
   }
 }
 
-class PutNum extends Put{
+class PutNumber extends Put{
   tick(th){
     const {node} = th;
     const arr = this.arr.eval(node);
     
     node.val = abs(node.val - arr.reduce((a, b) => a ^ b, 0));
-    th.advance();
+    th.inst = this.next;
   }
 }
 
-class PutArr extends Put{
+class PutArray extends Put{
   tick(th){
     const {node} = th;
     const arr = this.arr.eval(node);
@@ -67,12 +78,11 @@ class PutArr extends Put{
       n.val = abs(n.val - num);
     });
 
-    th.advance();
+    th.inst = this.next;
   }
 }
 
-class Control extends Instruction{
-}
+class Control extends Instruction{}
 
 class ArrayElement extends Base{
   get isNum(){ return 0; }
@@ -117,22 +127,31 @@ class Array extends ArrayElement{
   get isArr(){ return 1; }
 
   eval(node){
-    const {elems} = this;
-    const stack = [];
-    const arr = [];
+    const stack = [[null, this.elems, [], 0]];
 
-    for(let i = 0; i !== elems.length; i++){
-      const elem = elems[i];
+    loop: while(1){
+      const sf = O.last(stack);
+      const [op, elems, arr, index] = sf;
 
-      if(elem.isNum){
-        arr.push(elem.val);
-        continue;
+      for(let i = index; i !== elems.length; i++){
+        const elem = elems[i];
+
+        if(elem.isNum){
+          arr.push(elem.val);
+          continue;
+        }
+
+        sf[3] = i + 1;
+        stack.push([elem, elem.arr.elems, [], 0]);
+        continue loop;
       }
 
-      O.noimpl('!elem.isNum');
-    }
+      if(op === null)
+        return arr;
 
-    return arr;
+      stack.pop();
+      O.last(stack)[2].push(op.apply(node, arr));
+    }
   }
 
   toArr(){ return this; }
@@ -145,26 +164,19 @@ class Get extends ArrayElement{
   }
 
   get isGet(){ return 1; }
-  get(node, arr){ O.virtual('get'); }
+  apply(node, arr){ O.virtual('apply'); }
+}
 
-  nav(node, arr){
-    for(const num of arr)
-      node = node.nav(num);
-
-    return node;
+class GetNumber extends Get{
+  apply(node, arr){
+    node = node.navArr(arr);
+    return [node.val];
   }
 }
 
-class GetNum extends Get{
-  get(node, arr){
-    node = this.nav(node, arr);
-    return node.val;
-  }
-}
-
-class GetArr extends Get{
-  get(node, arr){
-    node = this.nav(node, arr);
+class GetArray extends Get{
+  apply(node, arr){
+    node = node.navArr(arr);
 
     const len = node.val;
     arr = [];
@@ -183,13 +195,13 @@ module.exports = {
   Move,
   Increment,
   Put,
-  PutNum,
-  PutArr,
+  PutNumber,
+  PutArray,
   Control,
   ArrayElement,
   Number,
   Array,
   Get,
-  GetNum,
-  GetArr,
+  GetNumber,
+  GetArray,
 };

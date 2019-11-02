@@ -7,9 +7,10 @@ const SG = require('../../serializable-graph');
 const SF = require('../stack-frame');
 const cgs = require('.');
 
-class Array extends SG.Node{
+class Array{
+  ptrsNum = 0;
+  
   constructor(g, arr=null){
-    super(g);
     if(g.dsr) return;
 
     if(arr !== null)

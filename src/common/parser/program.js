@@ -57,42 +57,18 @@ class Program extends SG{
       const srcStr = new cgs.String(this, this.#source);
       const fileName = cgs.str(this, DEFAULT_FILE_NAME);
       const script = new cgs.Script(this, srcStr, fileName);
-      this.#intp = new this.#lang.Interpreter(this, script).persist();
-
-      this.calledGC = 0;
-      this.checkSize();
-
+      this.#intp = new this.#lang.Interpreter(this, script);
       this.#inited = 1;
       return;
     }
 
     this.#intp.tick();
-    this.checkSize();
   }
 
   deser(ser){
     super.deser(ser);
     this.#intp = this.main;
     return this;
-  }
-
-  checkSize(){
-    this.calledGC = 0;
-
-    const max = this.criticalSize;
-    if(max === null || this.size <= max) return;
-    this.calledGC = 1;
-
-    const {size} = this;
-    if(REFRESH) this.refresh();
-    else this.gc();
-
-    if(this.size > max)
-      this.onError();
-  }
-
-  onError(){
-    throw new RangeError('Out of memory');
   }
 }
 

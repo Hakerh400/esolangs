@@ -58,7 +58,7 @@ class CompileDef extends Compile{
     if(!(funcName in compiler))
       throw new TypeError(`Missing implementation for syntax rule ${O.sf(name)}`);
 
-    const func = funcName in compiler ? compiler[funcName] : null;
+    const func = compiler[funcName];
 
     if(this.nval)
       return th.call(new CompileArr(g, compiler, def.pat.elems));

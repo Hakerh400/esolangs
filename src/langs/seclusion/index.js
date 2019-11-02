@@ -5,8 +5,8 @@ const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
 const parser = require('../../common/parser');
-const Engine = require('./engine');
 const syntaxRules = require('./syntax-rules');
+const Engine = require('./engine');
 
 const cwd = __dirname;
 const syntax = O.rfs(path.join(cwd, 'syntax.txt'), 1);
