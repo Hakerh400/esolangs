@@ -26,7 +26,7 @@ class CompilerBase extends SF{
 
     if(this.i++ === 0) return th.call(new CompileDef(g, this, this.ast.node));
 
-    g.setRetVal(this.rval.v);
+    g.setRetVal(this.rval);
     th.ret(cgs.Null.get(g));
     g.stage = 2;
   }
@@ -55,6 +55,9 @@ class CompileDef extends Compile{
     const name = def.ref.name;
 
     const funcName = `[${name}]`;
+    if(!(funcName in compiler))
+      throw new TypeError(`Missing implementation for syntax rule ${O.sf(name)}`);
+
     const func = funcName in compiler ? compiler[funcName] : null;
 
     if(this.nval)
