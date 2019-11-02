@@ -107,9 +107,6 @@ class Thread extends SG.Node{
   ret(val){
     let {sf} = this;
 
-    if(typeof val !== 'object')
-      throw new TypeError(`[TH.RET] ${SG.getName(val, 1)} is not an object or null`);
-
     if(sf.isFunc) this.removeFunc();
     sf = this.sf = sf.prev;
 

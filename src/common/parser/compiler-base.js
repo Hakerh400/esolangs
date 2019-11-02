@@ -7,7 +7,6 @@ const SG = require('../serializable-graph');
 const SF = require('./stack-frame');
 const cgs = require('./common-graph-nodes');
 const AST = require('./ast');
-const Wrapper = require('./wrapper');
 
 const {ASTNode, ASTDef, ASTPat, ASTElem, ASTNterm, ASTTerm} = AST;
 
@@ -66,7 +65,7 @@ class CompileDef extends Compile{
 
     const compiled = func !== null ? func.call(compiler, def, th) : null;
     if(compiled instanceof SF) compiled.srcPos = def.index;
-    if(th.sf === this) th.ret(new Wrapper(g, compiled));
+    if(th.sf === this) th.ret(compiled);
   }
 }
 

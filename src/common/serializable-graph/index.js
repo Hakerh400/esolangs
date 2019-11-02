@@ -306,10 +306,6 @@ class SerializableGraph extends O.Serializable{
 }
 
 class Node{
-  // TODO: delete this
-  static id = 0;
-  id = Node.id++;
-
   static ptrsNum = 0;
 
   persistent = 0;

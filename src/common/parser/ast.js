@@ -67,6 +67,9 @@ class ASTNode extends SG.Node{
 class ASTDef extends ASTNode{
   static ptrsNum = this.keys(['pats', 'pat', 'elems']);
 
+  get es(){ return this.elems; }
+  set es(a){ this.elems = a; }
+
   constructor(graph, ast, index, ref){
     super(graph, ast, index, ref);
     if(graph.dsr) return;
@@ -125,6 +128,9 @@ class ASTDef extends ASTNode{
 class ASTPat extends ASTNode{
   static ptrsNum = this.keys(['elems', 'indices', 'lens']);
 
+  get es(){ return this.elems; }
+  set es(a){ this.elems = a; }
+
   constructor(graph, ast, index, ref){
     super(graph, ast, index, ref);
     if(graph.dsr) return;
@@ -172,8 +178,8 @@ class ASTElem extends ASTNode{
     super(graph, ast, index, ref);
     if(graph.dsr) return;
 
-    this.arr = new cgs.Array(this.graph);
-    this.seps = new cgs.Array(this.graph);
+    this.arr = [];
+    this.seps = [];
   }
 
   get fst(){ return this.arr[0]; }
