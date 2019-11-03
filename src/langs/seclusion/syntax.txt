@@ -26,10 +26,12 @@ jump{ "^" s0 arr }
 
 arr{
   num |
+  emptyArr |
   "(" s0 arr*arrSep s0 ")" |
   get |
   bridge
 }
+emptyArr{ "#" }
 arrSep{ s0 "," s0 }
 
 num{ [0-9]+ }

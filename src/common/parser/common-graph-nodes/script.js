@@ -20,13 +20,13 @@ class Script extends SG.Node{
 
   // TODO: reduce duplication
   getLine(lineNum){
-    const {str} = this.source;
+    const str = this.source;
     const lines = str.match(/.*?(?:\r\n|\r|\n)|.+/gs) || [];
     return lineNum <= lines.length ? lines[lineNum - 1] : '';
   }
 
   getLineNumber(pos){
-    const {str} = this.source;
+    const str = this.source;
     const lines = str.match(/.*?(?:\r\n|\r|\n)|.+/gs) || [];
 
     let lineNum = 0;
@@ -41,7 +41,7 @@ class Script extends SG.Node{
   }
 
   getLinePos(pos){
-    const {str} = this.source;
+    const str = this.source;
     const lines = str.match(/.*?(?:\r\n|\r|\n)|.+/gs) || [];
 
     let lineNum = 0;

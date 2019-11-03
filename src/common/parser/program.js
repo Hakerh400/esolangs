@@ -8,13 +8,9 @@ const PL = require('./programming-language');
 const StdIO = require('./stdio');
 const cgs = require('./common-graph-nodes');
 
-const REFRESH = 0;
-
 const DEFAULT_FILE_NAME = 'script.txt';
 
 class Program extends SG{
-  stdin = new StdIO();
-  stdout = new StdIO();
   stderr = new StdIO();
 
   #lang = null;
@@ -54,8 +50,8 @@ class Program extends SG{
 
   tick(){
     if(!this.#inited){
-      const srcStr = new cgs.String(this, this.#source);
-      const fileName = cgs.str(this, DEFAULT_FILE_NAME);
+      const srcStr = this.#source;
+      const fileName = DEFAULT_FILE_NAME;
       const script = new cgs.Script(this, srcStr, fileName);
       this.#intp = new this.#lang.Interpreter(this, script);
       this.#inited = 1;

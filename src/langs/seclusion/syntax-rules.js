@@ -7,27 +7,15 @@ const cs = require('./ctors');
 
 const rules = {
   ['[script]']: e => {
-    const firstInst = e.fst.fst;
-    const mainBlock = new cs.Block(firstInst);
+    const mainBlock = new cs.Block(e.fst.fst);
 
-    for(let inst = firstInst; inst !== null; inst = inst.next)
-      inst.parent = mainBlock;
+    cs.Instruction.resolveNext();
+    cs.Block.resolveInsts();
 
     return mainBlock;
   },
 
-  ['[insts]']: e => {
-    const insts = e.es[1].arr;
-    let inst = null;
-
-    for(let i = insts.length - 1; i !== -1; i--){
-      insts[i].next = inst;
-      inst = insts[i];
-    }
-
-    return inst;
-  },
-  
+  ['[insts]']: e => e.es[1].arr,
   ['[inst]']: e => e.fst.fst,
   ['[move]']: e => new cs.Move(e.fst.fst),
   ['[inc]']: e => new cs.Increment(),
@@ -37,21 +25,22 @@ const rules = {
   ['[putNum]']: e => new cs.PutNumber(e.es[2].fst),
   ['[putArr]']: e => new cs.PutArray(e.es[2].fst),
   ['[if]']: e => e.fst.fst,
-  ['[ifNz]']: e => e.fst.fst,
-  ['[ifOdd]']: e => e.fst.fst,
-  ['[ifBlock]']: e => e.fst.fst,
+  ['[ifNz]']: e => new cs.IfNz(...e.es[2].fst),
+  ['[ifOdd]']: e => new cs.IfOdd(...e.es[2].fst),
+  ['[ifBlock]']: e => e.es[1].arr.map(a => new cs.Block(a)),
   ['[while]']: e => e.fst.fst,
-  ['[whileNz]']: e => e.fst.fst,
-  ['[whileOdd]']: e => e.fst.fst,
+  ['[whileNz]']: e => new cs.WhileNz(e.es[2].fst),
+  ['[whileOdd]']: e => new cs.WhileOdd(e.es[2].fst),
   ['[thread]']: e => e.fst.fst,
   ['[jump]']: e => e.fst.fst,
-  ['[arr]']: e => new cs.Array(e.es[e.patIndex === 1 ? 2 : 0].arr),
+  ['[arr]']: e => new cs.Array(e.es[e.patIndex === 2 ? 2 : 0].arr),
+  ['[emptyArr]']: e => new cs.Array(),
   ['[arrSep]']: e => e.fst.fst,
   ['[num]']: e => new cs.Number(e | 0),
   ['[get]']: e => e.fst.fst,
   ['[getNum]']: e => new cs.GetNumber(e.es[2].fst),
   ['[getArr]']: e => new cs.GetArray(e.es[2].fst),
-  ['[bridge]']: e => e.fst.fst,
+  ['[bridge]']: e => new cs.Bridge(e.es[2].fst),
   ['[whitespace]']: e => e.fst.fst,
   ['[comment]']: e => e.fst.fst,
   ['[inlineComment]']: e => e.fst.fst,

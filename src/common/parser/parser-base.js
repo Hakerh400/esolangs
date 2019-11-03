@@ -28,8 +28,8 @@ class ParserBase extends SF{
     const {syntax} = g.lang;
 
     this.ast = new AST(g, syntax, script.source);
-    this.cache = new cgs.Array(g);
-    this.parsing = new cgs.Array(g);
+    this.cache = [];
+    this.parsing = [];
     this.sfDef = new ParseDef(g, this, 0, syntax.defs[MAIN_DEF]['*']);
     this.exec = exec;
 
@@ -49,9 +49,10 @@ class ParserBase extends SF{
       this.srcPos = this.cache.reduce((pos, map) => {
         if(map === null) return pos;
 
-        return map.arr.reduce((pos, elem) => {
-          return Math.max(elem[1].end, pos);
-        }, pos);
+        for(const val of map.values())
+          pos = Math.max(val.end, pos);
+
+        return pos;
       }, 0);
 
       return th.throw(new cgs.SyntaxError(g, 'Invalid syntax'));
@@ -97,15 +98,19 @@ class ParserBase extends SF{
 
   prepareCacheIndex(index){
     const {g, cache} = this;
-    if(index >= cache.length) cache.length = index + 1;
-    if(cache[index] === null) cache[index] = new cgs.Map(g);
+    if(index >= cache.length)
+      while(cache.length <= index)
+        cache.push(null);
+    if(cache[index] === null) cache[index] = new Map();
     return cache[index];
   }
 
   prepareParsingIndex(index){
     const {g, parsing} = this;
-    if(index >= parsing.length) parsing.length = index + 1;
-    if(parsing[index] === null) parsing[index] = new cgs.Set(g);
+    if(index >= parsing.length)
+      while(parsing.length <= index)
+        parsing.push(null);
+    if(parsing[index] === null) parsing[index] = new Set();
     return parsing[index];
   }
 }
@@ -139,7 +144,7 @@ class ParseDef extends Parse{
 
   tick(th){
     const {g, parser, index, ref: def} = this;
-    const {str} = parser.ast.str;
+    const {str} = parser.ast;
     const pSet = parser.prepareParsingIndex(index);
 
     if(this.node === null){
@@ -190,7 +195,7 @@ class ParsePat extends Parse{
 
   tick(th){
     const {g, parser, index, ref: pat} = this;
-    const {str} = parser.ast.str;
+    const {str} = parser.ast;
 
     if(this.node === null){
       let node = parser.getNodeFromCache(index, pat, 1);
@@ -255,7 +260,7 @@ class ParseElem extends Parse{
 
   tick(th){
     const {g, parser, index, targetLen, ref: elem} = this;
-    const {str} = parser.ast.str;
+    const {str} = parser.ast;
 
     const gr = elem.greediness === 1;
     const ng = elem.greediness === 0;
@@ -314,12 +319,12 @@ class ParseElem extends Parse{
         if(node.ref instanceof Element.String){
           const substr = str.slice(index, index + node.ref.str.length);
           if(node.ref.str !== substr) return done();
-          node.arr.push(new cgs.String(g, substr));
+          node.arr.push(substr);
           this.index += node.ref.str.length;
         }else if(node.ref instanceof Element.CharsRange){
           if(index === str.length || node.getLen() === lenMax || !node.ref.set.has(O.cc(str, index))) return done();
-          if(node.arr.length === 0) node.arr.push(new cgs.String(g));
-          node.arr[0].str += str[index];
+          if(node.arr.length === 0) node.arr.push('');
+          node.arr[0] += str[index];
           this.index++;
         }
       }

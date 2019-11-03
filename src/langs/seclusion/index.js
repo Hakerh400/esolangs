@@ -13,7 +13,7 @@ const syntax = O.rfs(path.join(cwd, 'syntax.txt'), 1);
 
 const run = (src, input) => {
   const parsed = parser.parse(syntax, src, syntaxRules);
-  if(parsed === null) throw '';
+  if(parsed === null) return '';
 
   const eng = new Engine(parsed, Buffer.from(input));
   eng.run();

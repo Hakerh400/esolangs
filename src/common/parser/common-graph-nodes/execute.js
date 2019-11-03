@@ -9,7 +9,7 @@ const cgs = require('.');
 
 class Execute extends cgs.Function{
   constructor(g, script){
-    super(g, script, new cgs.String(g, 'execute'));
+    super(g, script, 'execute');
     if(g.dsr) return;
   }
 

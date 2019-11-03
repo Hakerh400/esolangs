@@ -60,7 +60,7 @@ class ASTNode extends SG.Node{
   }
 
   toString(){
-    return this.ast.str.str.slice(this.index, this.end);
+    return this.ast.str.slice(this.index, this.end);
   }
 }
 
@@ -74,7 +74,7 @@ class ASTDef extends ASTNode{
     super(graph, ast, index, ref);
     if(graph.dsr) return;
 
-    this.pats = new cgs.Array(this.graph);
+    this.pats = [];
     this.pat = null;
     this.elems = null;
     this.patIndex = 0;
