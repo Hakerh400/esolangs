@@ -93,6 +93,8 @@ class Instruction extends Base{
     Instruction.insts = null;
   }
 
+  get isControl(){ return 0; }
+
   tick(th){ O.virtual('tick'); }
 }
 
@@ -153,9 +155,11 @@ class PutArray extends Put{
 }
 
 class Control extends Instruction{
+  get isControl(){ return 1; }
   get isIf(){ return 0; }
   get isWhile(){ return 0; }
   get isThread(){ return 0; }
+  get isJump(){ return 0; }
 }
 
 class If extends Control{
@@ -215,11 +219,49 @@ class WhileOdd extends While{
 }
 
 class Thread extends Control{
+  constructor(block){
+    super();
+    this.block = block;
+    block.parent = this;
+  }
+
   get isThread(){ return 1; }
+
+  tick(th){
+    th.spawn(this.block);
+    th.inst = this.next;
+  }
 }
 
 class Jump extends Control{
-  
+  constructor(arr){
+    super();
+    this.arr = arr;
+  }
+
+  get isJump(){ return 1; }
+
+  tick(th){
+    const {node} = th;
+    const arr = this.arr.eval(node);
+
+    const blocks = [];
+    let block = this.parent;
+
+    while(1){
+      const parentInst = block.parent;
+
+      if(parentInst === null || parentInst.isControl && parentInst.isThread){
+        blocks.push(block);
+        if(parentInst === null) break;
+      }
+
+      block = parentInst.parent;
+    }
+
+    block = blocks[arr.reduce((a, b) => a + b, 0) % blocks.length];
+    th.inst = block.inst;
+  }
 }
 
 class ArrayElement extends Base{

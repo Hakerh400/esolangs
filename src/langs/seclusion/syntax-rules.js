@@ -5,6 +5,8 @@ const path = require('path');
 const O = require('omikron');
 const cs = require('./ctors');
 
+const maxInt = Number.MAX_SAFE_INTEGER;
+
 const rules = {
   ['[script]']: e => {
     const mainBlock = new cs.Block(e.fst.fst);
@@ -31,12 +33,21 @@ const rules = {
   ['[while]']: e => e.fst.fst,
   ['[whileNz]']: e => new cs.WhileNz(e.es[2].fst),
   ['[whileOdd]']: e => new cs.WhileOdd(e.es[2].fst),
-  ['[thread]']: e => e.fst.fst,
-  ['[jump]']: e => e.fst.fst,
+  ['[thread]']: e => new cs.Thread(e.fst.fst),
+  ['[jump]']: e => new cs.Jump(e.es[2].fst),
   ['[arr]']: e => new cs.Array(e.es[e.patIndex === 2 ? 2 : 0].arr),
   ['[emptyArr]']: e => new cs.Array(),
   ['[arrSep]']: e => e.fst.fst,
-  ['[num]']: e => new cs.Number(e | 0),
+
+  ['[num]']: e => {
+    const num = Number(String(e));
+
+    if(num > maxInt)
+      return e.err('Too large integer');
+
+    return new cs.Number(e | 0);
+  },
+
   ['[get]']: e => e.fst.fst,
   ['[getNum]']: e => new cs.GetNumber(e.es[2].fst),
   ['[getArr]']: e => new cs.GetArray(e.es[2].fst),

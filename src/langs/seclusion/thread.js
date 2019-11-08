@@ -31,6 +31,15 @@ class Thread{
     this.inst.tick(this);
     this.eng.th = this.next;
   }
+
+  spawn(block){
+    const thNew = new Thread(this.eng, this.node, block, this, this.next);
+
+    this.next.prev = thNew;
+    this.next = thNew;
+
+    return thNew;
+  }
 }
 
 module.exports = Thread;

@@ -54,6 +54,11 @@ class ASTNode extends SG.Node{
   reset(){ O.virtual('reset'); }
   update(){ O.virtual('update'); }
 
+  err(msg){
+    const {g} = this;
+    g.th.throw(new cgs.SyntaxError(g, msg));
+  }
+
   finalize(){
     this.done = 1;
     return this;

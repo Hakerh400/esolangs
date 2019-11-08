@@ -66,7 +66,7 @@ class CompileDef extends Compile{
     def.pat.elems = this.rval;
     this.rval = null;
 
-    const compiled = func !== null ? func.call(compiler, def, th) : null;
+    const compiled = func.call(compiler, def, th);
     if(compiled instanceof SF) compiled.srcPos = def.index;
     if(th.sf === this) th.ret(compiled);
   }
