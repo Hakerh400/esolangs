@@ -10,7 +10,7 @@ const {abs} = Math;
 class Base{}
 
 class Block extends Base{
-  static blocks = [];
+  static blocks = null;
 
   constructor(insts){
     super();
@@ -51,7 +51,7 @@ class Block extends Base{
 }
 
 class Instruction extends Base{
-  static insts = [];
+  static insts = null;
 
   constructor(){
     super();
