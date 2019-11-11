@@ -79,5 +79,10 @@
     "id": "seclusion",
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Seclusion"
+  }, {
+    "name": "Daydream",
+    "id": "daydream",
+    "version": "1.0.0",
+    "details": ""
   }
 ]
