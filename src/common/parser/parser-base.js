@@ -305,7 +305,9 @@ class ParseElem extends Parse{
       this.i = 1;
     }else{
       if(node instanceof ASTNterm){
-        if(!node.ref.ruleRange.isAny()) O.noimpl('!ref.ruleRange.isAny()');
+        if(!node.ref.ruleRange.isAny())
+          O.exit(node.ref.rule);
+
         if(this.nval)
           return th.call(new ParseDef(g, parser, index, node.ref.rule['*']));
 

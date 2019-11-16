@@ -13,9 +13,6 @@ const cwd = __dirname;
 const syntax = O.rfs(path.join(cwd, 'syntax.txt'), 1);
 
 const run = (src, input) => {
-  cs.Instruction.insts = [];
-  cs.Block.blocks = [];
-
   const parsed = parser.parse(syntax, src, ast);
   if(parsed === null) return '';
 

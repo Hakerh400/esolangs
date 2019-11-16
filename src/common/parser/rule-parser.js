@@ -511,10 +511,40 @@ function parse(syntax, str){
     }
   }
 
-  // TODO: throw error if some referenced definition does not exist
   // Replace rule names by real rules in non-terminal elements
-  for(const nterm of nterms)
-    nterm.rule = rules[nterm.rule];
+  for(const nterm of nterms){
+    if(!(nterm.rule in rules))
+      throw new SyntaxError(`Missing syntax definition for ${O.sf(nterm.rule)}`);
+
+    const rule = rules[nterm.rule];
+
+    if(!('*' in rule)){
+      const indices = O.sortAsc(
+        O.keys(rule)
+          .filter(a => /^\d+$/.test(a))
+          .map(a => a | 0)
+      );
+
+      const newRule = new Rule(syntax, pack, rule.name, rule.greediness, new Range());
+      const sect = new Section.Include();
+
+      for(const index of indices){
+        const pat = new Pattern();
+        const elem = new Element.NonTerminal(rule[index]);
+
+        elem.ruleRange.start = 1;
+        elem.ruleRange.end = 1;
+
+        pat.addElem(elem);
+        sect.addPat(pat);
+      }
+
+      newRule.addSect(sect);
+      rule['*'] = newRule;
+    }
+
+    nterm.rule = rule;
+  }
 
   return rules;
 }

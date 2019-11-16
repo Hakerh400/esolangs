@@ -1,0 +1,91 @@
+script{ s0 globalEntity*s0 s0 }
+
+globalEntity{ varDef | funcDef }
+
+varDef{ type s0 ident s0 "=" s0 expr ";" }
+funcDef{ type s0 ident s0 "(" s0 formalArgs s0 ")" s0 "{" s0 funcBody s0 "}" }
+
+type{ typeName s0 "*"*s0 }
+
+typeName{
+  "void" |
+  "int"
+}
+
+formalArgs{ formalArg*formalArgSep }
+formalArg{ type s0 ident }
+formalArgSep{ s0 "," s0 }
+
+funcBody{ statement*s0 }
+
+statement{
+  varDef |
+  expr |
+  return
+}
+
+return{
+  "return"
+}
+
+expr{ expr1_ }
+
+expr1_{ expr1 | expr2_ }
+expr2_{ expr2 | expr3_ }
+expr3_{ expr3 | expr4_ }
+expr4_{ expr4 | expr5_ }
+expr5_{ expr5 | expr6_ }
+expr6_{ expr6 | expr7_ }
+expr7_{ expr7 | expr8_ }
+expr8_{ expr8 | expr9_ }
+expr9_{ expr9 | expr10_ }
+expr10_{ expr10 | expr11_ }
+expr11_{ expr11 | expr12_ }
+expr12_{ expr12 | expr13_ }
+expr13_{ expr13 | expr14_ }
+expr14_{ expr14 | expr15_ }
+expr15_{ expr15 | expr16_ }
+expr16_{ expr16 | expr17_ }
+expr17_{ expr17 | expr18_ }
+expr18_{ expr18 | expr19_ }
+expr19_{ expr19 | expr20_ }
+expr20_{ expr20 }
+
+expr1{ "..." }
+expr2{ "..." }
+expr3{ "..." }
+expr4{ "..." }
+expr5{ "..." }
+expr6{ "..." }
+expr7{ "..." }
+expr8{ "..." }
+expr9{ "..." }
+expr10{ "..." }
+expr11{ "..." }
+expr12{ "..." }
+expr13{ add | sub }
+expr14{ "..." }
+expr15{ "..." }
+expr16{ "..." }
+expr17{ "..." }
+expr18{ "..." }
+expr19{ "..." }
+expr20{ literal | ident | grouping }
+
+add{ expr13_ s0 "+" s0 expr14_ }
+sub{ expr13_ s0 "-" s0 expr14_ }
+
+grouping{ "(" expr ")" }
+ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
+literal{ number }
+number{ integer }
+integer{ [+\-]? [0-9]+ }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n\t]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

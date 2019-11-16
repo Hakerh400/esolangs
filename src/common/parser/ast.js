@@ -94,6 +94,7 @@ class ASTDef extends ASTNode{
   }
 
   get fst(){ return this.elems[0]; }
+  get pti(){ return this.patIndex; }
 
   reset(){
     this.pats.length = 0;
@@ -231,7 +232,10 @@ class ASTTerm extends ASTElem{
   update(){
     const {arr, seps} = this;
 
-    this.len = arr.reduce((n, s) => n + s.length, 0);
+    if(arr.length !== 0 && arr.length === seps.length)
+      seps.pop();
+
+    this.len = arr.reduce((n, s) => n + s.length, 0) + seps.reduce((n, e) => n + e.len, 0);
     this.done = 1;
 
     return this;

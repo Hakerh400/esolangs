@@ -17,7 +17,9 @@ const parse = (syntax, script, rules) => {
   class Parser extends ParserBase{}
   class Compiler extends CompilerBase{}
   class Interpreter extends InterpreterBase{}
-  Object.assign(Compiler.prototype, rules);
+
+  for(const ruleName of O.keys(rules))
+    Compiler.prototype[`[${ruleName}]`] = rules[ruleName];
 
   const ctors = {Parser, Compiler, Interpreter};
   for(const ctroName in ctors)

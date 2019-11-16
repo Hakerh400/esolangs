@@ -1,0 +1,10 @@
+script{ s0 }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n\t]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment}
+s0{ s* }
+s1{ s+ }
