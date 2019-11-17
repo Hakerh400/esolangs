@@ -33,6 +33,8 @@ const regs = {
   sp: 0x02,
   ax: 0x03,
   bx: 0x04,
+  cx: 0x05,
+  dx: 0x06,
 };
 
 class Engine{
@@ -77,7 +79,46 @@ class Engine{
     const add = a => asm.push(['inst', a]);
 
     const data = (type, a) => asm.push(['data', type, a]);
-    const int = a=> asm.push(['data', 'int', a]);
+    const int = a => asm.push(['data', 'int', a]);
+
+    const inc = a => add(`add ${a}, 1`);
+    const dec = a => add(`sub ${a}, 1`);
+
+    const push = a => {
+      add(`mov [sp], ${a}`);
+      dec('sp');
+    };
+
+    const pop = a => {
+      inc('sp');
+      add(`mov ${a}, [sp]`);
+    };
+
+    const call = (a, b=0) => {
+      add('mov dx, ip');
+      add('add dx, 15');
+      push('dx');
+      add(`mov ip, ${a}`);
+      if(b !== 0) add(`add sp, ${b}`);
+    };
+
+    const ret = (a=null) => {
+      if(a !== null) add(`mov ax, ${a}`);
+      pop('dx');
+      add('mov ip, dx');
+    };
+
+    const enter = a => {
+      push('bp');
+      add('mov bp, sp');
+      add(`sub sp, ${a}`);
+    };
+
+    const leave = a => {
+      add('mov sp, bp');
+      pop('bp');
+      ret();
+    };
 
     int(':start');
     int('0');
@@ -86,11 +127,12 @@ class Engine{
     int('0');
 
     label('start');
-    add('out 1, 3');
-    add('out 2, 49');
-    add('out 3, 50');
-    add('out 4, 51');
+    call(':@main');
     add('out 0, 1');
+
+    label(`@${mainFunc.name}`);
+    enter(mainFunc.vars.size);
+    leave(0);
 
     label('end');
 
@@ -115,7 +157,12 @@ class Engine{
     const parseOp = (parts, index) => {
       const i = index--;
       if(i >= parts.length) return null;
-      return BigInt(parts[i]);
+
+      const str = parts[i];
+      const indirection = str.match(/^\[*/)[0].length;
+      const op = BigInt(str.slice(indirection, str.length - indirection));
+
+      return [op, indirection - 1];
     };
 
     const labels = O.obj();
@@ -138,10 +185,15 @@ class Engine{
           continue;
         }
 
-        str = str.replace(/\:([a-zA-Z0-9_]+)/g, (a, b) => {
+        str = str.replace(/\:([a-zA-Z0-9@_]+)/g, (a, b) => {
           if(!(b in labels)) return 0;
           return labels[b];
         });
+
+        for(const reg in regs){
+          const regex = new RegExp(`\\b${reg}\\b`, 'g');
+          str = str.replace(regex, `[${regs[reg]}]`);
+        }
 
         if(type === 'data'){
           mem[addr++] = BigInt(str);
@@ -150,12 +202,28 @@ class Engine{
 
         const parts = str.split(/[\s\,]+/);
         const opName = parts[0];
+        const opcode = ops[opName];
+
         const op1 = parseOp(parts, 1);
         const op2 = parseOp(parts, 2);
 
-        mem[addr++] = BigInt(ops[opName]);
-        mem[addr++] = op1;
-        mem[addr++] = op2;
+        const isDest = opcode <= 0x07 || opcode >= 0x0E;
+        const shifted = !isDest && op1[1] !== 1;
+
+        const op1i = op1[1];
+        const op2i = op2[1];
+
+        let inst = BigInt(opcode);
+
+        if(op1i === 1) inst |= 16n;
+        else if(op1i === 0 && !isDest) inst |= 32n;
+
+        if(op2i === 1) inst |= shifted ? 64n : 32n;
+        else if(op2i === 0) inst |= shifted ? 128n : 64n;
+
+        mem[addr++] = inst;
+        mem[addr++] = op1[0];
+        mem[addr++] = op2[0];
       }
     }while(updatedLabel);
 

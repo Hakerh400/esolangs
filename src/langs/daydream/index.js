@@ -4,7 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
+const debug = require('../../common/debug');
 const Memory = require('./memory');
+
+const DEBUG = 1;
 
 const maxInt = BigInt(Number.MAX_SAFE_INTEGER);
 
@@ -57,12 +60,46 @@ const run = (src, input) => {
     const opcode = Number(inst & 15n);
     const isDest = opcode <= 0x07 || opcode >= 0x0E;
 
-    const op1i = inst & 16n ? 1 : isDest || inst & 32n ? 0 : -1;
+    const op1i = inst & 16n ? 1 : isDest || (inst & 32n) ? 0 : -1;
     const op1Addr = mem.get(ip + 1n, op1i);
 
     const shifted = !isDest && op1i !== 1;
     const op2i = inst & (shifted ? 64n : 32n) ? 1 : inst & (shifted ? 128n : 64n) ? 0 : -1;
     const op2Addr = mem.get(ip + 2n, op2i);
+
+    if(DEBUG){
+      log(`\n${'='.repeat(100)}\n`);
+      log(O.ca(75, i => {
+        i = BigInt(i);
+        let str = String(mem.get(i));
+
+        if(i === ip) str = ` [${str}`;
+        else if(i === ip + 2n) str = `${str}] `;
+
+        return str;
+      }).join(','));
+
+      const formatOp = (op, ind) => {
+        return `${'['.repeat(ind + 1)}${op}${']'.repeat(ind + 1)}`;
+      };
+
+      const opName = 'mov,and,or,xor,add,sub,mul,div,eq,neq,le,ge,leq,geq,in,out'.split(',')[opcode];
+      const op1 = mem.get(ip + 1n);
+      const op2 = mem.get(ip + 2n);
+
+      let inst = `\n${opName} ${formatOp(op1, op1i)}, ${formatOp(op2, op2i)}`.
+        replace(/\[0\]/g, 'ip').
+        replace(/\[1\]/g, 'bp').
+        replace(/\[2\]/g, 'sp').
+        replace(/\[3\]/g, 'ax').
+        replace(/\[4\]/g, 'bx').
+        replace(/\[5\]/g, 'cx').
+        replace(/\[6\]/g, 'dx');
+
+      log(inst);
+
+      debug();
+    }
 
     if(opcode <= 0x07){
       const op1 = opcode !== 0x00 ? mem.get(op1Addr) : null;
