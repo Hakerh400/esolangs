@@ -9,11 +9,11 @@ const run = (src, input) => {
   src = src.toString();
 
   let num = O.match(src, /0/g).length;
-  if(num !== src.length) throw new SyntaxError('Only "0" characters are allowed');
-  if(num === 0) throw new SyntaxError('Expected at least one 0');
+  if(num !== src.length) esolangs.err('Only "0" characters are allowed');
+  if(num === 0) esolangs.err('Expected at least one 0');
 
   const bin = num.toString(2);
-  if(bin.length % 3 !== 1) throw new SyntaxError('Invalid syntax');
+  if(bin.length % 3 !== 1) esolangs.err('Invalid syntax');
 
   let str = '';
   while(num !== 1){

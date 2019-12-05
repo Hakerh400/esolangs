@@ -12,7 +12,7 @@ const run = (src, input) => {
   var io = new functional.io.IO(machine, input);
 
   for(const a of machine.start());
-  if(machine.error) throw new TypeError('Something went wrong');
+  if(machine.error) esolangs.err('Something went wrong');
 
   return io.getOutput();
 };

@@ -8,6 +8,9 @@ const cs = require('./ctors');
 
 const DEBUG = 1;
 
+const TAB_SIZE = 2;
+const TAB = ' '.repeat(TAB_SIZE);
+
 const ops = {
   mov: 0x00,
   and: 0x01,
@@ -35,6 +38,8 @@ const regs = {
   bx: 0x04,
   cx: 0x05,
   dx: 0x06,
+  ex: 0x07,
+  fx: 0x08,
 };
 
 class Engine{
@@ -53,24 +58,24 @@ class Engine{
 
   generateAssembly(){
     const {parsed, input} = this;
-    const {ents} = parsed;
+    const globalEnts = parsed.ents;
 
-    if(!('main' in ents))
-      throw new TypeError(`Missing definition for global function "main"`);
+    if(!('main' in globalEnts))
+      esolangs.err(`Missing definition for global function "main"`);
 
-    const mainFunc = ents.main;
+    const mainFunc = globalEnts.main;
 
     {
       if(mainFunc.entType !== 'function')
-        throw new TypeError(`Global entity "main" must be a function`);
+        esolangs.err(`Global entity "main" must be a function`);
 
       const {type} = mainFunc;
       if(!(type.name === 'void' && type.ptrs === 0))
-        throw new TypeError(`Global function "main" must return "void"`);
+        esolangs.err(`Global function "main" must return "void"`);
 
       const {args} = mainFunc;
       if(args.length !== 0)
-        throw new TypeError(`Global function "main" cannot have arguments`);
+        esolangs.err(`Global function "main" cannot have arguments`);
     }
 
     const asm = [];
@@ -86,13 +91,35 @@ class Engine{
     };
 
     const add = (a, b) => {
-      if(String(b) !== '0')
+      const s = String(b);
+      if(s === '0') return;
+      if(s.startsWith('-')){
+        b = -b;
+        inst(`sub ${a}, ${b}`);
+      }else{
         inst(`add ${a}, ${b}`);
+      }
     };
 
     const sub = (a, b) => {
-      if(String(b) !== '0')
+      const s = String(b);
+      if(s === '0') return;
+      if(s.startsWith('-')){
+        b = -b;
+        inst(`add ${a}, ${b}`);
+      }else{
         inst(`sub ${a}, ${b}`);
+      }
+    };
+
+    const mul = (a, b) => {
+      if(String(b) !== '1')
+        inst(`mul ${a}, ${b}`);
+    };
+
+    const div = (a, b) => {
+      if(String(b) !== '1')
+        inst(`div ${a}, ${b}`);
     };
 
     const inc = a => add(a, 1);
@@ -115,24 +142,28 @@ class Engine{
       mov(`${a}`, `[sp]`);
     };
 
-    const call = (a, b=0) => {
-      inst('mov dx, ip');
-      add('dx', 15);
-      push('dx');
-      mov(`ip`, `${a}`);
-      add('sp', b);
+    const jmp = addr => {
+      mov(`ip`, addr);
+    };
+
+    const callFunc = name => {
+      inst('mov cx, ip');
+      add('cx', 15);
+      push('cx');
+      mov(`ip`, `:func@${name}`);
+      add('sp', globalEnts[name].args.length);
     };
 
     const ret = (a=null) => {
       if(a !== null) mov(`ax`, `${a}`);
-      pop('dx');
-      inst('mov ip, dx');
+      pop('cx');
+      inst('mov ip, cx');
     };
 
     const enter = a => {
       push('bp');
       inst('mov bp, sp');
-      inst(`sub sp, ${a}`);
+      sub(`sp`, a);
     };
 
     const leave = () => {
@@ -141,107 +172,250 @@ class Engine{
       ret();
     };
 
-    num(':start');
-    num('-:stack');
-    num('-:stack');
+    let blockLabelsNum = 0;
+
+    const getStartLabel = block => {
+      const labelIndex = block.labelIndex !== null ?
+        block.labelIndex : block.labelIndex = blockLabelsNum++;
+
+      block.hasStartLabel = 1;
+      return `block@${labelIndex}-start`;
+    };
+
+    const getEndLabel = block => {
+      const labelIndex = block.labelIndex !== null ?
+        block.labelIndex : block.labelIndex = blockLabelsNum++;
+
+      block.hasEndLabel = 1;
+      return `block@${labelIndex}-end`;
+    };
+
+    num(':sys@start');
+    num('-:sys@stack');
+    num('-:sys@stack');
+    num('0');
+    num('0');
     num('0');
     num('0');
     num('0');
     num('0');
 
-    label('start');
-    call(':@main',  mainFunc.args.length);
+    label('sys@start');
+    callFunc('main');
     inst('out 0, 1');
 
-    label(`@${mainFunc.name}`);
-    enter(mainFunc.body.vars.size);
-
-    const {varsArr, varsMap} = mainFunc.body;
     const auxRegs = ['ax', 'bx'];
 
-    for(const stat of mainFunc.body.stats){
-      if(stat instanceof cs.VariableDef){
-        const {val} = stat;
-        const stack = [['eval', 0, 1, val]];
+    for(const entName in globalEnts){
+      const ent = globalEnts[entName];
 
-        while(stack.length !== 0){
-          const elem = stack.shift();
+      if(ent instanceof cs.FunctionDef){
+        const func = ent;
 
-          switch(elem[0]){
-            case 'eval': {
-              const dest = elem[1];
-              const otherFree = elem[2];
-              const val = elem[3];
+        label(`func@${func.name}`);
+        enter(func.body.vars.size);
 
-              const other = dest ^ 1;
-              const destReg = auxRegs[dest];
-              const otherReg = auxRegs[other];
+        let block = func.body;
 
-              if(val instanceof cs.Integer){
-                mov(destReg, val.val);
-                continue;
-              }
+        const evalExpr = (expr, dest=0, otherFree=1) => {
+          const stack = [['eval', dest, otherFree, expr]];
 
-              if(val instanceof cs.Identifier){
-                mov(destReg, addr(varsMap[val.name]));
-                continue;
-              }
+          while(stack.length !== 0){
+            const elem = stack.shift();
 
-              if(!otherFree){
-                push(otherReg);
-                stack.unshift(['pop', other]);
-              }
+            switch(elem[0]){
+              case 'eval': {
+                const dest = elem[1];
+                const otherFree = elem[2];
+                const val = elem[3];
 
-              stack.unshift(
-                ['eval', dest, 1, val.op1],
-                ['eval', other, 0, val.op2],
-                ['apply', dest, val.constructor],
-              );
-            } break;
+                const other = dest ^ 1;
+                const destReg = auxRegs[dest];
+                const otherReg = auxRegs[other];
 
-            case 'apply': {
-              const dest = elem[1];
-              const op = elem[2];
+                if(val instanceof cs.Integer){
+                  mov(destReg, val.val);
+                  continue;
+                }
 
-              const other = dest ^ 1;
-              const destReg = auxRegs[dest];
-              const otherReg = auxRegs[other];
+                if(val instanceof cs.Identifier){
+                  mov(destReg, addr(block.getOffset(val.name)));
+                  continue;
+                }
 
-              switch(op){
-                case cs.Addition: {
-                  add(auxRegs[dest], auxRegs[other]);
-                } break;
+                if(val instanceof cs.BinaryOperation){
+                  if(!otherFree){
+                    push(otherReg);
+                    stack.unshift(['pop', other]);
+                  }
 
-                default: {
-                  O.noimpl(op.name);
-                } break;
-              }
-            } break;
+                  stack.unshift(
+                    ['eval', dest, 1, val.op1],
+                    ['eval', other, 0, val.op2],
+                    ['apply', dest, val.constructor],
+                  );
+                  continue;
+                }
 
-            case 'pop': {
-              pop(auxRegs[elem[1]]);
-            } break;
+                if(val instanceof cs.Call){
+                  if(!(val.func instanceof cs.Identifier)) O.noimpl('Custom call');
+
+                  const {name} = val.func;
+                  if(!(name in globalEnts && globalEnts[name] instanceof cs.FunctionDef))
+                    esolangs.err(`Undefined function ${O.sf(name)}`);
+
+                  if(!otherFree){
+                    push(otherReg);
+                    stack.unshift(['pop', other]);
+                  }
+
+                  stack.unshift(
+                    // ['eval', dest, otherFree, val.func],
+                    ['apply', dest, val.constructor, val.func.name],
+                  );
+
+                  for(const arg of val.args){
+                    stack.unshift(
+                      ['eval', dest, otherFree, arg],
+                      ['push', dest],
+                    );
+                  }
+
+                  continue;
+                }
+
+                O.noimpl(val.constructor.name);
+              } break;
+
+              case 'apply': {
+                const dest = elem[1];
+                const op = elem[2];
+
+                const other = dest ^ 1;
+                const destReg = auxRegs[dest];
+                const otherReg = auxRegs[other];
+
+                switch(op){
+                  case cs.Addition: add(auxRegs[dest], auxRegs[other]); break;
+                  case cs.Subtraction: sub(auxRegs[dest], auxRegs[other]); break;
+                  case cs.Multiplication: mul(auxRegs[dest], auxRegs[other]); break;
+                  case cs.Division: div(auxRegs[dest], auxRegs[other]); break;
+
+                  case cs.Call:
+                    if(!otherFree) mov(`ex`, otherReg);
+                    callFunc(elem[3]);
+                    mov(destReg, `dx`);
+                    if(!otherFree) mov(otherReg, `ex`);
+                    break;
+
+                  default: O.noimpl(op.name); break;
+                }
+              } break;
+
+              case 'push': {
+                push(auxRegs[elem[1]]);
+              } break;
+
+              case 'pop': {
+                pop(auxRegs[elem[1]]);
+              } break;
+            }
           }
+        };
+
+        let lastReturn = 0;
+
+        blocksLoop: while(block !== null){
+          const {stats} = block;
+
+          if(block.hasStartLabel){
+            label(getStartLabel(block));
+            block.hasStartLabel = 0;
+          }
+
+          while(stats.length !== 0){
+            const stat = stats.shift();
+
+            if(stat instanceof cs.CodeBlock){
+              block = stat;
+              continue blocksLoop;
+            }
+
+            if(stat instanceof cs.VariableDef){
+              const expr = stat.val;
+              if(expr === null) continue;
+
+              lastReturn = 0;
+
+              evalExpr(expr);
+              mov(addr(block.getOffset(stat.name)), `ax`);
+              continue;
+            }
+
+            if(stat instanceof cs.Return){
+              evalExpr(stat.val);
+              mov(`dx`, `ax`);
+              leave();
+              lastReturn = 1;
+              continue;
+            }
+
+            lastReturn = 0;
+
+            if(stat instanceof cs.If){
+              const {cond, ifBlock, elseBlock} = stat;
+
+              ifBlock.TYPE = 'IF';
+              elseBlock.TYPE = 'ELSE';
+
+              evalExpr(cond);
+              inst(`eq ax, 0`);
+              jmp(`:${getStartLabel(elseBlock)}`);
+
+              ifBlock.onEnd = () => {
+                jmp(`:${getEndLabel(elseBlock)}`);
+              };
+
+              stats.unshift(ifBlock, elseBlock);
+              continue;
+            }
+
+            if(stat instanceof cs.Value){
+              evalExpr(stat);
+              continue;
+            }
+
+            O.noimpl(stat.constructor.name);
+          }
+
+          if(block.hasEndLabel){
+            label(getEndLabel(block));
+            block.hasEndLabel = 0;
+          }
+
+          if(block.onEnd !== null){
+            block.onEnd();
+            block.onEnd = null;
+          }
+
+          block = block.parent;
         }
-
-        mov(addr(varsArr.indexOf(stat)), `ax`);
-
+        
+        if(!lastReturn) leave();
         continue;
       }
 
-      O.noimpl(stat.constructor.name);
+      O.noimpl(ent.constructor.name);
     }
 
-    leave();
-
-    label('stack');
+    label('sys@stack');
 
     if(DEBUG){
       const str = asm.map(line => {
         switch(line[0]){
           case 'label': return `${line[1]}:`; break;
-          case 'data': return `.${line[1]} ${line[2]}`; break;
-          case 'inst': return line[1]; break;
+          case 'data': return `${TAB}.${line[1]} ${line[2]}`; break;
+          case 'inst': return `${TAB}${line[1]}`; break;
         }
       }).join('\n');
 
@@ -285,7 +459,7 @@ class Engine{
           continue;
         }
 
-        str = str.replace(/\:([a-zA-Z0-9@_]+)/g, (a, b) => {
+        str = str.replace(/\:([a-zA-Z0-9@\-_]+)/g, (a, b) => {
           if(!(b in labels)) return 0;
           return labels[b];
         });

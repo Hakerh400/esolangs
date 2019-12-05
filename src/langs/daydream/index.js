@@ -25,7 +25,7 @@ const run = (src, input) => {
     str = str.trim();
 
     if(!/^[\+\-]?\d+$/.test(str))
-      throw new SyntaxError(`${O.sf(str)} is not a valid integer`);
+      esolangs.err(`${O.sf(str)} is not a valid integer`);
 
     mem.set(BigInt(i), BigInt(str));
   });
@@ -173,8 +173,8 @@ const run = (src, input) => {
   }
 
   const outputLen = io.get(1n);
-  if(outputLen < 0n) throw new TypeError('Output length cannot be negative');
-  if(outputLen > maxInt) throw new TypeError('Output length is too large');
+  if(outputLen < 0n) esolangs.err('Output length cannot be negative');
+  if(outputLen > maxInt) esolangs.err('Output length is too large');
 
   const output = Buffer.alloc(Number(outputLen));
 

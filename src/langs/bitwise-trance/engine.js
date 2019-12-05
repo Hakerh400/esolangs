@@ -90,7 +90,7 @@ class Reader{
 
     while(this.readBit()){
       if(++len === 30)
-        throw new RangeError('Too large address');
+        esolangs.err('Too large address');
       if(this.readBit())
         num |= mask;
       mask <<= 1;

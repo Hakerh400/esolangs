@@ -2,8 +2,9 @@ script{ s0 globalEntity*s0 s0 }
 
 globalEntity{ varDef | funcDef }
 
-varDef{ type s0 ident s0 "=" s0 expr ";" }
 funcDef{ type s0 ident s0 "(" s0 formalArgs s0 ")" s0 funcBody }
+varDef{ type s0 ident s0 varInit? ";" }
+varInit{ "=" s0 expr }
 
 type{ typeName s0 "*"*s0 }
 
@@ -20,13 +21,22 @@ funcBody{ codeBlock }
 codeBlock{ "{" s0 statement*s0 s0 "}" }
 
 statement{
+  codeBlock |
   varDef |
-  expr |
-  return
+  control |
+  return |
+  expr s0 ";"
 }
 
+control{
+  if
+}
+
+if{ "if" s0 "(" s0 expr s0 ")" s0 statement s0 else? }
+else{ "else" s0 statement }
+
 return{
-  "return"
+  "return" s0 expr? s0 ";"
 }
 
 expr{ expr1_ }
@@ -50,7 +60,8 @@ expr16_{ expr16 | expr17_ }
 expr17_{ expr17 | expr18_ }
 expr18_{ expr18 | expr19_ }
 expr19_{ expr19 | expr20_ }
-expr20_{ expr20 }
+expr20_{ expr20 | expr21_ }
+expr21_{ expr21 }
 
 expr1{ "..." }
 expr2{ "..." }
@@ -64,17 +75,25 @@ expr9{ "..." }
 expr10{ "..." }
 expr11{ "..." }
 expr12{ "..." }
-expr13{ add | sub }
-expr14{ "..." }
-expr15{ "..." }
+expr13{ "..." }
+expr14{ add | sub }
+expr15{ mul | div | mod }
 expr16{ "..." }
 expr17{ "..." }
 expr18{ "..." }
 expr19{ "..." }
-expr20{ literal | ident | grouping }
+expr20{ call }
+expr21{ literal | ident | grouping }
 
-add{ expr13_ s0 "+" s0 expr14_ }
-sub{ expr13_ s0 "-" s0 expr14_ }
+add{ expr14_ s0 "+" s0 expr15_ }
+sub{ expr14_ s0 "-" s0 expr15_ }
+mul{ expr15_ s0 "*" s0 expr16_ }
+div{ expr15_ s0 "/" s0 expr16_ }
+mod{ expr15_ s0 "%" s0 expr16_ }
+call{ expr14_ s0 "(" s0 args s0 ")" }
+
+args{ expr2_*argSep }
+argSep{ s0 "," s0 }
 
 grouping{ "(" expr ")" }
 ident{ [a-zA-Z_] [a-zA-Z0-9_]* }

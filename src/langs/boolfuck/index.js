@@ -27,7 +27,7 @@ const run = (src, input) => {
         break;
 
       case ']':
-        if(loops.length === 0) throw new SyntaxError('Unmatched closed bracket');
+        if(loops.length === 0) esolangs.err('Unmatched closed bracket');
         const addr = loops.pop();
         insts.push(7, addr);
         insts[addr + 1] = insts.length;
@@ -35,7 +35,7 @@ const run = (src, input) => {
     }
   }
 
-  if(loops.length !== 0) throw new SyntaxError('Unmatched open bracket');
+  if(loops.length !== 0) esolangs.err('Unmatched open bracket');
 
   const len = insts.length;
   const mem = O.obj();

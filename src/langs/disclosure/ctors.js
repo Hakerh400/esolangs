@@ -3,11 +3,12 @@
 const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
+const esolangs = require('../..');
 const VarSet = require('./var-set');
 
 class Base{}
 
-class Script extends Base{
+class Global extends Base{
   constructor(globalEnts){
     super();
 
@@ -17,9 +18,10 @@ class Script extends Base{
       const {name} = ent;
 
       if(ent.name in ents)
-        throw new TypeError(`Redefinition of global ${ent.entType} ${O.sf(name)}`);
+        esolangs.err(`Redefinition of global ${ent.entType} ${O.sf(name)}`);
 
       ents[name] = ent;
+      ent.globalEnts = ents;
     }
   }
 }
@@ -30,9 +32,17 @@ class Type extends Base{
     this.name = name;
     this.ptrs = ptrs;
   }
+
+  eq(type){
+    return type.name === this.name && type.ptrs === this.ptrs;
+  }
 }
 
-class EntityDef extends Base{
+class Statement{}
+
+class EntityDef extends Statement{
+  globalEnts = null;
+
   constructor(name, type){
     super();
     this.name = name.name;
@@ -56,12 +66,14 @@ class FunctionDef extends EntityDef{
     super(name, type);
     this.args = args;
     this.body = body;
+
+    body.func = this;
   }
 
   get entType(){ return 'function'; }
 }
 
-class Argument extends Base{
+class FormalArgument extends Base{
   constructor(name, type){
     super();
     this.name = name.name;
@@ -69,7 +81,15 @@ class Argument extends Base{
   }
 }
 
-class CodeBlock extends Base{
+class CodeBlock extends Statement{
+  func = null;
+  parent = null;
+
+  labelIndex = null;
+  hasStartLabel = 0;
+  hasEndLabel = 0;
+  onEnd = null;
+
   constructor(stats){
     super();
 
@@ -78,18 +98,97 @@ class CodeBlock extends Base{
     const vars = this.vars = new VarSet();
 
     for(const stat of stats){
-      if(stat instanceof VariableDef)
+      if(stat instanceof VariableDef){
+        if(vars.has(stat.name))
+          esolangs.err(`Duplicate definition of variable ${O.sf(stat.name)}`);
+
         vars.add(stat);
+        continue;
+      }
+
+      if(stat instanceof CodeBlock){
+        stat.parent = this;
+        continue;
+      }
+
+      if(stat instanceof Control){
+        stat.setParent(this);
+        continue;
+      }
     }
 
     this.varsArr = vars.toArr();
     this.varsMap = vars.toMap();
   }
+
+  getOffset(name){
+    let block = this;
+
+    while(1){
+      const map = block.varsMap;
+
+      if(!(name in map)){
+        if(block.parent !== null){
+          block = block.parent;
+          continue;
+        }
+
+        const func = block.func;
+        const index = func.args.findIndex(a => a.name === name);
+
+        if(index === -1)
+          esolangs.err(`Identifier ${O.sf(name)} is not defined`);
+
+        return -3 - index;
+      }
+
+      let offset = map[name];
+
+      while(1){
+        block = block.parent;
+        if(block === null) return offset;
+
+        offset += block.varsArr.length;
+        block  =block.parent;
+      }
+    }
+  }
 }
 
-class Operation extends Base{}
+class Control extends Statement{
+  setParent(){ O.virtual('setParent'); }
+}
 
-class Addition extends Operation{
+class If extends Control{
+  constructor(cond, ifBlock, elseBlock){
+    super();
+    this.cond = cond;
+    this.ifBlock = ifBlock;
+    this.elseBlock = elseBlock;
+  }
+
+  setParent(block){
+    this.ifBlock.parent = block;
+    this.elseBlock.parent = block;
+  }
+}
+
+class Return extends Statement{
+  constructor(val){
+    super();
+    this.val = val;
+  }
+}
+
+class Value extends Base{
+  type = null;
+}
+
+class Operation extends Value{}
+
+class BinaryOperation extends Value{}
+
+class Addition extends BinaryOperation{
   constructor(op1, op2){
     super();
     this.op1 = op1;
@@ -97,7 +196,7 @@ class Addition extends Operation{
   }
 }
 
-class Subtraction extends Operation{
+class Subtraction extends BinaryOperation{
   constructor(op1, op2){
     super();
     this.op1 = op1;
@@ -105,14 +204,46 @@ class Subtraction extends Operation{
   }
 }
 
-class Identifier extends Base{
+class Multiplication extends BinaryOperation{
+  constructor(op1, op2){
+    super();
+    this.op1 = op1;
+    this.op2 = op2;
+  }
+}
+
+class Division extends BinaryOperation{
+  constructor(op1, op2){
+    super();
+    this.op1 = op1;
+    this.op2 = op2;
+  }
+}
+
+class Modulo extends BinaryOperation{
+  constructor(op1, op2){
+    super();
+    this.op1 = op1;
+    this.op2 = op2;
+  }
+}
+
+class Call extends Operation{
+  constructor(func, args){
+    super();
+    this.func = func;
+    this.args = args;
+  }
+}
+
+class Identifier extends Value{
   constructor(name){
     super();
     this.name = name;
   }
 }
 
-class Literal extends Base{}
+class Literal extends Value{}
 
 class Number extends Literal{}
 
@@ -125,16 +256,26 @@ class Integer extends Number{
 
 module.exports = {
   Base,
-  Script,
+  Global,
   Type,
+  Statement,
   EntityDef,
   VariableDef,
   FunctionDef,
-  Argument,
+  FormalArgument,
   CodeBlock,
+  Control,
+  If,
+  Return,
+  Value,
   Operation,
+  BinaryOperation,
   Addition,
   Subtraction,
+  Multiplication,
+  Division,
+  Modulo,
+  Call,
   Identifier,
   Literal,
   Number,

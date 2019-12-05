@@ -34,7 +34,7 @@ const run = (src, input) => {
         }
       }
 
-      if(inv === null) throw new SyntaxError(`Identifier ${O.sf(str)} is not bound to any abstraction`);
+      if(inv === null) esolangs.err(`Identifier ${O.sf(str)} is not bound to any abstraction`);
 
       const ident = [0, inv];
       const last = O.last(stack);
@@ -53,8 +53,8 @@ const run = (src, input) => {
 
     /\)/, (str, gs) => {
       const last = O.last(stack);
-      if(last === null) throw new SyntaxError(`Unmatched closed parenthese`);
-      if(O.last(last) === null) throw new SyntaxError(`${last[0] === 1 ? 'Abstraction' : 'Parenthesis'} cannot be empty`);
+      if(last === null) esolangs.err(`Unmatched closed parenthese`);
+      if(O.last(last) === null) esolangs.err(`${last[0] === 1 ? 'Abstraction' : 'Parenthesis'} cannot be empty`);
 
       while(stack.length !== 1){
         const elem2 = stack.pop();
@@ -78,22 +78,22 @@ const run = (src, input) => {
         else O.setLast(stack, [2, elem1, elem2]);
       }
 
-      throw new SyntaxError(`Unmatched closed parenthese`);
+      esolangs.err(`Unmatched closed parenthese`);
     },
   ], 1, 1);
 
-  if(stack.length === 0) throw new SyntaxError(`Expected at least one identifier`);
+  if(stack.length === 0) esolangs.err(`Expected at least one identifier`);
 
   while(stack.length !== 1){
     const elem2 = stack.pop();
     const elem1 = O.last(stack);
-    if(elem1[0] === 3) throw new SyntaxError(`Unmatched open parenthese`);
+    if(elem1[0] === 3) esolangs.err(`Unmatched open parenthese`);
 
     if(O.last(elem1) === null) O.setLast(elem1, elem2);
     else O.setLast(stack, [2, elem1, elem2]);
   }
 
-  if(stack[0][0] === 3) throw new SyntaxError(`Unmatched open parenthese`);
+  if(stack[0][0] === 3) esolangs.err(`Unmatched open parenthese`);
 
   const cc = O.cc('a');
   const sym1 = Symbol();
@@ -367,7 +367,7 @@ const run = (src, input) => {
 
     const b0 = isZero(bit);
     const b1 = isOne(bit);
-    if(!(b0 || b1)) throw new TypeError('Invalid output');
+    if(!(b0 || b1)) esolangs.err('Invalid output');
 
     if(flag = !flag){
       if(b0) break;

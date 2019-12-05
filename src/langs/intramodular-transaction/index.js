@@ -13,7 +13,7 @@ const run = (src, input) => {
   const io = new O.IO(input, 0, 1);
 
   const err = msg => {
-    throw new SyntaxError(`ERROR: ${msg}`);
+    esolangs.err(`ERROR: ${msg}`);
   };
 
   src = src.replace(/\-\-.*?(?:[\r\n]|$)/gs, ' ');

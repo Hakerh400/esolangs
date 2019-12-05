@@ -37,7 +37,7 @@ const esolangs = {
 
   run(name, src, input){
     const info = esolangs.getInfo(name);
-    if(info === null) throw new TypeError(`Unsupported language ${O.sf(name)}`);
+    if(info === null) esolangs.err(`Unsupported language ${O.sf(name)}`);
 
     const func = require(path.join(langsDir, info.id));
     const output = func(Buffer.from(src), Buffer.from(input));
@@ -54,6 +54,10 @@ const esolangs = {
     if(!(name in strs)) return null;
     return strs[name];
   },
+
+  err(msg){
+    O.exit(`ERROR: ${msg}`);
+  }
 };
 
 module.exports = esolangs;
