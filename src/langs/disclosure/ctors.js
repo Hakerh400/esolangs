@@ -82,7 +82,8 @@ class CodeBlock extends Base{
         vars.add(stat);
     }
 
-    this.varsArr = [...vars];
+    this.varsArr = vars.toArr();
+    this.varsMap = vars.toMap();
   }
 }
 

@@ -81,6 +81,10 @@ class Engine{
     const data = (type, a) => asm.push(['data', type, a]);
     const num = a => asm.push(['data', 'num', a]);
 
+    const mov = (a, b) => {
+      inst(`mov ${a}, ${b}`);
+    };
+
     const add = (a, b) => {
       if(String(b) !== '0')
         inst(`add ${a}, ${b}`);
@@ -94,26 +98,33 @@ class Engine{
     const inc = a => add(a, 1);
     const dec = a => sub(a, 1);
 
+    const addr = (varIndex, auxReg='cx') => {
+      if(varIndex === 0) return `[bp]`;
+      mov(`cx`, `bp`);
+      sub(`cx`, varIndex);
+      return `[cx]`;
+    };
+
     const push = a => {
-      inst(`mov [sp], ${a}`);
+      mov(`[sp]`, `${a}`);
       dec('sp');
     };
 
     const pop = a => {
       inc('sp');
-      inst(`mov ${a}, [sp]`);
+      mov(`${a}`, `[sp]`);
     };
 
     const call = (a, b=0) => {
       inst('mov dx, ip');
       add('dx', 15);
       push('dx');
-      inst(`mov ip, ${a}`);
+      mov(`ip`, `${a}`);
       add('sp', b);
     };
 
     const ret = (a=null) => {
-      if(a !== null) inst(`mov ax, ${a}`);
+      if(a !== null) mov(`ax`, `${a}`);
       pop('dx');
       inst('mov ip, dx');
     };
@@ -145,35 +156,77 @@ class Engine{
     label(`@${mainFunc.name}`);
     enter(mainFunc.body.vars.size);
 
-    const {varsArr} = mainFunc.body;
+    const {varsArr, varsMap} = mainFunc.body;
+    const auxRegs = ['ax', 'bx'];
 
     for(const stat of mainFunc.body.stats){
       if(stat instanceof cs.VariableDef){
         const {val} = stat;
-        const index = varsArr.indexOf(stat);
+        const stack = [['eval', 0, 1, val]];
 
-        inst(`mov ax, bp`);
-        sub(`ax`, index);
+        while(stack.length !== 0){
+          const elem = stack.shift();
 
-        if(val instanceof cs.Integer){
-          inst(`mov [ax], ${val.val}`);
-          continue;
+          switch(elem[0]){
+            case 'eval': {
+              const dest = elem[1];
+              const otherFree = elem[2];
+              const val = elem[3];
+
+              const other = dest ^ 1;
+              const destReg = auxRegs[dest];
+              const otherReg = auxRegs[other];
+
+              if(val instanceof cs.Integer){
+                mov(destReg, val.val);
+                continue;
+              }
+
+              if(val instanceof cs.Identifier){
+                mov(destReg, addr(varsMap[val.name]));
+                continue;
+              }
+
+              if(!otherFree){
+                push(otherReg);
+                stack.unshift(['pop', other]);
+              }
+
+              stack.unshift(
+                ['eval', dest, 1, val.op1],
+                ['eval', other, 0, val.op2],
+                ['apply', dest, val.constructor],
+              );
+            } break;
+
+            case 'apply': {
+              const dest = elem[1];
+              const op = elem[2];
+
+              const other = dest ^ 1;
+              const destReg = auxRegs[dest];
+              const otherReg = auxRegs[other];
+
+              switch(op){
+                case cs.Addition: {
+                  add(auxRegs[dest], auxRegs[other]);
+                } break;
+
+                default: {
+                  O.noimpl(op.name);
+                } break;
+              }
+            } break;
+
+            case 'pop': {
+              pop(auxRegs[elem[1]]);
+            } break;
+          }
         }
 
-        if(val instanceof cs.Addition){
-          const index1 = varsArr.findIndex(a => a.name === val.op1.name);
-          const index2 = varsArr.findIndex(a => a.name === val.op2.name);
+        mov(addr(varsArr.indexOf(stat)), `ax`);
 
-          inst(`mov bx, bp`);
-          sub(`bx`, index1);
-          inst(`mov [ax], [bx]`);
-
-          sub(`bx`, index2 - index1);
-          add(`[ax]`, `[bx]`);
-          continue;
-        }
-
-        O.noimpl(val.constructor.name);
+        continue;
       }
 
       O.noimpl(stat.constructor.name);

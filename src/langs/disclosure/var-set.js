@@ -75,6 +75,20 @@ class VarSet{
     delete vars[name];
   }
 
+  toArr(){
+    return Array.from(this);
+  }
+
+  toMap(){
+    const map = O.obj();
+    let i = 0;
+
+    for(const vari of this)
+      map[vari.name] = i++;
+
+    return map;
+  }
+
   *[Symbol.iterator](){
     const {vars} = this;
 
