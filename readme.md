@@ -6,7 +6,7 @@ This is a collection of interpreters for [esoteric programming languages](https:
 
 ## How to install
 
-First install [Node.js](https://nodejs.org/en/) version v12.x or newer, then run:
+First install [Node.js](https://nodejs.org/en/) version v13.x or newer, then run:
 
 ```
 npm i @hakerh400/esolangs

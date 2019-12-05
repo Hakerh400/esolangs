@@ -210,6 +210,9 @@ class ASTNterm extends ASTElem{
     const {arr, seps} = this;
     const fDone = e => e.done;
 
+    if(arr.length !== 0 && arr.length === seps.length)
+      seps.pop();
+
     this.len = arr.reduce((n, e) => n + e.len, 0) + seps.reduce((n, e) => n + e.len, 0);
     this.done = arr.every(fDone) && seps.every(fDone);
 

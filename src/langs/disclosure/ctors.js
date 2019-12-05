@@ -32,40 +32,30 @@ class Type extends Base{
   }
 }
 
-class Statement extends Base{
-  vars = new VarSet();
-}
-
-class Entity extends Statement{
+class EntityDef extends Base{
   constructor(name, type){
     super();
-    this.name = name;
+    this.name = name.name;
     this.type = type;
   }
 
   get entType(){ O.virtual('entType'); }
 };
 
-class Variable extends Entity{
+class VariableDef extends EntityDef{
   constructor(name, type, val){
     super(name, type);
     this.val = val;
-    this.vars.add(this);
   }
 
   get entType(){ return 'variable'; }
 }
 
-class Function extends Entity{
+class FunctionDef extends EntityDef{
   constructor(name, type, args, body){
     super(name, type);
     this.args = args;
     this.body = body;
-
-    const vars = this.vars = new VarSet();
-
-    for(const stat of body)
-      vars.union(stat.vars);
   }
 
   get entType(){ return 'function'; }
@@ -74,8 +64,25 @@ class Function extends Entity{
 class Argument extends Base{
   constructor(name, type){
     super();
-    this.name = name;
+    this.name = name.name;
     this.type = type;
+  }
+}
+
+class CodeBlock extends Base{
+  constructor(stats){
+    super();
+
+    this.stats = stats;
+
+    const vars = this.vars = new VarSet();
+
+    for(const stat of stats){
+      if(stat instanceof VariableDef)
+        vars.add(stat);
+    }
+
+    this.varsArr = [...vars];
   }
 }
 
@@ -97,6 +104,13 @@ class Subtraction extends Operation{
   }
 }
 
+class Identifier extends Base{
+  constructor(name){
+    super();
+    this.name = name;
+  }
+}
+
 class Literal extends Base{}
 
 class Number extends Literal{}
@@ -112,14 +126,15 @@ module.exports = {
   Base,
   Script,
   Type,
-  Statement,
-  Entity,
-  Variable,
-  Function,
+  EntityDef,
+  VariableDef,
+  FunctionDef,
   Argument,
+  CodeBlock,
   Operation,
   Addition,
   Subtraction,
+  Identifier,
   Literal,
   Number,
   Integer,

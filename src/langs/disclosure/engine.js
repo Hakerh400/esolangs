@@ -19,8 +19,8 @@ const ops = {
   div: 0x07,
   eq:  0x08,
   neq: 0x09,
-  le:  0x0A,
-  ge:  0x0B,
+  lt:  0x0A,
+  gt:  0x0B,
   leq: 0x0C,
   geq: 0x0D,
   in:  0x0E,
@@ -76,65 +76,112 @@ class Engine{
     const asm = [];
 
     const label = a => asm.push(['label', a]);
-    const add = a => asm.push(['inst', a]);
+    const inst = a => asm.push(['inst', a]);
 
     const data = (type, a) => asm.push(['data', type, a]);
-    const int = a => asm.push(['data', 'int', a]);
+    const num = a => asm.push(['data', 'num', a]);
 
-    const inc = a => add(`add ${a}, 1`);
-    const dec = a => add(`sub ${a}, 1`);
+    const add = (a, b) => {
+      if(String(b) !== '0')
+        inst(`add ${a}, ${b}`);
+    };
+
+    const sub = (a, b) => {
+      if(String(b) !== '0')
+        inst(`sub ${a}, ${b}`);
+    };
+
+    const inc = a => add(a, 1);
+    const dec = a => sub(a, 1);
 
     const push = a => {
-      add(`mov [sp], ${a}`);
+      inst(`mov [sp], ${a}`);
       dec('sp');
     };
 
     const pop = a => {
       inc('sp');
-      add(`mov ${a}, [sp]`);
+      inst(`mov ${a}, [sp]`);
     };
 
     const call = (a, b=0) => {
-      add('mov dx, ip');
-      add('add dx, 15');
+      inst('mov dx, ip');
+      add('dx', 15);
       push('dx');
-      add(`mov ip, ${a}`);
-      if(b !== 0) add(`add sp, ${b}`);
+      inst(`mov ip, ${a}`);
+      add('sp', b);
     };
 
     const ret = (a=null) => {
-      if(a !== null) add(`mov ax, ${a}`);
+      if(a !== null) inst(`mov ax, ${a}`);
       pop('dx');
-      add('mov ip, dx');
+      inst('mov ip, dx');
     };
 
     const enter = a => {
       push('bp');
-      add('mov bp, sp');
-      add(`sub sp, ${a}`);
+      inst('mov bp, sp');
+      inst(`sub sp, ${a}`);
     };
 
-    const leave = a => {
-      add('mov sp, bp');
+    const leave = () => {
+      inst('mov sp, bp');
       pop('bp');
       ret();
     };
 
-    int(':start');
-    int('0');
-    int('-:end');
-    int('0');
-    int('0');
+    num(':start');
+    num('-:stack');
+    num('-:stack');
+    num('0');
+    num('0');
+    num('0');
+    num('0');
 
     label('start');
-    call(':@main');
-    add('out 0, 1');
+    call(':@main',  mainFunc.args.length);
+    inst('out 0, 1');
 
     label(`@${mainFunc.name}`);
-    enter(mainFunc.vars.size);
-    leave(0);
+    enter(mainFunc.body.vars.size);
 
-    label('end');
+    const {varsArr} = mainFunc.body;
+
+    for(const stat of mainFunc.body.stats){
+      if(stat instanceof cs.VariableDef){
+        const {val} = stat;
+        const index = varsArr.indexOf(stat);
+
+        inst(`mov ax, bp`);
+        sub(`ax`, index);
+
+        if(val instanceof cs.Integer){
+          inst(`mov [ax], ${val.val}`);
+          continue;
+        }
+
+        if(val instanceof cs.Addition){
+          const index1 = varsArr.findIndex(a => a.name === val.op1.name);
+          const index2 = varsArr.findIndex(a => a.name === val.op2.name);
+
+          inst(`mov bx, bp`);
+          sub(`bx`, index1);
+          inst(`mov [ax], [bx]`);
+
+          sub(`bx`, index2 - index1);
+          add(`[ax]`, `[bx]`);
+          continue;
+        }
+
+        O.noimpl(val.constructor.name);
+      }
+
+      O.noimpl(stat.constructor.name);
+    }
+
+    leave();
+
+    label('stack');
 
     if(DEBUG){
       const str = asm.map(line => {

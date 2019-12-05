@@ -3,7 +3,7 @@ script{ s0 globalEntity*s0 s0 }
 globalEntity{ varDef | funcDef }
 
 varDef{ type s0 ident s0 "=" s0 expr ";" }
-funcDef{ type s0 ident s0 "(" s0 formalArgs s0 ")" s0 "{" s0 funcBody s0 "}" }
+funcDef{ type s0 ident s0 "(" s0 formalArgs s0 ")" s0 funcBody }
 
 type{ typeName s0 "*"*s0 }
 
@@ -16,7 +16,8 @@ formalArgs{ formalArg*formalArgSep }
 formalArg{ type s0 ident }
 formalArgSep{ s0 "," s0 }
 
-funcBody{ statement*s0 }
+funcBody{ codeBlock }
+codeBlock{ "{" s0 statement*s0 s0 "}" }
 
 statement{
   varDef |

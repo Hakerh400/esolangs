@@ -47,12 +47,14 @@ const run = (src, input) => {
   // 07 - div dest, src
   // 08 - eq  src,  src
   // 09 - neq src,  src
-  // 0A - le  src,  src
-  // 0B - ge  src,  src
+  // 0A - lt  src,  src
+  // 0B - gt  src,  src
   // 0C - leq src,  src
   // 0D - geq src,  src
   // 0E - in  dest, src
   // 0F - out dest, src
+
+  let first = 1;
 
   while(1){
     const ip = mem.get(0n);
@@ -68,8 +70,11 @@ const run = (src, input) => {
     const op2Addr = mem.get(ip + 2n, op2i);
 
     if(DEBUG){
+      if(first) first = 0;
+      else debug();
+
       log(`\n${'='.repeat(100)}\n`);
-      log(O.ca(75, i => {
+      log(O.ca(200, i => {
         i = BigInt(i);
         let str = String(mem.get(i));
 
@@ -97,8 +102,6 @@ const run = (src, input) => {
         replace(/\[6\]/g, 'dx');
 
       log(inst);
-
-      debug();
     }
 
     if(opcode <= 0x07){
@@ -115,6 +118,13 @@ const run = (src, input) => {
         case 0x05: res = op1 - op2; break;
         case 0x06: res = op1 * op2; break;
         case 0x07: res = op2 !== 0n ? op1 / op2 : 0n; break;
+      }
+
+      if(DEBUG){
+        log();
+        log(`op1 = ${mem.get(op1Addr)}`);
+        log(`op2 = ${mem.get(op2Addr)}`);
+        log(`res = ${res}`);
       }
 
       mem.set(0n, ip + 3n);
