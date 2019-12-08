@@ -104,7 +104,7 @@ class CompileArr extends Compile{
           if(this.nval)
             return th.call(new CompileArr(g, compiler, elem.seps));
 
-          elem.seps = this.rval;
+          elem.seps = this.rval.map(a => a.fst);
           this.rval = null;
         }
 

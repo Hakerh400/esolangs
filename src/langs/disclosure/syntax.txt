@@ -3,7 +3,7 @@ script{ s0 globalEntity*s0 s0 }
 globalEntity{ varDef | funcDef }
 
 funcDef{ type s0 ident s0 "(" s0 formalArgs s0 ")" s0 funcBody }
-varDef{ type s0 ident s0 varInit? ";" }
+varDef{ type s0 ident s0 varInit? s0 ";" }
 varInit{ "=" s0 expr }
 
 type{ typeName s0 "*"*s0 }
@@ -65,7 +65,7 @@ expr21_{ expr21 }
 
 expr1{ "..." }
 expr2{ "..." }
-expr3{ "..." }
+expr3{ assign }
 expr4{ "..." }
 expr5{ "..." }
 expr6{ "..." }
@@ -79,17 +79,22 @@ expr13{ "..." }
 expr14{ add | sub }
 expr15{ mul | div | mod }
 expr16{ "..." }
-expr17{ "..." }
+expr17{ unaryPlus | unaryMinus | takeAddr | deref }
 expr18{ "..." }
 expr19{ "..." }
 expr20{ call }
 expr21{ literal | ident | grouping }
 
+assign{ expr4_ s0 "=" s0 expr3_ }
 add{ expr14_ s0 "+" s0 expr15_ }
 sub{ expr14_ s0 "-" s0 expr15_ }
 mul{ expr15_ s0 "*" s0 expr16_ }
 div{ expr15_ s0 "/" s0 expr16_ }
 mod{ expr15_ s0 "%" s0 expr16_ }
+unaryPlus{ "+" s0 expr17_ }
+unaryMinus{ "-" s0 expr17_ }
+takeAddr{ "&" s0 expr17_ }
+deref{ "*" s0 expr17_ }
 call{ expr14_ s0 "(" s0 args s0 ")" }
 
 args{ expr2_*argSep }

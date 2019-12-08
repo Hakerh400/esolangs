@@ -38,8 +38,6 @@ const regs = {
   bx: 0x04,
   cx: 0x05,
   dx: 0x06,
-  ex: 0x07,
-  fx: 0x08,
 };
 
 class Engine{
@@ -65,17 +63,11 @@ class Engine{
 
     const mainFunc = globalEnts.main;
 
-    {
-      if(mainFunc.entType !== 'function')
-        esolangs.err(`Global entity "main" must be a function`);
-
-      const {type} = mainFunc;
-      if(!(type.name === 'void' && type.ptrs === 0))
-        esolangs.err(`Global function "main" must return "void"`);
-
-      const {args} = mainFunc;
-      if(args.length !== 0)
-        esolangs.err(`Global function "main" cannot have arguments`);
+    const expectedMainType = new cs.FunctionType(0, new cs.PrimitiveType(0, 'void'), []);
+    if(!mainFunc.type.eq(expectedMainType)){
+      const s1 = O.sf(mainFunc.type.toString());
+      const s2 = O.sf(String(expectedMainType.toString()));
+      esolangs.err(`Global entity "main" is of type ${s1}, but must be of type ${s2}`);
     }
 
     const asm = [];
@@ -147,11 +139,14 @@ class Engine{
     };
 
     const callFunc = name => {
+      const argsNum = name in globalEnts ?
+        globalEnts[name].args.length : 2;
+
       inst('mov cx, ip');
       add('cx', 15);
       push('cx');
       mov(`ip`, `:func@${name}`);
-      add('sp', globalEnts[name].args.length);
+      add('sp', argsNum);
     };
 
     const ret = (a=null) => {
@@ -160,7 +155,7 @@ class Engine{
       inst('mov ip, cx');
     };
 
-    const enter = a => {
+    const enter = (a=0) => {
       push('bp');
       inst('mov bp, sp');
       sub(`sp`, a);
@@ -190,6 +185,17 @@ class Engine{
       return `block@${labelIndex}-end`;
     };
 
+    const asmFuncs = O.nproto({
+      _out: [0, () => {
+        label('func@_out');
+        enter();
+        mov(`ax`, addr(-3));
+        mov(`bx`, addr(-4));
+        inst(`out [ax], bx`);
+        leave();
+      }],
+    });
+
     num(':sys@start');
     num('-:sys@stack');
     num('-:sys@stack');
@@ -202,7 +208,7 @@ class Engine{
 
     label('sys@start');
     callFunc('main');
-    inst('out 0, 1');
+    inst(`out 0, 1`);
 
     const auxRegs = ['ax', 'bx'];
 
@@ -257,12 +263,25 @@ class Engine{
                   continue;
                 }
 
+                if(val instanceof cs.UnaryOperation){
+                  stack.unshift(
+                    ['eval', dest, otherFree, val.op],
+                    ['apply', dest, val.constructor],
+                  );
+                  continue;
+                }
+
                 if(val instanceof cs.Call){
                   if(!(val.func instanceof cs.Identifier)) O.noimpl('Custom call');
 
                   const {name} = val.func;
-                  if(!(name in globalEnts && globalEnts[name] instanceof cs.FunctionDef))
-                    esolangs.err(`Undefined function ${O.sf(name)}`);
+
+                  if(!(name in globalEnts && globalEnts[name] instanceof cs.FunctionDef)){
+                    if(!(name in asmFuncs))
+                      esolangs.err(`Undefined function ${O.sf(name)}`);
+
+                    asmFuncs[name][0] = 1;
+                  }
 
                   if(!otherFree){
                     push(otherReg);
@@ -296,17 +315,24 @@ class Engine{
                 const otherReg = auxRegs[other];
 
                 switch(op){
+                  case cs.UnaryMinus: mul(auxRegs[dest], -1); break;
+                  case cs.UnaryPlus: break;
+
+                  case cs.TakeAddress: {
+                    O.exit(op);
+                  } break;
+
                   case cs.Addition: add(auxRegs[dest], auxRegs[other]); break;
                   case cs.Subtraction: sub(auxRegs[dest], auxRegs[other]); break;
                   case cs.Multiplication: mul(auxRegs[dest], auxRegs[other]); break;
                   case cs.Division: div(auxRegs[dest], auxRegs[other]); break;
 
-                  case cs.Call:
+                  case cs.Call: {
                     if(!otherFree) mov(`ex`, otherReg);
                     callFunc(elem[3]);
                     mov(destReg, `dx`);
                     if(!otherFree) mov(otherReg, `ex`);
-                    break;
+                  } break;
 
                   default: O.noimpl(op.name); break;
                 }
@@ -323,14 +349,14 @@ class Engine{
           }
         };
 
-        let lastReturn = 0;
-
         blocksLoop: while(block !== null){
           const {stats} = block;
 
-          if(block.hasStartLabel){
-            label(getStartLabel(block));
-            block.hasStartLabel = 0;
+          if(block.start){
+            if(block.hasStartLabel)
+              label(getStartLabel(block));
+
+            sub(`sp`, block.varsNum);
           }
 
           while(stats.length !== 0){
@@ -345,22 +371,17 @@ class Engine{
               const expr = stat.val;
               if(expr === null) continue;
 
-              lastReturn = 0;
-
               evalExpr(expr);
               mov(addr(block.getOffset(stat.name)), `ax`);
               continue;
             }
 
             if(stat instanceof cs.Return){
-              evalExpr(stat.val);
+              if(stat.val !== null) evalExpr(stat.val);
               mov(`dx`, `ax`);
               leave();
-              lastReturn = 1;
               continue;
             }
-
-            lastReturn = 0;
 
             if(stat instanceof cs.If){
               const {cond, ifBlock, elseBlock} = stat;
@@ -388,24 +409,29 @@ class Engine{
             O.noimpl(stat.constructor.name);
           }
 
-          if(block.hasEndLabel){
+          if(block.hasEndLabel)
             label(getEndLabel(block));
-            block.hasEndLabel = 0;
-          }
 
-          if(block.onEnd !== null){
+          add(`sp`, block.varsNum);
+
+          if(block.onEnd !== null)
             block.onEnd();
-            block.onEnd = null;
-          }
 
           block = block.parent;
         }
         
-        if(!lastReturn) leave();
+        leave();
         continue;
       }
 
       O.noimpl(ent.constructor.name);
+    }
+
+    for(const name in asmFuncs){
+      const details = asmFuncs[name];
+      if(!details[0]) continue;
+
+      details[1]();
     }
 
     label('sys@stack');

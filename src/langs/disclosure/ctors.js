@@ -6,7 +6,33 @@ const O = require('omikron');
 const esolangs = require('../..');
 const VarSet = require('./var-set');
 
-class Base{}
+class Base{
+  toStr(){ O.virtual('toStr'); }
+
+  toString(){
+    const stack = [this];
+    let str = '';
+
+    while(stack.length !== 0){
+      const elem = stack.shift();
+      if(typeof elem === 'string'){
+        str += elem;
+        continue;
+      }
+
+      const arr = elem.toStr();
+      if(typeof arr === 'string'){
+        str += arr;
+        continue;
+      }
+
+      for(let i = arr.length - 1; i !== -1; i--)
+        stack.unshift(arr[i]);
+    }
+
+    return str;
+  }
+}
 
 class Global extends Base{
   constructor(globalEnts){
@@ -27,14 +53,76 @@ class Global extends Base{
 }
 
 class Type extends Base{
-  constructor(name, ptrs){
+  constructor(ptrs){
     super();
-    this.name = name;
     this.ptrs = ptrs;
   }
 
+  static eq(t1, t2){ return t1.eq(t2); }
+  static cmp(stack, t1, t2){ O.virtual('cmp', 1) }
+
+  get pstr(){ return '*'.repeat(this.ptrs); }
+
   eq(type){
-    return type.name === this.name && type.ptrs === this.ptrs;
+    const stack = [[this, type]];
+
+    while(stack.length !== 0){
+      const [t1, t2] = stack.pop();
+      if(t1.ptrs !== t2.ptrs) return 0;
+
+      const ctor = t1.constructor;
+      if(t2.constructor !== ctor) return 0;
+
+      if(!ctor.cmp(stack, t1, t2)) return 0;
+    }
+
+    return 1;
+  }
+}
+
+class PrimitiveType extends Type{
+  constructor(ptrs, name){
+    super(ptrs);
+    this.name = name;
+  }
+
+  static cmp(stack, t1, t2){
+    return t1.name === t2.name;
+  }
+
+  toStr(){
+    return `${this.name}${this.pstr}`;
+  }
+}
+
+class FunctionType extends Type{
+  constructor(ptrs, ret, args){
+    super(ptrs);
+    this.ret = ret;
+    this.args = args;
+  }
+
+  static cmp(stack, t1, t2){
+    const a1 = t1.args;
+    const a2 = t2.args;
+    if(a1.length !== a2.length) return 0;
+
+    stack.push([t1.ret, t2.ret]);
+    a1.forEach((a, i) => stack.push([a, a2[i]]));
+    return 1;
+  }
+
+  toStr(){
+    const arr = [`${this.ret}(${this.pstr})(`];
+
+    this.args.forEach((a, i) => {
+      if(i !== 0) arr.push('(');
+      arr.push(a);
+    });
+
+    arr.push(')');
+
+    return arr;
   }
 }
 
@@ -62,11 +150,10 @@ class VariableDef extends EntityDef{
 }
 
 class FunctionDef extends EntityDef{
-  constructor(name, type, args, body){
-    super(name, type);
+  constructor(name, ret, args, body){
+    super(name, new FunctionType(0, ret, args.map(a => a.type)));
     this.args = args;
     this.body = body;
-
     body.func = this;
   }
 
@@ -89,6 +176,8 @@ class CodeBlock extends Statement{
   hasStartLabel = 0;
   hasEndLabel = 0;
   onEnd = null;
+
+  start = 1;
 
   constructor(stats){
     super();
@@ -120,6 +209,8 @@ class CodeBlock extends Statement{
     this.varsArr = vars.toArr();
     this.varsMap = vars.toMap();
   }
+
+  get varsNum(){ return this.varsArr.length; }
 
   getOffset(name){
     let block = this;
@@ -186,9 +277,19 @@ class Value extends Base{
 
 class Operation extends Value{}
 
-class BinaryOperation extends Value{}
+class UnaryOperation extends Operation{
+  constructor(op){
+    super();
+    this.op = op;
+  }
+}
 
-class Addition extends BinaryOperation{
+class UnaryPlus extends UnaryOperation{}
+class UnaryMinus extends UnaryOperation{}
+class TakeAddress extends UnaryOperation{}
+class Dereference extends UnaryOperation{}
+
+class BinaryOperation extends Operation{
   constructor(op1, op2){
     super();
     this.op1 = op1;
@@ -196,37 +297,12 @@ class Addition extends BinaryOperation{
   }
 }
 
-class Subtraction extends BinaryOperation{
-  constructor(op1, op2){
-    super();
-    this.op1 = op1;
-    this.op2 = op2;
-  }
-}
-
-class Multiplication extends BinaryOperation{
-  constructor(op1, op2){
-    super();
-    this.op1 = op1;
-    this.op2 = op2;
-  }
-}
-
-class Division extends BinaryOperation{
-  constructor(op1, op2){
-    super();
-    this.op1 = op1;
-    this.op2 = op2;
-  }
-}
-
-class Modulo extends BinaryOperation{
-  constructor(op1, op2){
-    super();
-    this.op1 = op1;
-    this.op2 = op2;
-  }
-}
+class Assignment extends BinaryOperation{}
+class Addition extends BinaryOperation{}
+class Subtraction extends BinaryOperation{}
+class Multiplication extends BinaryOperation{}
+class Division extends BinaryOperation{}
+class Modulo extends BinaryOperation{}
 
 class Call extends Operation{
   constructor(func, args){
@@ -258,6 +334,8 @@ module.exports = {
   Base,
   Global,
   Type,
+  PrimitiveType,
+  FunctionType,
   Statement,
   EntityDef,
   VariableDef,
@@ -269,7 +347,13 @@ module.exports = {
   Return,
   Value,
   Operation,
+  UnaryOperation,
+  UnaryPlus,
+  UnaryMinus,
+  TakeAddress,
+  Dereference,
   BinaryOperation,
+  Assignment,
   Addition,
   Subtraction,
   Multiplication,

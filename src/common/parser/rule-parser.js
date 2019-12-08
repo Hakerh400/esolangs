@@ -208,6 +208,14 @@ function parse(syntax, str){
       // Closed quotation marks
       c(1);
 
+      if(c(0) === 'i'){ // Case-insensitive
+        if(str !== str.toLowerCase())
+          err(`Case-insensitive literal string ${O.sf(str)} must be specified in lower-case`);
+
+        elem.caseInsensitive = 1;
+        c(1);
+      }
+
       elem.str = str;
     }else if(char === '['){ // Characters range
       elem = newElem(Element.CharsRange);

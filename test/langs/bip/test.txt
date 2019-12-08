@@ -1,0 +1,108 @@
+Block-Comment is
+BABA IS PROGRAM
+
+A esotric language inspired by the game 'Baba is You'
+
+This is a block comment, and you can write it as 'Block-Comment is'.
+You can end it like so:
+
+and end Block-Comment
+
+Comment You can also make single-lined comments like this.
+
+Comment In order to declare a variable, you can do <Variable> is <Definition>
+
+StringVar is "String"
+IntegerVar is 123
+
+Comment You can do math like so:
+
+IntegerVar2 is 1 plus 2
+IntegerVar3 is IntegerVar minus 20
+
+Comment And you can print like so:
+
+Say "Hello, World!"
+Say IntegerVar3
+
+Comment And also input:
+
+StringVar is Input
+SAY StringVar
+
+Comment This alone should make it Turing Complete (I think, don't quote me on that though.)
+Comment Here's some extra stuff that's probably important
+Comment Multi-line statements are done like so:
+
+foo is "bar" and hello is "world"
+
+Comment If/else statements are done like so:
+
+If foo is "bar" then
+  Say foo
+and end If
+Else If hello is "world" then
+  Say hello
+and end If and Comment Either if or else works here.
+Else then
+  Say "No vars equal to themselves"
+end Else
+
+Comment You can also use parenthesis and standard and/or boolean checks.
+
+If (foo is "bar" and hello is "world") or 1 plus 2 is 3 then
+  Say "Nice"
+and end If
+
+Comment Also Greater/Less than checks are done like this:
+
+If 1 is less than 2 and 2 is greater than or equal to 2 then
+  Say "Stuff"
+and end If
+
+Comment You can do var++ or var-- like so:
+
+var is 10
+var is added
+var is subtracted
+
+Comment For statements work similarily to Java/Javascript syntax
+
+For (Initialization is i is 1 and Termination is i is less than 11 and Increment is i is added) then
+  Say "i is " plus i
+and end For
+
+Block-Comment is
+The Java equivalent would be this:
+
+for (int i = 1; i<11; i++) {
+  System.out.println("i is " + i);
+}
+
+..anddd that's about it!
+
+There would be stuff like functions and whatnot but in all honesty I'm really bad at programming.
+So functions may come sooner or later.
+
+Hopefully.
+
+Oh, and one other thing:
+
+you can simply end the program by saying 'end'
+and end Block-Comment
+
+Comment it's not necessary at the end (obviously)
+Comment Also, you don't have to capitalize "If", "Else", etc.
+Comment I just did that for readability purposes.
+Comment They're case-insensitive, so you can go all caps like the original game:
+
+YOU IS "YOU"
+BABA IS YOU
+
+IF BABA IS YOU THEN
+  SAY BABA
+AND END IF
+
+end
+
+SAY "This will not be displayed"

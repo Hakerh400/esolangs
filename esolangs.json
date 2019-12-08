@@ -89,5 +89,10 @@
     "id": "disclosure",
     "version": "1.0.0",
     "details": ""
+  }, {
+    "name": "Baba is program",
+    "id": "bip",
+    "version": "1.0.0",
+    "details": "https://esolangs.org/wiki/Baba_is_program"
   }
 ]

@@ -319,7 +319,9 @@ class ParseElem extends Parse{
         this.index += def.len;
       }else if(node instanceof ASTTerm){
         if(node.ref instanceof Element.String){
-          const substr = str.slice(index, index + node.ref.str.length);
+          let substr = str.slice(index, index + node.ref.str.length);
+          if(node.ref.caseInsensitive) substr = substr.toLowerCase();
+
           if(node.ref.str !== substr) return done();
           node.arr.push(substr);
           this.index += node.ref.str.length;

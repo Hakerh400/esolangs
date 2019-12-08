@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const O = require('../omikron');
+const esolangs = require('../..');
 const Engine = require('./engine');
 const Syntax = require('./syntax');
 const PL = require('./programming-language');
@@ -30,7 +31,7 @@ const parse = (syntax, script, rules) => {
   let err = 0;
 
   eng.stderr.on('write', (buf, len) => {
-    log(buf.toString());
+    esolangs.err(buf.toString());
     err = 1;
   });
 

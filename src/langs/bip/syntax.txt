@@ -1,0 +1,96 @@
+script{ s0 stat*s1 s0 }
+
+stat{
+  assignments |
+  control |
+  say |
+  end
+}
+
+assignments{ assignment+assignmentSep }
+assignment{ ident s1 "is"i s1 exprPart }
+assignmentSep{ s1 "and"i s1 }
+
+control{
+  if |
+  for
+}
+
+if{ "if"i s1 expr s1 "then"i s1 stat s1 "and end "i ifOrElseStr else? }
+else{ s1 ifComment? s0 "else"i s1 elseBody }
+elseBody{ stat | "then"i s1 stat s1 "end else"i }
+ifOrElseStr{ "if"i | "else"i }
+ifComment{ "and "i inlineComment }
+
+for{
+  "for"i s0 "(" s0 "initialization is"i s1 assignment s1
+  "and termination is"i s1 exprPart s1
+  "and increment is"i s1 assignment s0 ")" s0 "then"i s1 stat s1
+  "and end for"i
+}
+
+say{ "say"i s1 exprArithmeticOrTerm }
+end{ "end"i s1 .* }
+
+expr{ exprPart+exprSep }
+exprSep{ s1 andOr s1 }
+andOr{ "and"i | "or"i }
+
+exprPart{
+  exprCmp |
+  exprArithmeticOrTerm
+}
+
+exprArithmetic{
+  add |
+  sub
+}
+
+exprArithmeticOrTerm{
+  exprArithmetic |
+  exprTerm
+}
+
+exprCmp{
+  eq |
+  lt |
+  gt |
+  le |
+  ge
+}
+
+exprTerm{
+  grouping |
+  ident |
+  int |
+  string
+}
+
+add{ exprPart s1 "plus"i s1 exprTerm }
+sub{ exprPart s1 "minus"i s1 exprTerm }
+
+eq{ exprPart s1 "is"i s1 exprTerm }
+lt{ exprPart s1 "is less than"i s1 exprTerm }
+gt{ exprPart s1 "is greater than"i s1 exprTerm }
+le{ exprPart s1 "is less than or equal to"i s1 exprTerm }
+ge{ exprPart s1 "is greater than or equal to"i s1 exprTerm }
+
+or{ exprPart s1 "or"i s1 exprTerm }
+
+grouping{ "(" s0 expr s0 ")" }
+
+ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
+int{ [+\-]? [0-9]+ }
+string{ "\"" stringChar* "\"" }
+stringChar{ "\\" [^\r\n] | [^"\r\n] }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "comment"i [^\r\n\t]+ }
+multilineComment{ "block-comment is"i commentBody }
+commentBody{ s1 .*? s0 commentEnd | s0 .*? s1 commentEnd }
+commentEnd{ "and end block-comment"i }
+
+s{ whitespace | comment}
+s0{ s* }
+s1{ s+ }

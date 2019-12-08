@@ -32,10 +32,11 @@ class NonTerminal extends Element{
 }
 
 class String extends Terminal{
-  constructor(str=''){
+  constructor(str='', caseInsensitive=0){
     super();
 
     this.str = '';
+    this.caseInsensitive = caseInsensitive;
   }
 
   toString(){ return O.sf(this.str); }
