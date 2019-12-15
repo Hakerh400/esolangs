@@ -16,7 +16,7 @@ control{
   for
 }
 
-if{ "if"i s1 expr s1 "then"i s1 stat s1 "and end "i ifOrElseStr else? }
+if{ "if"i s1 expr s1 "then"i s1 stat s1 "and end"i s1 ifOrElseStr else? }
 else{ s1 ifComment? s0 "else"i s1 elseBody }
 elseBody{ stat | "then"i s1 stat s1 "end else"i }
 ifOrElseStr{ "if"i | "else"i }
@@ -86,7 +86,7 @@ stringChar{ "\\" [^\r\n] | [^"\r\n] }
 
 whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }
-inlineComment{ "comment"i [^\r\n\t]+ }
+inlineComment{ "comment"i [^\r\n]+ }
 multilineComment{ "block-comment is"i commentBody }
 commentBody{ s1 .*? s0 commentEnd | s0 .*? s1 commentEnd }
 commentEnd{ "and end block-comment"i }

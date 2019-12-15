@@ -108,7 +108,7 @@ integer{ [+\-]? [0-9]+ }
 
 whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }
-inlineComment{ "//" [^\r\n\t]* }
+inlineComment{ "//" [^\r\n]* }
 multilineComment{ "/*" .*? "*/"}
 
 s{ whitespace | comment }

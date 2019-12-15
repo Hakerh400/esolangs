@@ -56,7 +56,7 @@ const esolangs = {
   },
 
   err(msg){
-    log(`\nERROR: ${msg}`);
+    log(`ERROR: ${msg}`);
     O.proc.exit(1);
   }
 };

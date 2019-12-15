@@ -24,7 +24,7 @@ const langs = SINGLE_LANG !== null ? [SINGLE_LANG] : esolangs.getLangs();
 const skipTestsObj = O.obj();
 
 for(const skipTest of skipTests){
-  if(typeof skipTests === 'string'){
+  if(typeof skipTest === 'string'){
     skipTestsObj[skipTest] = O.obj();
     skipTestsObj[skipTest]['*'] = 1;
     continue;

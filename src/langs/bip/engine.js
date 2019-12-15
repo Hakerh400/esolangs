@@ -15,7 +15,7 @@ const reservedKws = [
 class Engine{
   constructor(parsed, input){
     this.stats = parsed.stats;
-    this.input = Buffer.from(input).toString().split('');
+    this.input = input.toString().split('');
     this.output = null;
   }
 
@@ -109,9 +109,7 @@ class Engine{
       return stack1[0];
     };
 
-    let z = 0;
     while(stack.length !== 0){
-      ++z;
       const stat = stack.shift();
       const ctor = stat.constructor;
       const {name} = ctor;
@@ -128,7 +126,7 @@ class Engine{
         const {expr} = stat;
 
         if(reservedKws.includes(ident.toLowerCase()))
-          esolangs.err(`Reserwed keyword ${O.sf(ident)} cannot be used as an identifier`);
+          esolangs.err(`Reserved keyword ${O.sf(ident)} cannot be used as an identifier`);
 
         if(expr instanceof cs.Identifier){
           const name = expr.name.toLowerCase();
@@ -176,14 +174,14 @@ class Engine{
         continue;
       }
 
-      O.noimpl(stat.constructor.name);
+      O.noimpl(name);
     }
 
-    this.output = output;
+    this.output = Buffer.from(output);
   }
   
   getOutput(){
-    return Buffer.from(this.output);
+    return this.output;
   }
 }
 

@@ -94,5 +94,15 @@
     "id": "bip",
     "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Baba_is_program"
+  }, {
+    "name": "Multilateral",
+    "id": "multilateral",
+    "version": "1.0.0",
+    "details": ""
+  }, {
+    "name": "Shadow",
+    "id": "shadow",
+    "version": "1.0.0",
+    "details": ""
   }
 ]

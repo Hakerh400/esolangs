@@ -7,11 +7,22 @@ const esolangs = require('../..');
 const cs = require('./ctors');
 
 class Engine{
-  constructor(parsed, input){}
+  constructor(parsed, input){
+    this.parsed = parsed;
+    this.input = input;
+    this.output = null;
+  }
 
-  run(){}
+  run(){
+    const {parsed, input} = this;
+    const output = [];
+
+    this.output = Buffer.from(output);
+  }
   
-  getOutput(){}
+  getOutput(){
+    return this.output;
+  }
 }
 
 module.exports = Engine;

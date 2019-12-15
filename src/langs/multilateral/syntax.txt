@@ -1,0 +1,19 @@
+script{ s0 block s0 }
+
+block{ inst*s0 }
+inst{ move | modify | io | loop }
+
+move{ [<>] s0 moveDim? }
+moveDim{ [0-9]+ | "#" }
+modify{ [+\-] }
+io{ [,.] }
+loop{ "[" s0 block s0 "]" }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment}
+s0{ s* }
+s1{ s+ }
