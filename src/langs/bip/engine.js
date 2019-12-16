@@ -29,11 +29,15 @@ class Engine{
 
     const assertType = (opName, val, types) => {
       const actual = typeof val;
-      const ok = typeof types === 'string' ?
-        actual === types :
-        types.includes(actual);
+      const isStr = typeof types === 'string';
+      const ok = isStr ? actual === types : types.includes(actual);
 
-      if(!ok) esolangs.err(`[${opName}] Expected a ${types[0]}, but got ${actual} ${O.sf(String(val))}`);
+      if(!ok){
+        const expected = isStr ? types : types[0];
+        const str = expected === 'bigint' ? `an integer` : `a ${expected}`;
+        esolangs.err(`[${opName}] Expected ${str}, but got ${actual} ${O.sf(String(val))}`);
+      }
+
       return val;
     };
 
@@ -132,11 +136,15 @@ class Engine{
           const name = expr.name.toLowerCase();
 
           if(name === 'added'){
+            if(!(ident in vars)) esolangs.err(`Cannot increment undefined variable ${O.sf(ident)}`);
+            assertType('Increment', vars[ident], 'bigint');
             vars[ident]++;
             continue;
           }
 
           if(name === 'subtracted'){
+            if(!(ident in vars)) esolangs.err(`Cannot decrement undefined variable ${O.sf(ident)}`);
+            assertType('Decrement', vars[ident], 'bigint');
             vars[ident]--;
             continue;
           }

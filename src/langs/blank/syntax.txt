@@ -5,6 +5,6 @@ comment{ inlineComment | multilineComment }
 inlineComment{ "//" [^\r\n]* }
 multilineComment{ "/*" .*? "*/"}
 
-s{ whitespace | comment}
+s{ whitespace | comment }
 s0{ s* }
 s1{ s+ }

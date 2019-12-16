@@ -1,7 +1,7 @@
 Block-Comment is
 BABA IS PROGRAM
 
-A esotric language inspired by the game 'Baba is You'
+An esotric language inspired by the game 'Baba is You'
 
 This is a block comment, and you can write it as 'Block-Comment is'.
 You can end it like so:

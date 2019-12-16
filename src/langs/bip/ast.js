@@ -13,7 +13,6 @@ const rules = {
   assignment: e => new cs.Assignment(e.es[0].fst, e.es[4].fst),
   assignmentSep: e => e.fst.fst,
   control: e => e.fst.fst,
-  control: e => e.fst.fst,
   if: e => new cs.If(e.es[2].fst, e.es[6].fst, O.fst(e.es[10].arr)),
   else: e => e.es[5].fst,
   elseBody: e => e.es[e.pti === 0 ? 0 : 2].fst,
