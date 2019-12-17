@@ -1,0 +1,19 @@
+script{ s0 expr s0 }
+
+expr{ expr1 | expr2 }
+expr1{ identifier | grouping }
+expr2{ abstraction | invocation }
+
+identifier{ [a-zA-Z0-9_]+ }
+abstraction{ identifier s0 [.:] s0 expr }
+invocation{ expr s0 expr1 }
+grouping{ "(" s0 expr s0 ")" }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }
