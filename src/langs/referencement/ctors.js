@@ -193,7 +193,7 @@ class NativeFunction extends Expression{
   get type(){ return 3; }
 
   toStr(){
-    return O.sfcc(this.id + 65);
+    return `[${this.id}]`;
   }
 }
 

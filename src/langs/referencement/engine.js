@@ -72,8 +72,14 @@ class Engine{
 
     const replace = (e1, e2) => {
       const {parent} = e1;
-      if(parent !== null) parent.replace(e1, e2);
-      else expr = e2;
+
+      if(parent !== null){
+        parent.replace(e1, e2);
+      }else{
+        expr = e2;
+        e2.parent = null;
+      }
+
       return parent;
     };
 
@@ -126,9 +132,9 @@ class Engine{
 
         replace(parent, e2);
 
-        e1.iter(expr => {
-          if(expr.type !== 1 || expr.y !== y) return;
-          replace(expr, e2.slice());
+        expr.iter(e => {
+          if(e.type !== 1 || e.y !== y) return;
+          replace(e, e2.slice());
         });
 
         continue;
@@ -158,12 +164,14 @@ class Engine{
       }
 
       if(id === 3){
+        log(0);
         io.write(0);
         replace(e, expr2);
         continue;
       }
 
       if(id === 4){
+        log(1);
         io.write(1);
         replace(e, expr2);
         continue;
