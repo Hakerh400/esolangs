@@ -4,12 +4,18 @@ const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
+const arrOrder = require('../../common/arr-order');
 const cs = require('./ctors');
 
 const DEBUG = 0;
 const DEBUG_NATIVE_FUNCS = 0;
+const LOG_GLOBAL_EXPR = 0;
+const ADD_NATIVE_FUNCS = 1;
+const PERFORM_COMPUTATION = 1;
 
 const DUMP_GLOBAL_EXPR = 0;
+const DUMP_SHORTEN_IDENTS = 0;
+const DUMP_REMOVE_SPACES = 0;
 const DUMP_FILE = 'C:/Users/Thomas/Downloads/1.txt';
 
 class Engine{
@@ -52,6 +58,8 @@ class Engine{
     };
 
     const logExpr = (expr=globalExpr) => {
+      if(LOG_GLOBAL_EXPR) expr = globalExpr;
+
       let str = expr.toString();
 
       if(str.length >= 200)
@@ -153,20 +161,61 @@ class Engine{
       }
     });
 
-    [2, 3, 1, 1, 1].forEach((n, index) => {
-      let func = new cs.NativeFunction(index);
+    if(ADD_NATIVE_FUNCS){
+      [2, 3, 1, 1, 1].forEach((n, index) => {
+        let func = new cs.NativeFunction(index);
 
-      for(let i = 0; i !== n; i++)
-        func = new cs.Invocation(func, new cs.Identifier(O.sfcc(i + 97)));
+        for(let i = 0; i !== n; i++)
+          func = new cs.Invocation(func, new cs.Identifier(O.sfcc(i + 97)));
 
-      for(let i = n - 1; i !== -1; i--)
-        func = new cs.Abstraction(O.sfcc(i + 97), index !== 0 || i !== 1, func);
+        for(let i = n - 1; i !== -1; i--)
+          func = new cs.Abstraction(O.sfcc(i + 97), index !== 0 || i !== 1, func);
 
-      globalExpr = new cs.Invocation(globalExpr, func);
-    });
+        globalExpr = new cs.Invocation(globalExpr, func);
+      });
+    }
 
-    if(DUMP_GLOBAL_EXPR)
-      O.wfs(DUMP_FILE, globalExpr.toString());
+    if(DUMP_GLOBAL_EXPR){
+      let e = globalExpr;
+
+      if(DUMP_SHORTEN_IDENTS){
+        const chars = O.chars('0', 10) + O.chars('a', 26) + O.chars('A', 26);
+        const idents = O.obj();
+        let num = 1n;
+
+        e = e.slice().iter(expr => {
+          if(expr.type === 0){
+            const {name} = expr;
+
+            if(name in idents){
+              expr.name = idents[name];
+              return;
+            }
+
+            expr.name = idents[name] = arrOrder.str(chars, num++);
+          }else if(expr.type === 1){
+            const name = expr.ident;
+
+            if(name in idents){
+              expr.ident = idents[name];
+              return;
+            }
+
+            expr.ident = idents[name] = arrOrder.str(chars, num++);
+          }
+        });
+      }
+
+      let str = e.toString();
+
+      if(DUMP_REMOVE_SPACES)
+        str = str.replace(/ [\.\(\)]|[\.\(\)] /g, a => a.trim());
+
+      O.wfs(DUMP_FILE, str.match(/.{100}|.+/gs).map(a => a.trim()).join('\n'));
+    }
+
+    if(!PERFORM_COMPUTATION)
+      O.exit();
 
     while(globalExpr.type === 2){
       let e = globalExpr;
@@ -174,11 +223,13 @@ class Engine{
       tco: if(e.type === 2){
         const e1 = e.expr1;
         if(e1.type !== 1) break tco;
+        if(!e1.byRef) break tco;
 
         const e2 = e1.expr;
         if(e2.type !== 0) break tco;
         if(e2.name !== e1.ident) break tco;
 
+        if(DEBUG) logExpr(e);
         replace(globalExpr, e.expr2);
         continue;
       }

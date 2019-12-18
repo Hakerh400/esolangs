@@ -34,6 +34,8 @@ class Expression extends Base{
       if(type === 1) stack.push(expr.expr);
       else if(type === 2) stack.push(expr.expr2, expr.expr1);
     }
+
+    return this;
   }
 
   slice(){
