@@ -205,12 +205,6 @@ class Engine{
         const e1 = expr1.expr;
 
         replace(e, e1);
-        // if(parent !== null){
-        //   parent.replace(e, e1);
-        // }else{
-        //   globalExpr = e1;
-        //   e1.parent = null;
-        // }
 
         e1.iter(expr => {
           if(expr.type === 1 && expr.ident === ident) return 0;

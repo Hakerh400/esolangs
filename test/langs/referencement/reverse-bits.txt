@@ -1,0 +1,70 @@
+[assign, equals, rd, w0, w1]{
+  nop: {nop};
+
+  0: [a, b]{b};
+  1: [a, b]{a};
+
+  not: [bit]{
+    bit(0, 1);
+  };
+
+  eq: [a, b]{
+    result: 0;
+    equals(a, b, {result = 1});
+    result;
+  };
+
+  if: [cond, func]{
+    cond({
+      func();
+      nop;
+    }, {
+      [a, b]{b()};
+    })();
+  };
+
+  else: [a]{a};
+
+  while: [cond, func]{
+    cond()({
+      func();
+      while(cond, func);
+    }, 0)();
+  };
+
+  Pair: [a, b]{
+    [c, d]{
+      result: 0;
+      if(c){
+        [e]{
+          if(d){b = e};
+          else{a = e}
+        };
+      }else{
+        result = d(b, a);
+      };
+      result;
+    };
+  };
+
+  read: {
+    bit: 0;
+    rd{bit = 1};
+    bit;
+  };
+
+  write: [bit]{
+    bit(w1, w0)();
+  };
+
+  elem: Pair(0, 0);
+  
+  while(read){
+    elem = Pair(read(), elem);
+  };
+
+  while({not(eq(elem(0, 1), 0))}){
+    write(elem(0, 0));
+    elem = elem(0, 1);
+  };
+}

@@ -2,6 +2,10 @@
   0: [a, b]{b};
   1: [a, b]{a};
 
+  not: [bit]{
+    bit(0, 1);
+  };
+
   while: [cond, func]{
     cond()({
       func();
@@ -20,6 +24,6 @@
   };
   
   while(read){
-    write(read());
+    write(not(read()));
   };
 }
