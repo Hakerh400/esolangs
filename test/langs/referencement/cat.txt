@@ -1,0 +1,25 @@
+[assign, eq, rd, w0, w1]{
+  0: [a, b]{b};
+  1: [a, b]{a};
+
+  while: [cond, func]{
+    cond()({
+      func();
+      while(cond, func);
+    }, 0)();
+  };
+
+  read: {
+    bit: 0;
+    rd{bit = 1};
+    bit;
+  };
+
+  write: [bitw]{
+    bitw(w1, w0)();
+  };
+  
+  while(read, {
+    write(read());
+  });
+}

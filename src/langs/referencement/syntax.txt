@@ -1,13 +1,26 @@
 script{ s0 expr s0 }
 
 expr{ expr1 | expr2 }
-expr1{ identifier | grouping }
-expr2{ abstraction | invocation }
+expr1{ identifier | grouping | fancyFunc }
+expr2{ fancyExpr | abstraction | invocation | fancyCall }
 
 identifier{ [a-zA-Z0-9_]+ }
-abstraction{ identifier s0 [.:] s0 expr }
+abstraction{ "&"? s0 identifier s0 "." s0 expr }
 invocation{ expr s0 expr1 }
 grouping{ "(" s0 expr s0 ")" }
+
+fancyFunc{ fancyArgs? s0 "{" s0 expr+semicolonSep s0 ";"? s0 "}" }
+fancyArgs{ "[" s0 fancyArg*commaSep s0 "]" }
+fancyArg{ "&"? s0 identifier }
+fancyCall{ expr s0 "(" s0 fancyCallArgs? s0 ")"}
+fancyCallArgs{ expr{2..*}commaSep }
+
+fancyExpr{ varDecl | assignment }
+varDecl{ identifier s0 ":" s0 expr }
+assignment{ identifier s0 "=" s0 expr }
+
+commaSep{ s0 "," s0 }
+semicolonSep{ s0 ";" s0 }
 
 whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }
