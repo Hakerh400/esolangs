@@ -21,9 +21,10 @@ class Program extends SG{
 
   stage = 0;
 
-  constructor(lang, source, maxSize, criticalSize=null){
+  constructor(lang, source, defName, maxSize, criticalSize=null){
     super(lang.graphCtors, lang.graphRefs, maxSize);
 
+    this.defName = defName;
     this.criticalSize = criticalSize;
 
     this.Parser = lang.Parser;
@@ -53,7 +54,7 @@ class Program extends SG{
       const srcStr = this.#source;
       const fileName = DEFAULT_FILE_NAME;
       const script = new cgs.Script(this, srcStr, fileName);
-      this.#intp = new this.#lang.Interpreter(this, script);
+      this.#intp = new this.#lang.Interpreter(this, script, this.defName);
       this.#inited = 1;
       return;
     }

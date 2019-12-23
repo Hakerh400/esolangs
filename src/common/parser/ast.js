@@ -51,6 +51,12 @@ class ASTNode extends SG.Node{
   get end(){ return this.index + this.len; }
   get str(){ return this.toString(); }
 
+  get am(){
+    const {arr} = this;
+    if(arr.length === 0) return arr;
+    return arr[0];
+  }
+
   reset(){ O.virtual('reset'); }
   update(){ O.virtual('update'); }
 

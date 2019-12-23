@@ -12,8 +12,8 @@ class Engine{
 
   paused = 1;
 
-  constructor(lang, script, maxSize, criticalSize){
-    this.#program = new Program(lang, script, maxSize, criticalSize);
+  constructor(lang, script, defName, maxSize, criticalSize){
+    this.#program = new Program(lang, script, defName, maxSize, criticalSize);
   }
 
   getRetVal(){ return this.#program.getRetVal(); }

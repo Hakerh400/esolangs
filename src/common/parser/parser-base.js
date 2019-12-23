@@ -14,23 +14,24 @@ const Context = require('./context');
 const AST = require('./ast');
 const cgs = require('./common-graph-nodes');
 
-const MAIN_DEF = 'script';
-
 const {ASTNode, ASTDef, ASTPat, ASTElem, ASTNterm, ASTTerm} = AST;
 
 class ParserBase extends SF{
   static ptrsNum = this.keys(['ast', 'cache', 'parsing', 'sfDef']);
 
-  constructor(g, script, exec=0){
+  constructor(g, script, defName, exec=0){
     super(g);
     if(g.dsr) return;
 
     const {syntax} = g.lang;
 
+    if(!(defName in syntax.defs))
+      throw new TypeError(`Undefined syntax rule ${O.sf(defName)}`);
+
     this.ast = new AST(g, syntax, script.source);
     this.cache = [];
     this.parsing = [];
-    this.sfDef = new ParseDef(g, this, 0, syntax.defs[MAIN_DEF]['*']);
+    this.sfDef = new ParseDef(g, this, 0, syntax.defs[defName]['*']);
     this.exec = exec;
 
     g.stage = 0;

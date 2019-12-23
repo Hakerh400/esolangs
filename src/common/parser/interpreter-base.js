@@ -10,7 +10,7 @@ const cgs = require('./common-graph-nodes');
 class InterpreterBase extends SG.Node{
   static ptrsNum = this.keys(['threads']);
 
-  constructor(g, script=null){
+  constructor(g, script, defName){
     super(g);
     if(g.dsr) return;
     g.setIntp(this);
@@ -18,10 +18,8 @@ class InterpreterBase extends SG.Node{
     this.threads = [];
     this.threadIndex = -1;
 
-    if(script !== null){
-      const execute = new cgs.Execute(g, script);
-      this.createThread(execute);
-    }
+    const execute = new cgs.Execute(g, script, defName);
+    this.createThread(execute);
   }
 
   ser(s){ super.ser(s); s.writeInt(this.threadIndex); }

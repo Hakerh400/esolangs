@@ -12,7 +12,9 @@ const ParserBase = require('./parser-base');
 const CompilerBase = require('./compiler-base');
 const InterpreterBase = require('./interpreter-base');
 
-const parse = (syntax, script, rules) => {
+const MAIN_DEF = 'script';
+
+const parse = (syntax, script, rules, defName=MAIN_DEF) => {
   const syntaxObj = Syntax.fromStr(String(syntax));
 
   class Parser extends ParserBase{}
@@ -27,7 +29,7 @@ const parse = (syntax, script, rules) => {
     Object.assign(ctors[ctroName], ctors);
 
   const lang = new PL('', syntaxObj, Parser, Compiler, Interpreter);
-  const eng = new Engine(lang, String(script), 1e8, 1e8 - 1e3);
+  const eng = new Engine(lang, String(script), defName, 1e8, 1e8 - 1e3);
   let err = 0;
 
   eng.stderr.on('write', (buf, len) => {
