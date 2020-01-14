@@ -55,10 +55,24 @@ const esolangs = {
     return strs[name];
   },
 
+  /*
+    If interpreter is unable to proceed and does not know what to do,
+    it should call this method, since it should not give a wrong result or
+    throw an error for a valid program.
+  */
+  loop(reason){
+    log(`WARNING: The interpreter cannot proceed`);
+    log(`Reason: ${reason}`);
+    for(;;);
+  },
+
   err(msg){
-    log(`ERROR: ${msg}`);
-    O.proc.exit(1);
-  }
+    if(isCLIInvoked) O.exit(msg);
+    throw new Error(msg);
+  },
 };
 
 module.exports = esolangs;
+
+const cli = require('./cli');
+const isCLIInvoked = cli.isInvoked();

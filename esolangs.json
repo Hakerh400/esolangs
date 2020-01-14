@@ -2,112 +2,98 @@
   {
     "name": "brainfuck",
     "id": "brainfuck",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Brainfuck"
   }, {
     "name": "HQ9+",
     "id": "hq9-plus",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/HQ9%2B"
   }, {
     "name": "HQ9++",
     "id": "hq9-plus-plus",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/HQ9%2B%2B"
   }, {
     "name": "Functional()",
     "id": "functional",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Functional()"
   }, {
     "name": "Bitwise Trance",
     "id": "bitwise-trance",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Bitwise_Trance"
   }, {
     "name": "Unary",
     "id": "unary",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Unary"
   }, {
     "name": "BitBounce",
     "id": "bit-bounce",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/BitBounce"
   }, {
     "name": "Functasy",
     "id": "functasy",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Functasy"
   }, {
     "name": "Examinable Invocation Vector",
     "id": "eiv",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Examinable_Invocation_Vector"
   }, {
     "name": "Realm",
     "id": "realm",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Realm"
   }, {
     "name": "Grid",
     "id": "grid",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Grid"
   }, {
     "name": "Boolfuck",
     "id": "boolfuck",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Boolfuck"
   }, {
     "name": "Intramodular Transaction",
     "id": "intramodular-transaction",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Intramodular_Transaction"
   }, {
     "name": "Encapsulation",
     "id": "encapsulation",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Encapsulation"
   }, {
     "name": "Transceternal",
     "id": "transceternal",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Transceternal"
   }, {
     "name": "Seclusion",
     "id": "seclusion",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Seclusion"
   }, {
     "name": "Daydream",
     "id": "daydream",
-    "version": "1.0.0",
-    "details": ""
+    "details": null
   }, {
     "name": "Disclosure",
     "id": "disclosure",
-    "version": "1.0.0",
-    "details": ""
+    "details": null
   }, {
     "name": "Baba is program",
     "id": "bip",
-    "version": "1.0.0",
     "details": "https://esolangs.org/wiki/Baba_is_program"
   }, {
     "name": "Multilateral",
     "id": "multilateral",
-    "version": "1.0.0",
-    "details": ""
+    "details": null
   }, {
     "name": "Shadow",
     "id": "shadow",
-    "version": "1.0.0",
-    "details": ""
+    "details": null
   }, {
     "name": "Referencement",
     "id": "referencement",
-    "version": "1.0.0",
-    "details": ""
+    "details": null
+  }, {
+    "name": "Cheap",
+    "id": "cheap",
+    "details": null
+  }, {
+    "name": "Finite-state mach... wait, WHAT!?",
+    "id": "fsmww",
+    "details": "https://esolangs.org/wiki/Finite-state_mach..._wait,_WHAT!%3F"
   }
 ]

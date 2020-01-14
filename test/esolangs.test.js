@@ -9,16 +9,14 @@ const esolangs = require('..');
 const cli = require('./cli');
 const skipTests = require('./skip-tests');
 
+const {part, test} = jstest;
+
 const SINGLE_LANG = null;
 const TEST_CLI = SINGLE_LANG === null;
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
 const formsDir = path.join(cwd, 'program-forms');
-
-const eq = assert.strictEqual;
-const ok = assert.ok;
-const {part, test} = jstest;
 
 const langs = SINGLE_LANG !== null ? [SINGLE_LANG] : esolangs.getLangs();
 const skipTestsObj = O.obj();
@@ -66,7 +64,11 @@ for(const name of langs){
 
         for(const [input, expectedOutput] of formFunc(src)){
           const actualOutput = esolangs.run(name, src, input);
-          eq(actualOutput.toString('binary'), Buffer.from(expectedOutput).toString('binary'));
+          
+          assert(
+            actualOutput.toString('binary') ===
+            Buffer.from(expectedOutput).toString('binary'),
+          );
         }
       });
     }

@@ -20,7 +20,6 @@ Get information about the language with name `name`. The return value is an obje
 
 * `name` - Equal to the `name` argument.
 * `id` - ID of the language.
-* `version` - Version of the emulator for that language.
 
 Names and IDs are unique among all languages. Besides the above properties, the returned object may also contain these properties:
 
@@ -32,6 +31,8 @@ If the language with the given name does not exist in the list of supported lang
 ### Method `esolangs.getInfoById(id)`
 
 Similar to `esolangs.getInfo(name)`. Returns information about the language with id `id`.
+
+**Note:** IDs are volatile and should not be hardcoded. If you plan to write an automated application for testing different esolangs, you may only hardcode language names, and then get their IDs at runtime.
 
 ### Method `esolangs.run(name, source, input)`
 
