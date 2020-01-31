@@ -7,7 +7,7 @@ const packageJson = require('../package');
 const langsList = require('./langs-list');
 const commonStrs = require('./common-strs');
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 const langsObj = O.obj();
 const langsIdsObj = O.obj();
