@@ -7,6 +7,8 @@ const packageJson = require('../package');
 const langsList = require('./langs-list');
 const commonStrs = require('./common-strs');
 
+const DEBUG = 1;
+
 const langsObj = O.obj();
 const langsIdsObj = O.obj();
 
@@ -37,7 +39,12 @@ const esolangs = {
 
   run(name, src, input){
     const info = esolangs.getInfo(name);
-    if(info === null) esolangs.err(`Unsupported language ${O.sf(name)}`);
+
+    if(info === null)
+      esolangs.err(`Unsupported language ${O.sf(name)}`);
+
+    if(O.has(info, 'wip') && info.wip)
+      esolangs.err(`Language ${O.sf(name)} is still a work-in-progress`);
 
     const func = require(path.join(langsDir, info.id));
     const output = func(Buffer.from(src), Buffer.from(input));
@@ -67,7 +74,7 @@ const esolangs = {
   },
 
   err(msg){
-    if(isCLIInvoked) O.exit(msg);
+    if(DEBUG || isCLIInvoked) O.error(msg);
     throw new Error(msg);
   },
 };

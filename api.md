@@ -1,4 +1,4 @@
-## Requiring the module
+## Importing the module
 
 ```js
 const esolangs = require('@hakerh400/esolangs');
@@ -25,6 +25,7 @@ Names and IDs are unique among all languages. Besides the above properties, the 
 
 * `details` - Reference (usually a URL) where more details about the language can be found.
 * `async` - Boolean value. If true, a program in that language runs asynchronously and the result is a promise that resolves to a buffer containing the program's output.
+* `wip` - Boolean value. If true, the interpreter is still a work-in-progress.
 
 If the language with the given name does not exist in the list of supported languages, the return value is `null`.
 

@@ -1,0 +1,46 @@
+script{ s0 class*s0 s0 }
+
+class{ "class" s1 ident s0 extends? s0 classBody }
+classBody{ "{" s0 classEntity*s0 s0 "}" | ";" }
+
+extends{ "extends" s1 ident }
+
+classEntity{ attribute | method }
+attribute{ ident s1 ident s0 ";" }
+
+method{ ident s1 ident s0 "(" s0 formalArgs s0 ")" s0 methodBody }
+methodBody{ "{" s0 "return" s1 expr s0 ";" s0 "}" | ";" }
+
+formalArgs{ formalArg*commaSep }
+formalArg{ ident s1 ident }
+
+expr{
+  this |
+  super |
+  exprIdent |
+  instantiation |
+  methodCall |
+  grouping
+}
+
+this{ "this" }
+super{ "super" s0 "." s0 ident "(" s0 args s0 ")" }
+exprIdent{ ident }
+
+instantiation{ "new" s1 ident s0 "(" s0 ")" }
+methodCall{ expr s0 "." s0 ident "(" s0 args s0 ")" }
+
+args{ expr*commaSep }
+grouping{ "(" s0 expr s0 ")" }
+ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
+
+commaSep{ s0 "," s0 }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

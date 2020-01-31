@@ -1,10 +1,5 @@
 [
   ["Functional()", "99-bottles"],
   ["Functional()", "fizz-buzz"],
-  ["Referencement", "reverse-bits"],
-  "Disclosure",
-  "Daydream",
-  "Multilateral",
-  "Shadow",
-  "Cheap"
+  ["Referencement", "reverse-bits"]
 ]

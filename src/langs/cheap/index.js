@@ -4,17 +4,25 @@ const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
-const ChipBuilder = require('./chip-builder');
 const Chip = require('./chip');
-const Component = require('./component');
 
 const run = (src, input) => {
-  const bits = src.toString().replace(/^[01]+/g, '');
+  const buf = O.bits2buf(src.toString().replace(/^[01]+/g, ''));
   const io = new O.IO(input, 0, 1);
 
-  let a = new ChipBuilder();
+  let ser = new O.Serializer(buf);
 
-  return io.getOutput();
+  while(1){
+    const chip = Chip.deser(ser);
+
+    chip.setIO(io);
+    chip.run();
+
+    const output = chip.getOutput();
+
+    if(chip.done) return output;
+    ser = new O.Serializer(output);
+  }
 };
 
 module.exports = run;

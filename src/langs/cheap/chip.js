@@ -4,19 +4,29 @@ const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
+const Element = require('./element');
+const Pin = require('./pin');
 
-class Chip{
-  #mainComponent = null;
+const {Gate, Template, Component} = Element;
 
-  get mainComponent(){
-    return this.#mainComponent;
+class Chip extends O.Serializable{
+  constructor(){
+    super();
+
+    this.templates = Template.createInitials(this);
+
+    this.io = null;
+    this.done = 0;
   }
 
-  set mainComponent(mainComponent){
-    if(this.#mainComponent !== null)
-      throw new TypeError('The main component has already been set');
+  static deser(ser=new O.Serializer()){
+    const chip = new Chip();
 
-    this.#mainComponent = mainComponent;
+    return chip;
+  }
+
+  setIO(io){
+    this.io = io;
   }
 }
 

@@ -66,11 +66,13 @@
   }, {
     "name": "Daydream",
     "id": "daydream",
-    "details": null
+    "details": null,
+    "wip": true
   }, {
     "name": "Disclosure",
     "id": "disclosure",
-    "details": null
+    "details": null,
+    "wip": true
   }, {
     "name": "Baba is program",
     "id": "bip",
@@ -78,22 +80,35 @@
   }, {
     "name": "Multilateral",
     "id": "multilateral",
-    "details": null
+    "details": null,
+    "wip": true
   }, {
     "name": "Shadow",
     "id": "shadow",
-    "details": null
+    "details": null,
+    "wip": true
   }, {
     "name": "Referencement",
     "id": "referencement",
-    "details": null
+    "details": "https://esolangs.org/wiki/Referencement"
   }, {
     "name": "Cheap",
     "id": "cheap",
-    "details": null
+    "details": null,
+    "wip": true
   }, {
     "name": "Finite-state mach... wait, WHAT!?",
     "id": "fsmww",
     "details": "https://esolangs.org/wiki/Finite-state_mach..._wait,_WHAT!%3F"
+  }, {
+    "name": "100% Object-oriented",
+    "id": "oop100",
+    "details": null,
+    "wip": true
+  }, {
+    "name": "Lazy expander",
+    "id": "lazy-expander",
+    "details": null,
+    "wip": true
   }
 ]

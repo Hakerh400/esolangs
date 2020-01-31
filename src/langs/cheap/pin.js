@@ -6,25 +6,65 @@ const O = require('omikron');
 const esolangs = require('../..');
 
 class Pin{
-  #component = null;
-  #prev = 0;
-  #val = 0;
+  static INPUT = 0;
+  static OUTPUT = 1;
 
-  constructor(component){
-    this.#component = component;
+  constructor(chip, elem, type, index){
+    this.chip = chip;
+    this.elem = elem;
+    this.type = type;
+    this.index = index;
+
+    this.input = null;
+    this.outputs = new Set();
   }
 
-  get prev(){ return this.#prev; }
-  get val(){ return this.#val; }
+  static createInputArr(chip, elem, len){
+    return Pin.createArr(chip, elem, len, Pin.INPUT);
+  }
 
-  set val(val){
-    val |= 0;
-    if(val === this.#val) return;
+  static createOutputArr(chip, elem, len){
+    return Pin.createArr(chip, elem, len, Pin.OUTPUT);
+  }
 
-    this.#prev = this.#val;
-    this.#val = val;
+  static createArr(chip, elem, len, type){
+    return O.ca(len, i => {
+      return new Pin(chip, elem, type, i);
+    });
+  }
 
-    this.#component.update();
+  setElem(elem){
+    this.elem = elem;
+  }
+
+  removeElem(){
+    this.setElem(null);
+  }
+
+  setInput(input){
+    if(this.input !== null)
+      this.input.outputs.delete(this);
+
+    this.input = input;
+
+    if(input !== null)
+      input.outputs.add(this);
+  }
+
+  removeInput(){
+    this.setInput(null);
+  }
+
+  addOutput(output){
+    output.setInput(this);
+  }
+
+  removeOutput(output){
+    output.setInput(null);
+  }
+
+  hasOutput(output){
+    this.outputs.has(output);
   }
 }
 

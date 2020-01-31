@@ -3,10 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
-const esolangs = require('../../..');
+const Element = require('../element');
 
-class Gate{
-  tick(mode){ O.virtual('tick'); }
+class Gate extends Element{
+  get tick(){ O.virtual('tick'); }
+  get isGate(){ return 1; }
 }
 
 module.exports = Gate;

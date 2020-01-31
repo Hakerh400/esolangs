@@ -16,7 +16,7 @@ const PERFORM_COMPUTATION = 1;
 const DUMP_GLOBAL_EXPR = 0;
 const DUMP_SHORTEN_IDENTS = 0;
 const DUMP_REMOVE_SPACES = 0;
-const DUMP_FILE = 'C:/Users/Thomas/Downloads/1.txt';
+const DUMP_FILE = null;
 
 class Engine{
   constructor(parsed, input){

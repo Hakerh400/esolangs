@@ -42,8 +42,10 @@ for(const name of langs){
   const skipTest = name in skipTestsObj ? skipTestsObj[name] : null;
   if(skipTest !== null && '*' in skipTest) continue;
 
+  const info = esolangs.getInfo(name);
+  if(O.has(info, 'wip') && info.wip) continue;
+
   part(`Language ${O.sf(name)}`, () => {
-    const info = esolangs.getInfo(name);
     const dir = path.join(langsDir, info.id);
     const fileNames = O.sortAsc(fs.readdirSync(dir));
 
@@ -67,7 +69,7 @@ for(const name of langs){
           
           assert(
             actualOutput.toString('binary') ===
-            Buffer.from(expectedOutput).toString('binary'),
+            Buffer.from(expectedOutput).toString('binary')
           );
         }
       });
