@@ -113,7 +113,6 @@
   }, {
     "name": "Golden sunrise",
     "id": "golden-sunrise",
-    "details": null,
-    "wip": true
+    "details": "https://esolangs.org/wiki/Golden_sunrise"
   }
 ]

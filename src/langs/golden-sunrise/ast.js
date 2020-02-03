@@ -7,7 +7,7 @@ const esolangs = require('../..');
 const cs = require('./ctors');
 
 const rules = {
-  script: e => new cs.Script(e.fst.arr),
+  script: e => new cs.Script(e.es[1].arr),
   rule: e => new cs.Rule(e.es[0].fst, e.es[4].fst),
   lhs: e => {
     if(e.pti === 0) return new cs.Lhs(e.es[0].arr, e.es[1].arr.length === 0);
@@ -17,7 +17,7 @@ const rules = {
   lhsTerm: e => e.fst.fst,
   rhsTerm: e => e.fst.fst,
   match: e => new cs.Match(),
-  group: e => new cs.Group(e.es[3].arr),
+  group: e => new cs.Group(e.es[2].arr),
   invertedIdent: e => new cs.Identifier(e.es[1].fst.name, 1),
   ident: e => new cs.Identifier(e.str),
   singleCharIdent: e => e.fst.fst,

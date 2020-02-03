@@ -8,10 +8,10 @@ const esolangs = require('../../..');
 class TreeNode{
   #bit0 = null;
   #bit1 = null;
+  #end = null;
+  #any = null;
 
   #regsNum = 0;
-  #hasEnd = 0;
-  #hasAny = 0;
   #isFull = 0;
 
   followBit(bit){
@@ -19,7 +19,7 @@ class TreeNode{
   }
 
   followBit0(){
-    if(this.#hasAny) return null;
+    if(this.#any !== null) return null;
 
     if(this.#bit0 === null){
       this.#bit0 = new TreeNode();
@@ -30,7 +30,7 @@ class TreeNode{
   }
 
   followBit1(){
-    if(this.#hasAny) return null;
+    if(this.#any !== null) return null;
 
     if(this.#bit1 === null){
       this.#bit1 = new TreeNode();
@@ -41,21 +41,25 @@ class TreeNode{
   }
 
   followEnd(){
-    if(this.#hasAny) return 0;
+    if(this.#any !== null) return null;
 
-    if(!this.#hasEnd){
-      this.#hasEnd = 1;
+    if(this.#end === null){
+      this.#end = [];
       if(++this.#regsNum === 3) this.#isFull = 1;
     }
 
-    return 1;
+    return this.#end;
   }
 
   followAny(){
-    if(this.#regsNum !== 0) return 0;
-    this.#hasAny = 1;
-    this.#isFull = 1;
-    return 1;
+    if(this.#regsNum !== 0) return null;
+
+    if(this.#any === null){
+      this.#any = [];
+      this.#isFull = 1;
+    }
+
+    return this.#any;
   }
 
   getFreePattern(){
@@ -64,8 +68,9 @@ class TreeNode{
     while(stack.length !== 0){
       const stackElem = stack.pop();
       const [pattern, node] = stackElem;
+
       if(!node.#isFull) return stackElem;
-      if(node.#hasAny) continue;
+      if(node.#any !== null) continue;
 
       stack.push(
         [[...pattern, 0], node.#bit0],
@@ -85,8 +90,8 @@ class TreeNode{
 
   get hasBit0(){ return this.#bit0 !== null; }
   get hasBit1(){ return this.#bit1 !== null; }
-  get hasEnd(){ return this.#hasEnd; }
-  get hasAny(){ return this.#hasAny; }
+  get hasEnd(){ return this.#end !== null; }
+  get hasAny(){ return this.#any !== null; }
   get isFull(){ return this.#isFull; }
 }
 

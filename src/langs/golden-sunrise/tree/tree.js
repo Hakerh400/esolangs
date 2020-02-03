@@ -3,11 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
-const List = require('@hakerh400/list');
 const esolangs = require('../../..');
+const types = require('../types');
 const TreeNode = require('./tree-node');
-
-const {ListNode} = List;
 
 class Tree{
   constructor(){
@@ -52,7 +50,47 @@ class Tree{
         if(node === null) err();
       }
 
-      if(!(isEnd ? node.followEnd() : node.followAny())) err();
+      const has = isEnd ? node.hasEnd : node.hasAny;
+      if(has) err();
+
+      const elemsArr = isEnd ? node.followEnd() : node.followAny();
+      if(elemsArr === null) err();
+
+      const stack = [[elems2, 0]];
+
+      while(stack.length !== 0){
+        const stackFrame = O.last(stack);
+        const [elems, index] = stackFrame;
+
+        if(index === elems.length){
+          stack.pop();
+          if(stack.length !== 0)
+            elemsArr.push(types.GROUP_END);
+          continue;
+        }
+
+        const elem = elems[index];
+        stackFrame[1]++;
+
+        if(elem.isBit){
+          elemsArr.push(elem.val ? types.BIT1 : types.BIT0);
+          continue;
+        }
+
+        if(elem.isIdent){
+          const bit = argVals[argsObj[elem.name]] ^ elem.inverted;
+          elemsArr.push(bit ? types.BIT1 : types.BIT0);
+          continue;
+        }
+
+        if(elem.isMatch){
+          elemsArr.push(types.MATCH);
+          continue;
+        }
+
+        elemsArr.push(types.GROUP_START);
+        stack.push([elem.elems, 0]);
+      }
 
       if(argsNum === 0) break;
 
@@ -79,10 +117,6 @@ class Tree{
     if(freePattern !== null)
       esolangs.err(`Missing rule for pattern ${pattern2str(freePattern, node)}`);
   }
-}
-
-class CustomListNode extends ListNode{
-  group = null;
 }
 
 const pattern2str = (pattern, node) => {

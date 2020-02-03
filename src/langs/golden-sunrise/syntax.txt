@@ -1,4 +1,4 @@
-script{ rule*s1 }
+script{ s0 rule*s1 s0 }
 
 rule{ lhs s0 "-" s0 rhs }
 
@@ -9,7 +9,7 @@ lhsTerm{ bit | ident }
 rhsTerm{ bit | ident | invertedIdent | match | group }
 
 match{ "." }
-group{ s0 "(" s0 rhsTerm* s0 ")" s0 }
+group{ "(" s0 rhsTerm* s0 ")" }
 
 invertedIdent{ "~" ident }
 ident{ singleCharIdent | multiCharIdent }

@@ -10,6 +10,7 @@ const cli = require('./cli');
 const skipTests = require('./skip-tests');
 
 const {part, test} = jstest;
+const eq = assert.strictEqual;
 
 const SINGLE_LANG = null;
 const TEST_CLI = SINGLE_LANG === null;
@@ -67,9 +68,9 @@ for(const name of langs){
         for(const [input, expectedOutput] of formFunc(src)){
           const actualOutput = esolangs.run(name, src, input);
           
-          assert(
-            actualOutput.toString('binary') ===
-            Buffer.from(expectedOutput).toString('binary')
+          eq(
+            actualOutput.toString('binary'),
+            Buffer.from(expectedOutput).toString('binary'),
           );
         }
       });
