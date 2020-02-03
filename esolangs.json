@@ -108,6 +108,11 @@
   }, {
     "name": "Lazy expander",
     "id": "lazy-expander",
+    "details": "https://esolangs.org/wiki/Lazy_expander",
+    "wip": true
+  }, {
+    "name": "Golden sunrise",
+    "id": "golden-sunrise",
     "details": null,
     "wip": true
   }

@@ -1,0 +1,29 @@
+script{ rule*s1 }
+
+rule{ lhs s0 "-" s0 rhs }
+
+lhs{ lhsTerm* "#"? | "/" }
+rhs{ rhsTerm* | "/" }
+
+lhsTerm{ bit | ident }
+rhsTerm{ bit | ident | invertedIdent | match | group }
+
+match{ "." }
+group{ s0 "(" s0 rhsTerm* s0 ")" s0 }
+
+invertedIdent{ "~" ident }
+ident{ singleCharIdent | multiCharIdent }
+singleCharIdent{ restrictedIdentChar }
+multiCharIdent{ "[" unrestrictedIdentChar* "]" }
+unrestrictedIdentChar{ restrictedIdentChar | bit }
+restrictedIdentChar{ [a-zA-Z2-9] }
+bit{ [0-1] }
+
+whitespace{ [ \r\n\t|] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

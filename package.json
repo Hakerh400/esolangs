@@ -17,7 +17,8 @@
   },
   "dependencies": {
     "omikron": "~1.2.12",
-    "@hakerh400/table": "~1.0.0"
+    "@hakerh400/table": "~1.0.0",
+    "@hakerh400/list": "~1.0.0"
   },
   "devDependencies": {
     "@hakerh400/jstest": "~1.1.2"
