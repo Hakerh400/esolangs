@@ -6,6 +6,7 @@ const O = require('omikron');
 const packageJson = require('../package');
 const langsList = require('./langs-list');
 const commonStrs = require('./common-strs');
+const Sandbox = require('./sandbox');
 
 const langsObj = O.obj();
 const langsIdsObj = O.obj();
@@ -20,7 +21,9 @@ const langsDir = path.join(cwd, 'langs');
 
 const esolangs = {
   version: packageJson.version,
-  debugMode: 0,
+  debugMode: false,
+
+  Sandbox,
 
   getLangs(){
     return langsList.map(a => a.name);
@@ -36,7 +39,7 @@ const esolangs = {
     return langsIdsObj[id];
   },
 
-  run(name, src, input){
+  run(name, src, input, opts=null){
     const info = esolangs.getInfo(name);
 
     if(info === null)
@@ -46,9 +49,16 @@ const esolangs = {
       esolangs.err(`Language ${O.sf(name)} is still a work-in-progress`);
 
     const func = require(path.join(langsDir, info.id));
-    const output = func(Buffer.from(src), Buffer.from(input));
+    const result = func(Buffer.from(src), Buffer.from(input), opts);
 
-    return output;
+    return result;
+  },
+
+  async runSafe(name, src, input, opts=null, safeOpts=null){
+    const sandbox = new Sandbox();
+    const result = await sandbox.run(name, src, input, opts, safeOpts);
+    sandbox.dispose();
+    return result;
   },
 
   getStrs(){

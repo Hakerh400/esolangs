@@ -4,17 +4,23 @@
 const esolangs = require('@hakerh400/esolangs');
 ```
 
-## API functionalities
+## Properties
 
-### Property `esolangs.version`
+### `esolangs.version`
 
 Version of the module.
 
-### Method `esolangs.getLangs()`
+### `esolangs.debugMode`
+
+Default is `false`. When set to `true`, errors that are related to user programs will be displayed differently than internal errors and will terminate the process immediately (except in `runSafe` method).
+
+## Methods
+
+### `esolangs.getLangs()`
 
 Returns an array containing names of all supported languages sorted alphabetically.
 
-### Method `esolangs.getInfo(name)`
+### `esolangs.getInfo(name)`
 
 Get information about the language with name `name`. The return value is an object containing properties:
 
@@ -29,20 +35,58 @@ Names and IDs are unique among all languages. Besides the above properties, the 
 
 If the language with the given name does not exist in the list of supported languages, the return value is `null`.
 
-### Method `esolangs.getInfoById(id)`
+### `esolangs.getInfoById(id)`
 
 Similar to `esolangs.getInfo(name)`. Returns information about the language with id `id`.
 
 **Note:** IDs are volatile and should not be hardcoded. If you plan to write an automated application for testing different esolangs, you may only hardcode language names, and then get their IDs at runtime.
 
-### Method `esolangs.run(name, source, input)`
+### `esolangs.run(name, source, input[, options])`
 
 Execute the source code `source` that is written in `name` language, having `input` as the string on stdin. `name` is a string, while `source` and `input` can be either strings or buffers. `name` is the language name. The return value is either a buffer or a promise. This method may throw an error.
 
-### Method `esolangs.getStrs()`
+`options` is an optional argument. It specified, it must be an object containing options for specific interpreter. Options are currently not documented.
+
+### `esolangs.runSafe(name, source, input[, options[, safeOptions]])`
+
+Safe version of `esolangs.run`. While the unsafe version may never halt and can even crash the process if a fatal error occurs (for example out-of-memory errors cannot be catched - they always crash the process), the `runSafe` method is always safe to invoke. It is always asynchronous (regardless of the `async` property of the langauge info object) and returns a promise that either resolves to a buffer containing the stdout or rejects with an error.
+
+`safeOptions` is an optional parameter which is an object that contains the following properties:
+
+* `timeout` - Time interval in milliseconds. After that interval, if the program is still running, it will be terminated and the promise will be rejected. Default is `null` (unlimited time).
+
+### `esolangs.getStrs()`
 
 Returns an array containing names of all supported common strings sorted alphabetically that are used by various programming languages.
 
-### Method `esolangs.getStr(name)`
+### `esolangs.getStr(name)`
 
 Returns common string named `name`. If the string with the given name does not exist, this method returns `null`.
+
+## Classes
+
+### `esolangs.Sandbox`
+
+Method `esolangs.runSafe` is very slow (because it instantiates `esolangs.Sandbox` on each call). This class is exposed to make running programs in safe mode much faster.
+
+#### `Sandbox.maxInstancesNum`
+
+Static property that says what is the maximum number of alive instances of the `Sandbox` class. It is there for safety to prevent out-of-memory errors. If the maximum number of instances is reached, trying to instantiate a new object before disposing some of the instantiated ones will raise an exception.
+
+Default value is `3`. If set to `null`, no checks will be performed on instantiation.
+
+#### `new Sandbox()`
+
+Instantiates a new `sandbox` object.
+
+#### `sandbox.run(name, source, input[, options[, safeOptions]])`
+
+Behaves exactly the same as `esolangs.runSafe`.
+
+#### `sandbox.refresh()`
+
+Refresh the sandbox. Usually, this has no observable effects.
+
+#### `sandbox.dispose()`
+
+This method must be called after the `sandbox` object is no longer needed. Until this method is called, the Node.js process will not exit.

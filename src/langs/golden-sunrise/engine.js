@@ -10,20 +10,23 @@ const types = require('./types');
 
 const {ListNode} = List;
 
-const DEBUG = 0;
-const USE_BIT_IO = DEBUG;
+const defaultOpts = {
+  debug: 0,
+  useBitIO: 0,
+};
 
 class Engine{
-  constructor(parsed, input){
+  constructor(parsed, input, opts){
     this.parsed = parsed;
     this.input = input;
     this.output = null;
+    this.opts = {...defaultOpts, ...opts};
   }
 
   run(){
-    const {parsed, input} = this;
+    const {parsed, input, opts} = this;
 
-    const ioCtor = USE_BIT_IO ? BitIO : O.IO;
+    const ioCtor = opts.useBitIO ? BitIO : O.IO;
     const io = new ioCtor(input);
 
     const {root} = parsed.tree;
@@ -94,7 +97,7 @@ class Engine{
         continue;
       }
 
-      if(DEBUG) logList(list);
+      if(opts.debug) logList(list);
 
       checkpoints.pop();
 

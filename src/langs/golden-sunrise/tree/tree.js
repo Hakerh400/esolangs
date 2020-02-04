@@ -18,7 +18,7 @@ class Tree{
     });
   }
 
-  addRule(rule, ruleIndex=null){
+  addRule(rule, ruleIndex){
     const {root} = this;
     const {lhs, rhs} = rule;
 
