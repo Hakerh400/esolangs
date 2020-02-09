@@ -54,9 +54,9 @@ const esolangs = {
     return result;
   },
 
-  async runSafe(name, src, input, opts=null, safeOpts=null){
+  async runSafe(name, src, input, opts=null, sbxOpts=null){
     const sandbox = new Sandbox();
-    const result = await sandbox.run(name, src, input, opts, safeOpts);
+    const result = await sandbox.run(name, src, input, opts, sbxOpts);
     sandbox.dispose();
     return result;
   },

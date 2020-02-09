@@ -16,13 +16,27 @@ const main = async () => {
   stdin.pipe(st);
 
   while(1){
-    const lang = await chunkStream.read(st, 'latin1');
+    const lang = await chunkStream.read(st, 'utf8');
     const src = await chunkStream.read(st);
     const input = await chunkStream.read(st);
-    const opts = JSON.parse(await chunkStream.read(st, 'latin1'));
+    const opts = JSON.parse(await chunkStream.read(st, 'utf8'));
 
-    const output = await esolangs.run(lang, src, input, opts);
-    chunkStream.write(stdout, output);
+    let err = null;
+    let output = null;
+
+    try{
+      output = await esolangs.run(lang, src, input, opts);
+    }catch(e){
+      err = e;
+    }
+
+    if(output !== null){
+      chunkStream.write(stdout, [1]);
+      chunkStream.write(stdout, output);
+    }else{
+      chunkStream.write(stdout, [0]);
+      chunkStream.write(stdout, err.message);
+    }
   }
 };
 

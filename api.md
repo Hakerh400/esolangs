@@ -47,11 +47,13 @@ Execute the source code `source` that is written in `name` language, having `inp
 
 `options` is an optional argument. It specified, it must be an object containing options for specific interpreter. Options are currently not documented.
 
-### `esolangs.runSafe(name, source, input[, options[, safeOptions]])`
+### `esolangs.runSafe(name, source, input[, options[, sandboxOptions]])`
 
-Safe version of `esolangs.run`. While the unsafe version may never halt and can even crash the process if a fatal error occurs (for example out-of-memory errors cannot be catched - they always crash the process), the `runSafe` method is always safe to invoke. It is always asynchronous (regardless of the `async` property of the langauge info object) and returns a promise that either resolves to a buffer containing the stdout or rejects with an error.
+Safe version of `esolangs.run`. While the unsafe version may never halt and can even crash the process if a fatal error occurs (for example out-of-memory errors cannot be catched - they always crash the process), the `runSafe` method is always safe to invoke. It is always asynchronous (regardless of the `async` property of the langauge info object) and returns a promise that either resolves to a buffer containing the result or rejects with an error.
 
-`safeOptions` is an optional parameter which is an object that contains the following properties:
+Result is an array of two elements. If the first element is `0`, the second element is a string representing the error message. If the first element is `1`, the second element is a buffer that represents the program's output. Promise rejects with an error only in case of fatal errors (for example time limit is exceeded, or out-of-memory happened (which cannot be catches using `esolangs.run`)).
+
+`sandboxOptions` is an optional parameter which is an object that contains the following properties:
 
 * `timeout` - Time interval in milliseconds. After that interval, if the program is still running, it will be terminated and the promise will be rejected. Default is `null` (unlimited time).
 
@@ -79,7 +81,7 @@ Default value is `3`. If set to `null`, no checks will be performed on instantia
 
 Instantiates a new `sandbox` object.
 
-#### `sandbox.run(name, source, input[, options[, safeOptions]])`
+#### `sandbox.run(name, source, input[, options[, sandboxOptions]])`
 
 Behaves exactly the same as `esolangs.runSafe`.
 
@@ -89,4 +91,4 @@ Refresh the sandbox. Usually, this has no observable effects.
 
 #### `sandbox.dispose()`
 
-This method must be called after the `sandbox` object is no longer needed. Until this method is called, the Node.js process will not exit.
+This method must be called after the `sandbox` object is no longer needed.

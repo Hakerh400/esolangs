@@ -12,7 +12,7 @@ const nodeExe = process.execPath;
 const cwd = __dirname;
 const procScript = path.join(cwd, 'process');
 
-const defaultSafeOpts = {
+const defaultSbxOptsOpts = {
   timeout: null,
 };
 
@@ -25,7 +25,7 @@ class Sandbox{
   }
 
   static set maxInstancesNum(val){
-    if(val !== null && (typeof val !== 'number' || !Object.is(val, val |= 0)))
+    if(val !== null && (typeof val !== 'number' || !Object.is(val, val | 0)))
       throw new TypeError('Invalid value for maximum sandbox instances number');
 
     this.#maxInstancesNum = val;
@@ -34,7 +34,6 @@ class Sandbox{
   #proc = null;
   #exitCode = null;
   #errBufs = [];
-  #timeExceeded = 0;
   #disposed = 0;
 
   #mutex = O.sem();
@@ -47,7 +46,7 @@ class Sandbox{
     Sandbox.#instances.add(this);
   }
 
-  async run(name, source, input, opts=null, safeOpts=null){
+  async run(name, source, input, opts=null, sbxOptsOpts=null){
     await this.#mutex.wait();
 
     let timeoutID = null;
@@ -55,21 +54,21 @@ class Sandbox{
     try{
       this.assertNotDisposed();
 
-      safeOpts = {...defaultSafeOpts, ...safeOpts};
+      sbxOptsOpts = {...defaultSbxOptsOpts, ...sbxOptsOpts};
 
-      this.#timeExceeded = 0;
+      let timeExceeded = 0;
 
       if(this.#proc === null)
         await this.spawnProc();
 
       const proc = this.#proc;
 
-      if(safeOpts.timeout !== null){
+      if(sbxOptsOpts.timeout !== null){
         timeoutID = setTimeout(() => {
           if(this.#disposed) return;
-          this.#timeExceeded = 1;
+          timeExceeded = 1;
           this.killProc();
-        }, safeOpts.timeout);
+        }, sbxOptsOpts.timeout);
       }
 
       {
@@ -81,13 +80,19 @@ class Sandbox{
         chunkStream.write(stdin, JSON.stringify(opts));
 
         try{
-          const output = await chunkStream.read(stdout);
-          return output;
+          const ok = (await chunkStream.read(stdout))[0];
+          const result = await chunkStream.read(stdout);
+
+          if(ok) return [1, result];
+          else return [0, result.toString()];
         }catch(err){
           await this.#procMutex.wait();
 
           try{
             this.assertNotDisposed();
+
+            if(timeExceeded)
+              throw new RangeError('Time limit exceeded');
 
             if(this.#errBufs.length !== 0){
               const stderr = Buffer.concat(this.#errBufs);
@@ -126,6 +131,7 @@ class Sandbox{
     });
 
     proc.on('exit', code => {
+      this.#proc = null;
       this.#exitCode = code;
       this.#procMutex.signal();
     });
