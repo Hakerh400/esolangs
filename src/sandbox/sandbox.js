@@ -12,7 +12,7 @@ const nodeExe = process.execPath;
 const cwd = __dirname;
 const procScript = path.join(cwd, 'process');
 
-const defaultSbxOptsOpts = {
+const defaultSbxOpts = {
   timeout: null,
 };
 
@@ -54,7 +54,7 @@ class Sandbox{
     try{
       this.assertNotDisposed();
 
-      sbxOptsOpts = {...defaultSbxOptsOpts, ...sbxOptsOpts};
+      sbxOptsOpts = {...defaultSbxOpts, ...sbxOptsOpts};
 
       let timeExceeded = 0;
 
