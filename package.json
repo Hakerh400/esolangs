@@ -16,9 +16,9 @@
     "test": "node --max-old-space-size=5000 test"
   },
   "dependencies": {
-    "omikron": "~1.2.12",
+    "@hakerh400/list": "~1.0.0",
     "@hakerh400/table": "~1.0.0",
-    "@hakerh400/list": "~1.0.0"
+    "omikron": "^1.2.14"
   },
   "devDependencies": {
     "@hakerh400/jstest": "~1.1.2"

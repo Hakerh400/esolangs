@@ -1,0 +1,58 @@
+script{ entityDefs }
+
+entityDefs{ entityDef*s0 }
+entityDef{ typeDef | funcDef }
+
+typeDef{
+  ident s0
+  formalTemplates? s0
+  extendedType? s0
+  attribs?
+}
+
+attribs{ "{" s0 attrib*s0 s0 "}" }
+attrib{ type s0 ident s0 ";" }
+
+formalTemplates{ "<" s0 formalTemplate*commaSep s0 ">" }
+formalTemplate{ ident s0 extendedType? }
+
+extendedType{ "~" s0 type }
+
+type{ baseType | nonBaseType }
+baseType{ "*" }
+nonBaseType{ ident s0 templates? }
+
+templates{ "<" s0 template*commaSep s0 ">" }
+template{ type }
+
+funcDef{
+  ident s0
+  formalArgs? s0
+  ":" s0 expr
+}
+
+formalArgs{ "(" s0 formalArg*commaSep s0 ")" }
+formalArg{ type s0 ident? }
+
+expr{
+  invocation |
+  attribAccess
+}
+
+invocation{ type s0 args? }
+attribAccess{ expr s0 "." s0 ident }
+
+args{ "(" s0 arg*commaSep s0 ")" }
+arg{ expr }
+
+ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
+commaSep{ s0 "," s0 }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }
