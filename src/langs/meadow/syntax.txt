@@ -1,7 +1,15 @@
 script{ entityDefs }
 
-entityDefs{ entityDef*s0 }
+entityDefs{ annotatedEntityDef*s0 }
+annotatedEntityDef{ annotation? s0 entityDef }
 entityDef{ typeDef | funcDef }
+
+annotation{ "@" s0 annotatedType s0 annotatedAttribs? }
+annotatedType{ ident }
+annotatedAttribs{ "{" s0 annotatedAttrib*commaSep s0 "}" }
+annotatedAttrib{ shortAnnotatedAttrib | longAnnotatedAttrib }
+shortAnnotatedAttrib{ ident }
+longAnnotatedAttrib{ ident s0 ":" s0 ident }
 
 typeDef{
   ident s0

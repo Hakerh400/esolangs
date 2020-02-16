@@ -19,6 +19,51 @@ class Program extends Base{
 
     this.defs = defs;
 
+    const types = this.types = O.obj();
+    const funcs = this.funcs = O.obj();
+    const annotations = this.annotations = O.obj();
+
+    for(const def of defs){
+      const {annotation, name} = def;
+
+      if(annotation !== null){
+        const aname = annotation.name;
+
+        if(aname in annotations)
+          esolangs.err(`Cannot reuse the same annotation ${
+            O.sf(aname)}. First usage:\n\n${
+            annotations[aname].toString()}\n\nSecond usage:\n\n${
+            def.toString()}`);
+
+        annotations[aname] = def;
+      }
+
+      const hasType = name in types;
+      const hasFunc = name in funcs;
+      const hasAny = hasType || hasFunc;
+
+      const redef = hasAny ? `Redefinition of ${
+        O.sf(name)}. First definition:\n\n${
+        (hasType ? types : funcs)[name].toString()}\n\nSecond definition:\n\n${
+        def.toString()}` : null;
+
+      if(def.isType){
+        if(hasAny)
+          esolangs.err(redef);
+
+        types[def.name] = def;
+        continue;
+      }
+
+      if(hasType)
+        esolangs.err(redef);
+
+      if(!hasFunc)
+        funcs[name] = [];
+
+      funcs[name].push(def);
+    }
+
     log(this.toString());
   }
 
@@ -27,9 +72,70 @@ class Program extends Base{
   }
 }
 
+class Annotation extends Base{
+  constructor(name, attribs){
+    super();
+
+    this.name = name;
+    this.attribs = attribs;
+  }
+
+  toStr(){
+    const {name, attribs} = this;
+    const arr = [];
+
+    arr.push('@', name);
+
+    if(attribs.length !== 0){
+      arr.push('{');
+      this.join(arr, attribs, ', ');
+      arr.push('}');
+    }
+
+    return arr;
+  }
+}
+
+class AnnotatedAttribute extends Base{
+  constructor(internal, external=internal){
+    super();
+
+    this.internal = internal;
+    this.external = external;
+  }
+
+  toStr(){
+    const {internal, external} = this;
+    const arr = [];
+
+    arr.push(internal);
+
+    if(external !== internal)
+      arr.push(': ', external);
+
+    return arr;
+  }
+}
+
 class Definition extends Base{
+  annotation = null;
+
   get isType(){ return 0; }
   get isFunc(){ return 0; }
+
+  annotate(annotation){
+    this.annotation = annotation;
+    return this;
+  }
+
+  stringifyAnnotation(arr){
+    const {annotation} = this;
+
+    if(annotation !== null)
+      arr.push(annotation, '\n');
+
+    return arr;
+  }
 }
 
 class TypeDefinition extends Definition{
@@ -47,6 +153,8 @@ class TypeDefinition extends Definition{
   toStr(){
     const {name, templates, ext, attribs} = this;
     const arr = [];
+
+    this.stringifyAnnotation(arr);
 
     arr.push(name);
 
@@ -84,6 +192,8 @@ class FunctionDefinition extends Definition{
   toStr(){
     const {name, args, expr} = this;
     const arr = [];
+
+    this.stringifyAnnotation(arr);
 
     arr.push(name);
 
@@ -173,7 +283,7 @@ class Attribute extends Base{
 }
 
 class FormalArgument extends Base{
-  constructor(type, name){
+  constructor(type, name=null){
     super();
 
     this.type = type;
@@ -242,6 +352,8 @@ class AttributeAccess extends Expression{
 module.exports = {
   Base,
   Program,
+  Annotation,
+  AnnotatedAttribute,
   Definition,
   TypeDefinition,
   FunctionDefinition,
