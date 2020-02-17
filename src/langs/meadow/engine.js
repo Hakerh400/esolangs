@@ -14,14 +14,31 @@ class Engine{
   }
 
   run(){
-    const {parsed, input} = this;
+    const {parsed: prog, input} = this;
     const output = [];
+
+    // const mainFunc = prog.getaFunc('main');
+    // const bitType = prog.getaType('Bit', '*');
+    // const bit0Type = prog.getaType('Bit0', 'Bit');
+    // const bit1Type = prog.getaType('Bit1', 'Bit');
+    // const stringType = prog.getaType('String', '*');
+    // const emptyStringType = prog.getaType('EmptyString', 'String');
+    // const nonEmptyStringType = prog.getaType('NonEmptyString', 'String');
+
+    // let expr = mainFunc.expr;
 
     this.output = Buffer.from(output);
   }
   
   getOutput(){
     return this.output;
+  }
+}
+
+class Structure{
+  constructor(type, attribs=O.obj()){
+    this.type = type;
+    this.attribs = attribs;
   }
 }
 

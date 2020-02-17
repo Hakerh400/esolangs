@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 
@@ -23,6 +24,7 @@ class Program extends Base{
     const funcs = this.funcs = O.obj();
     const annotations = this.annotations = O.obj();
 
+    // Add types and functions
     for(const def of defs){
       const {annotation, name} = def;
 
@@ -32,8 +34,8 @@ class Program extends Base{
         if(aname in annotations)
           esolangs.err(`Cannot reuse the same annotation ${
             O.sf(aname)}. First usage:\n\n${
-            annotations[aname].toString()}\n\nSecond usage:\n\n${
-            def.toString()}`);
+            annotations[aname]}\n\nSecond usage:\n\n${
+            def}`);
 
         annotations[aname] = def;
       }
@@ -44,8 +46,8 @@ class Program extends Base{
 
       const redef = hasAny ? `Redefinition of ${
         O.sf(name)}. First definition:\n\n${
-        (hasType ? types : funcs)[name].toString()}\n\nSecond definition:\n\n${
-        def.toString()}` : null;
+        (hasType ? types : funcs)[name]}\n\nSecond definition:\n\n${
+        def}` : null;
 
       if(def.isType){
         if(hasAny)
@@ -64,11 +66,161 @@ class Program extends Base{
       funcs[name].push(def);
     }
 
-    log(this.toString());
+    // Ensure there are no circular prototype chains
+    // Add references to extended type definitions
+    for(const name in types){
+      const type = types[name];
+      const seen = new Set([type]);
+      const protoChain = [type];
+      let t = type;
+
+      if(!type.ext.isBase)
+        type.extDef = this.getType(type, type.ext.name);
+
+      while(1){
+        const extName = t.ext.name;
+        if(extName === '*') break;
+
+        const ext = this.getType(type, extName);
+
+        if(seen.has(ext))
+          esolangs.err(`Type ${
+            O.sf(type.name)} has circular prototype chain. Current definition:\n\n${
+            type}\n\nPrototype chain:\n\n${
+            O.sfa([...protoChain.map(a => a.name), type.name])}`);
+
+        t = ext;
+
+        seen.add(t);
+        protoChain.push(t);
+      }
+    }
+
+    // Ensure type templates are consistent
+    for(const name in types){
+      const type = types[name];
+
+      const namesObj = O.obj();
+      const typesQueue = [];
+
+      for(const template of type.templates)
+        namesObj[template.name] = template;
+
+      for(const template of type.templates){
+        const ext = template.ext;
+
+        if(ext.name in namesObj)
+          esolangs.err(`Cannot extend custom type ${
+            O.sf(ext.name)}. Relevant definition:\n\n${
+            type}`);
+
+        typesQueue.push([ext, 0]);
+      }
+
+      typesQueue.push([type.ext, 1]);
+
+      while(typesQueue.length !== 0){
+        const [t, customAllowed] = typesQueue.shift();
+        if(t.isBase) continue;
+
+        if(t.name in namesObj){
+          if(!customAllowed)
+            esolangs.err(`Custom type ${
+              O.sf(t.name)} cannot be recursively defined for type ${
+              O.sf(type.name)}. Relevant definition:\n\n${
+              type}`);
+
+          if(t.templates.length !== 0)
+            esolangs.err(`Custom type ${
+              O.sf(t.name)} cannot be templated. Relevant definition:\n\n${
+              type}`);
+
+          continue;
+        }
+
+        const def = this.getType(type, t.name);
+        const expectedLen = def.templates.length;
+        const actualLen = t.templates.length;
+
+        if(actualLen !== expectedLen)
+          esolangs.err(`Generic type ${
+            O.sf(t.name)} takes ${
+            O.gnum('template argument', expectedLen)} ${
+            O.sfa(def.templates.map(a => a.name))}, but it is supplied with ${
+            O.gnum('argument', actualLen)} ${
+            O.sfa(t.templates.map(a => a.name))}. Relevant definitions:\n\n${
+            def}\n\n${type}`);
+
+        for(const template of t.templates)
+          typesQueue.push([template, customAllowed]);
+      }
+    }
+  }
+
+  getType(context, name){
+    assert(name !== '*');
+
+    if(!(name in this.types))
+      this.err(context, `Missing definition for type ${O.sf(name)}`);
+
+    return this.types[name];
+  }
+
+  getFunc(context, name){
+    if(!(name in this.funcs))
+      this.err(context, `Missing definition for function ${O.sf(name)}`);
+
+    return this.funcs[name];
+  }
+
+  getaType(context, name, ext=null){
+    if(!(name in this.annotations))
+      this.err(context, `Missing definition for annotated type ${O.sf(name)}`);
+
+    const ent = this.annotations[name];
+
+    if(!ent.isType)
+      this.err(context, `${O.sf(ent.name)} must be a type. Current definition:\n\n${ent}`);
+
+    if(ext !== null){
+      if(ext === '*'){
+        if(!ent.ext.isBase)
+          this.err(context, `${O.sf(ent.name)} cannot extend any type. Current definition:\n\n${ent}`);
+      }else{
+        const actual = this.getType(context, ent.ext.name);
+        const expected = this.getaType(context, ext);
+
+        if(actual !== expected)
+          this.err(context, `${O.sf(ent.name)} must extend ${
+            O.sf(expected.name)}. Current definition of ${
+            O.sf(ent.name)}:\n\n${ent}\n\nDefinition of ${O.sf(expected.name)}:\n\n${expected}`);
+      }
+    }
+
+    return ent;
+  }
+
+  getaFunc(context, name){
+    if(!(name in this.annotations))
+      this.err(context, `Missing definition for annotated function ${O.sf(name)}`);
+
+    const ent = this.annotations[name];
+
+    if(!ent.isFunc)
+      this.err(context, `${O.sf(ent.name)} must be a function. Current definition:\n\n${ent}`);
+
+    if(ent.isExternal)
+      this.err(context, `Function ${O.sf(ent.name)} must define a function body. Current definition:\n\n${ent}`);
+
+    return ent;
   }
 
   toStr(){
     return this.join([], this.defs, '\n\n');
+  }
+
+  err(context, msg){
+    esolangs.err(`${msg}\n\nRelevant context:\n\n${context}`);
   }
 }
 
@@ -139,6 +291,8 @@ class Definition extends Base{
 }
 
 class TypeDefinition extends Definition{
+  extDef = null;
+
   constructor(name, templates, ext, attribs){
     super();
 
@@ -146,9 +300,80 @@ class TypeDefinition extends Definition{
     this.templates = templates;
     this.ext = ext;
     this.attribs = attribs;
+
+    const templatesObj = O.obj();
+    const attribsObj = O.obj();
+
+    for(const template of templates){
+      const {name: templateName} = template;
+
+      if(templateName in templatesObj)
+        esolangs.err(`Type definition ${
+          O.sf(name)} has multiple templates named ${
+          O.sf(templateName)}. Current definition:\n\n${
+          this}`);
+
+      templatesObj[templateName] = 1;
+    }
+
+    for(const attrib of attribs){
+      const {name: attribName} = attrib;
+
+      if(attribName in attribsObj)
+        esolangs.err(`Type definition ${
+          O.sf(name)} has multiple attributes named ${
+          O.sf(attribName)}. Current definition:\n\n${
+          this}`);
+
+      attribsObj[attribName] = 1;
+    }
   }
 
   get isType(){ return 1; }
+
+  commonProto(type){
+    const set1 = new Set([this]);
+    const set2 = new Set([type]);
+    let t1 = this;
+    let t2 = type;
+
+    while(!(t1.isBase && t2.isBase)){
+      if(!t1.isBase) t1 = t1.extDef;
+      if(!t2.isBase) t2 = t2.extDef;
+
+      if(set2.has(t1)) return t1;
+      if(set1.has(t2)) return t2;
+    }
+
+    return null;
+  }
+
+  comparable(type){
+    const proto = this.commonProto(type);
+    return proto === this || proto === type;
+  }
+
+  eq(type){ return this.name === type.name; }
+  neq(type){ return !this.eq(type); }
+  lt(type){ return this.neq(type) && this.le(type); };
+  gt(type){ return !this.le(type); };
+  ge(type){ return !this.lt(type); }
+
+  le(type){
+    if(!this.comparable(type))
+      esolangs.err(`Type ${
+        O.sf(this.name)} is not comparable with ${
+        O.sf(type.name)}. Definition of ${
+        O.sf(this.name)}:\n\n${
+        this}\n\nDefinition of ${
+        O.sf(type.name)}:\n\n${
+        type}`);
+
+    const proto = this.commonProto(type);
+    return proto === type;
+  }
+
+  inherits(type){ return this.le(type); }
 
   toStr(){
     const {name, templates, ext, attribs} = this;
@@ -170,7 +395,7 @@ class TypeDefinition extends Definition{
     if(attribs.length !== 0){
       arr.push('{\n');
       for(const attrib of attribs)
-        arr.push(tab(), attrib, ';\n')
+        arr.push(tab(), attrib, ';\n');
       arr.push('}');
     }
 
@@ -179,7 +404,7 @@ class TypeDefinition extends Definition{
 }
 
 class FunctionDefinition extends Definition{
-  constructor(name, args, expr){
+  constructor(name, args, expr=null){
     super();
 
     this.name = name;
@@ -188,6 +413,7 @@ class FunctionDefinition extends Definition{
   }
 
   get isFunc(){ return 1; }
+  get isExternal(){ return this.expr === null; }
 
   toStr(){
     const {name, args, expr} = this;
@@ -203,7 +429,8 @@ class FunctionDefinition extends Definition{
       arr.push(')');
     }
 
-    arr.push(': ', expr);
+    if(expr !== null)
+      arr.push(': ', expr);
 
     return arr;
   }
