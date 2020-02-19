@@ -12,7 +12,11 @@ const tab = (num=1, str='') => {
   return `${' '.repeat(TAB_SIZE * num)}${str}`;
 };
 
-class Base extends O.Stringifiable{}
+class Base extends O.Stringifiable{
+  toJSON(){
+    return this.toString();
+  }
+}
 
 class Program extends Base{
   constructor(defs){
@@ -84,7 +88,7 @@ class Program extends Base{
       }
     }
 
-    // Ensure that type templates, extended types and attributes are consistent
+    // Ensure that templates, extended types and attributes are consistent
     for(const name in types){
       const type = types[name];
 
@@ -162,7 +166,7 @@ class Program extends Base{
       }
     }
 
-    // Ensure that types of templates, extended types and attributes
+    // Ensure that templates, extended types and attributes
     // are consistent with constraints regarding templated types
     // Similar to the previous loop, but this performs more fine-grained checks
     for(const name in types){
@@ -187,7 +191,7 @@ class Program extends Base{
       //   push(attrib.type);
 
       while(queue.length !== 0){
-        const [ttOriginal, tt] = queue.shift();
+        const [original, tt] = queue.shift();
         if(tt.templates.length === 0) continue;
 
         const def = this.getType(type, tt.name);
@@ -196,23 +200,42 @@ class Program extends Base{
         // log(tt + '');
 
         tt.templates.forEach((t, index) => {
-          const tOriginal = t;
           const mustInherit = defTemplates[index].ext;
-
-          t = t.copy();
 
           // log(tab() + t + ' ~ ' + mustInherit);
 
           let ok = this.inherits(type, t, mustInherit);
 
           if(ok){
-            
+            const queue = [[t, mustInherit]];
+
+            while(queue.length !== 0){
+              const [t, mustInherit] = queue.shift();
+
+              if(!this.inherits(type, t, mustInherit)){
+                ok = 0;
+                break;
+              }
+
+              let t1 = t;
+
+              while(t1.name !== mustInherit.name){
+                const def = this.getType(type, t1.name);
+                const obj = def.getTemplatesObj(t1.templates);
+
+                t1 = def.ext.template(obj);
+              }
+
+              t1.templates.forEach((t, i) => {
+                queue.push([t, mustInherit.templates[i]]);
+              });
+            }
           }
 
           if(!ok)
             esolangs.err(`Type "${
-              tOriginal}" from the type expression "${
-              ttOriginal}" (in the definition of type ${
+              t}" from type expression "${
+              original}" (in the definition of type ${
               O.sf(type.name)}) cannot be constructed, because it violates the constraint from type definition ${
               O.sf(def.name)} that "${
               defTemplates[index].name}" must be more specific or equal to "${
@@ -223,8 +246,9 @@ class Program extends Base{
           //   const [mustInherit, t] = queue.shift();
           // }
 
-          // for(const template of t.templates)
-          //   push(t);
+          t.templates.forEach((template, index) => {
+            push(original.templates[index], template);
+          });
         });
 
         // log('');
@@ -243,6 +267,8 @@ class Program extends Base{
   }
 
   getFunc(context, name){
+    assert(typeof name === 'string');
+    
     if(!(name in this.funcs))
       this.err(context, `Missing definition for function ${O.sf(name)}`);
 
@@ -250,6 +276,8 @@ class Program extends Base{
   }
 
   getaType(context, name, ext=null){
+    assert(typeof name === 'string');
+    
     if(!(name in this.annotations))
       this.err(context, `Missing definition for annotated type ${O.sf(name)}`);
 
@@ -277,6 +305,8 @@ class Program extends Base{
   }
 
   getaFunc(context, name){
+    assert(typeof name === 'string');
+
     if(!(name in this.annotations))
       this.err(context, `Missing definition for annotated function ${O.sf(name)}`);
 
@@ -292,8 +322,15 @@ class Program extends Base{
   }
 
   inherits(context, type1, type2){
+    assert(type1 instanceof Type);
+    assert(type2 instanceof Type);
+
+    if(type2.isBase) return 1;
+    if(type1.isBase) return 0;
+
     const def1 = this.getType(context, type1.name);
     const def2 = this.getType(context, type2.name);
+
     return def1.inherits(def2);
   }
 
@@ -436,6 +473,16 @@ class TypeDefinition extends Definition{
 
   inherits(type){ return this.inherentTypes.has(type); }
   inheritedBy(type){ return this.inheritedByTypes.has(type); }
+
+  getTemplatesObj(templates){
+    const obj = O.obj();
+
+    this.templates.forEach((template, index) => {
+      obj[template.name] = index;
+    });
+
+    return obj;
+  }
 
   toStr(){
     const {name, templates, ext, attribs} = this;
