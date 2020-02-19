@@ -40,16 +40,22 @@ funcDef{
 }
 
 formalArgs{ "(" s0 formalArg*commaSep s0 ")" }
-formalArg{ type s0 ident? }
+formalArg{ formalType s0 ident? }
+
+formalType{
+  ident s0
+  formalTemplates? s0
+  ident? s0
+  formalArgs?
+}
+
 funcBody{ ":" s0 expr | ";" }
 
 expr{
-  invocation |
-  attribAccess
+  invocation
 }
 
 invocation{ type s0 args? }
-attribAccess{ expr s0 "." s0 ident }
 
 args{ "(" s0 arg*commaSep s0 ")" }
 arg{ expr }

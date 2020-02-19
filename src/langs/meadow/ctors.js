@@ -12,11 +12,7 @@ const tab = (num=1, str='') => {
   return `${' '.repeat(TAB_SIZE * num)}${str}`;
 };
 
-class Base extends O.Stringifiable{
-  toJSON(){
-    return this.toString();
-  }
-}
+class Base extends O.Stringifiable{}
 
 class Program extends Base{
   constructor(defs){
@@ -71,19 +67,15 @@ class Program extends Base{
     }
 
     // Ensure there are no circular prototype chains
-    // Add references to extended type definitions
     for(const name in types){
       const type = types[name];
       let t = type;
-
-      if(!type.ext.isBase)
-        type.extDef = this.getType(type, type.ext.name);
 
       while(1){
         const {ext} = t;
         if(ext.isBase) break;
 
-        t = t.extDef;
+        t = this.getType(type, t.ext.name);
         type.addInherentType(t);
       }
     }
@@ -134,12 +126,13 @@ class Program extends Base{
 
         if(def.inherits(type)){
           const s1 = customAllowed ? 'extended type' : 'templates';
-          const s2 = def.extDef === type ? 'directly' : 'indirectly';
 
           if(def === type)
             esolangs.err(`Type ${
               O.sf(name)} cannot be used in the definition of its own ${
               s1}. Relevant definition:\n\n${type}`);
+
+          const s2 = this.getType(type, def.ext.name) === type ? 'directly' : 'indirectly';
 
           esolangs.err(`Type ${
             O.sf(t.name)} cannot be used in the definition of ${s1} for type ${
@@ -166,45 +159,30 @@ class Program extends Base{
       }
     }
 
-    // Ensure that templates, extended types and attributes
-    // are consistent with constraints regarding templated types
-    // Similar to the previous loop, but this performs more fine-grained checks
-    for(const name in types){
-      const type = types[name];
-      const {templates} = type;
-      const queue = [];
+    const push = (typesArr, original, t=original) => {
+      assert(original instanceof Type);
+      assert(t instanceof Type);
+      assert(t.templates.length === original.templates.length);
 
-      const push = (original, t=original) => {
-        assert(original instanceof Type);
-        assert(t instanceof Type);
-        if(original.templates.length === 0) return;
-        
-        queue.push([original, t]);
-      };
+      if(original.templates.length === 0) return;
 
-      for(const template of templates)
-        push(template.ext);
+      typesArr.push([original, t]);
+    };
 
-      push(type.ext, type.ext.templateWithExts(templates));
-
-      // for(const attrib of type.attribs)
-      //   push(attrib.type);
+    const checkTypes = (context, typesArr) => {
+      const queue = typesArr;
 
       while(queue.length !== 0){
         const [original, tt] = queue.shift();
-        if(tt.templates.length === 0) continue;
+        assert(tt.templates.length !== 0);
 
-        const def = this.getType(type, tt.name);
+        const def = this.getType(context, tt.name);
         const defTemplates = def.templates;
 
-        // log(tt + '');
+        tt.templates.forEach((t, index1) => {
+          const mustInherit = defTemplates[index1].ext;
 
-        tt.templates.forEach((t, index) => {
-          const mustInherit = defTemplates[index].ext;
-
-          // log(tab() + t + ' ~ ' + mustInherit);
-
-          let ok = this.inherits(type, t, mustInherit);
+          let ok = this.inherits(context, t, mustInherit);
 
           if(ok){
             const queue = [[t, mustInherit]];
@@ -212,7 +190,7 @@ class Program extends Base{
             while(queue.length !== 0){
               const [t, mustInherit] = queue.shift();
 
-              if(!this.inherits(type, t, mustInherit)){
+              if(!this.inherits(context, t, mustInherit)){
                 ok = 0;
                 break;
               }
@@ -220,7 +198,7 @@ class Program extends Base{
               let t1 = t;
 
               while(t1.name !== mustInherit.name){
-                const def = this.getType(type, t1.name);
+                const def = this.getType(context, t1.name);
                 const obj = def.getTemplatesObj(t1.templates);
 
                 t1 = def.ext.template(obj);
@@ -235,24 +213,37 @@ class Program extends Base{
           if(!ok)
             esolangs.err(`Type "${
               t}" from type expression "${
-              original}" (in the definition of type ${
-              O.sf(type.name)}) cannot be constructed, because it violates the constraint from type definition ${
+              original}" (in the definition of ${
+              O.sf(context.name)}) cannot be constructed, because it violates the constraint from type definition ${
               O.sf(def.name)} that "${
-              defTemplates[index].name}" must be more specific or equal to "${
+              defTemplates[index1].name}" must be more specific or equal to "${
               mustInherit}". Relevant definitions:\n\n${
-              def}\n\n${type}`);
+              def}\n\n${context}`);
 
-          // while(queue.length !== 0){
-          //   const [mustInherit, t] = queue.shift();
-          // }
-
-          t.templates.forEach((template, index) => {
-            push(original.templates[index], template);
+          t.templates.forEach((template, index2) => {
+            push(typesArr, defTemplates[index1].ext.templates[index2], template);
           });
         });
-
-        // log('');
       }
+    };
+
+    // Ensure that templates, extended types and attributes
+    // are consistent with constraints of templated types
+    for(const name in types){
+      const type = types[name];
+      const {templates} = type;
+      const typesArr = [];
+
+      for(const template of templates)
+        push(typesArr, template.ext);
+
+      push(typesArr, type.ext, type.ext.templateWithExts(templates));
+
+      for(const attrib of type.attribs){
+        push(typesArr, attrib.type, attrib.type.templateWithExts(templates));
+      }
+
+      checkTypes(type, typesArr);
     }
   }
 
@@ -410,7 +401,6 @@ class Definition extends Base{
 }
 
 class TypeDefinition extends Definition{
-  extDef = null;
   protoChain = [this];
   inherentTypes = new Set([this]);
   inheritedByTypes = new Set([this]);
@@ -454,7 +444,6 @@ class TypeDefinition extends Definition{
   get isType(){ return 1; }
 
   addInherentType(type){
-    assert(this.extDef !== null);
     assert(type instanceof TypeDefinition);
 
     const {inherentTypes, protoChain} = this;
@@ -478,7 +467,7 @@ class TypeDefinition extends Definition{
     const obj = O.obj();
 
     this.templates.forEach((template, index) => {
-      obj[template.name] = index;
+      obj[template.name] = templates[index];
     });
 
     return obj;
@@ -723,21 +712,6 @@ class Invocation extends Expression{
   }
 }
 
-class AttributeAccess extends Expression{
-  constructor(expr, attrib){
-    super();
-
-    this.expr = expr;
-    this.attrib = attrib;
-  }
-
-  isAccess(){ return 1; }
-
-  toStr(){
-    return [this.expr, '.', this.attrib];
-  }
-}
-
 module.exports = {
   Base,
   Program,
@@ -751,5 +725,4 @@ module.exports = {
   Attribute,
   FormalArgument,
   Invocation,
-  AttributeAccess,
 };
