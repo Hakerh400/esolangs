@@ -70,33 +70,21 @@ class Program extends Base{
     // Add references to extended type definitions
     for(const name in types){
       const type = types[name];
-      const seen = new Set([type]);
-      const protoChain = [type];
       let t = type;
 
       if(!type.ext.isBase)
         type.extDef = this.getType(type, type.ext.name);
 
       while(1){
-        const extName = t.ext.name;
-        if(extName === '*') break;
+        const {ext} = t;
+        if(ext.isBase) break;
 
-        const ext = this.getType(type, extName);
-
-        if(seen.has(ext))
-          esolangs.err(`Type ${
-            O.sf(type.name)} has circular prototype chain. Current definition:\n\n${
-            type}\n\nPrototype chain:\n\n${
-            O.sfa([...protoChain.map(a => a.name), type.name])}`);
-
-        t = ext;
-
-        seen.add(t);
-        protoChain.push(t);
+        t = t.extDef;
+        type.addInherentType(t);
       }
     }
 
-    // Ensure type templates are consistent
+    // Ensure that type templates, extended types and attributes are consistent
     for(const name in types){
       const type = types[name];
 
@@ -139,6 +127,24 @@ class Program extends Base{
         }
 
         const def = this.getType(type, t.name);
+
+        if(def.inherits(type)){
+          const s1 = customAllowed ? 'extended type' : 'templates';
+          const s2 = def.extDef === type ? 'directly' : 'indirectly';
+
+          if(def === type)
+            esolangs.err(`Type ${
+              O.sf(name)} cannot be used in the definition of its own ${
+              s1}. Relevant definition:\n\n${type}`);
+
+          esolangs.err(`Type ${
+            O.sf(t.name)} cannot be used in the definition of ${s1} for type ${
+            O.sf(name)}, because ${
+            O.sf(t.name)} is ${s2} extended from ${
+            O.sf(name)}. Relevant definitions:\n\n${
+            type}\n\n${def}`);
+        }
+
         const expectedLen = def.templates.length;
         const actualLen = t.templates.length;
 
@@ -155,9 +161,79 @@ class Program extends Base{
           typesQueue.push([template, customAllowed]);
       }
     }
+
+    // Ensure that types of templates, extended types and attributes
+    // are consistent with constraints regarding templated types
+    // Similar to the previous loop, but this performs more fine-grained checks
+    for(const name in types){
+      const type = types[name];
+      const {templates} = type;
+      const queue = [];
+
+      const push = (original, t=original) => {
+        assert(original instanceof Type);
+        assert(t instanceof Type);
+        if(original.templates.length === 0) return;
+        
+        queue.push([original, t]);
+      };
+
+      for(const template of templates)
+        push(template.ext);
+
+      push(type.ext, type.ext.templateWithExts(templates));
+
+      // for(const attrib of type.attribs)
+      //   push(attrib.type);
+
+      while(queue.length !== 0){
+        const [ttOriginal, tt] = queue.shift();
+        if(tt.templates.length === 0) continue;
+
+        const def = this.getType(type, tt.name);
+        const defTemplates = def.templates;
+
+        // log(tt + '');
+
+        tt.templates.forEach((t, index) => {
+          const tOriginal = t;
+          const mustInherit = defTemplates[index].ext;
+
+          t = t.copy();
+
+          // log(tab() + t + ' ~ ' + mustInherit);
+
+          let ok = this.inherits(type, t, mustInherit);
+
+          if(ok){
+            
+          }
+
+          if(!ok)
+            esolangs.err(`Type "${
+              tOriginal}" from the type expression "${
+              ttOriginal}" (in the definition of type ${
+              O.sf(type.name)}) cannot be constructed, because it violates the constraint from type definition ${
+              O.sf(def.name)} that "${
+              defTemplates[index].name}" must be more specific or equal to "${
+              mustInherit}". Relevant definitions:\n\n${
+              def}\n\n${type}`);
+
+          // while(queue.length !== 0){
+          //   const [mustInherit, t] = queue.shift();
+          // }
+
+          // for(const template of t.templates)
+          //   push(t);
+        });
+
+        // log('');
+      }
+    }
   }
 
   getType(context, name){
+    assert(typeof name === 'string');
     assert(name !== '*');
 
     if(!(name in this.types))
@@ -213,6 +289,12 @@ class Program extends Base{
       this.err(context, `Function ${O.sf(ent.name)} must define a function body. Current definition:\n\n${ent}`);
 
     return ent;
+  }
+
+  inherits(context, type1, type2){
+    const def1 = this.getType(context, type1.name);
+    const def2 = this.getType(context, type2.name);
+    return def1.inherits(def2);
   }
 
   toStr(){
@@ -292,6 +374,9 @@ class Definition extends Base{
 
 class TypeDefinition extends Definition{
   extDef = null;
+  protoChain = [this];
+  inherentTypes = new Set([this]);
+  inheritedByTypes = new Set([this]);
 
   constructor(name, templates, ext, attribs){
     super();
@@ -331,49 +416,26 @@ class TypeDefinition extends Definition{
 
   get isType(){ return 1; }
 
-  commonProto(type){
-    const set1 = new Set([this]);
-    const set2 = new Set([type]);
-    let t1 = this;
-    let t2 = type;
+  addInherentType(type){
+    assert(this.extDef !== null);
+    assert(type instanceof TypeDefinition);
 
-    while(!(t1.isBase && t2.isBase)){
-      if(!t1.isBase) t1 = t1.extDef;
-      if(!t2.isBase) t2 = t2.extDef;
+    const {inherentTypes, protoChain} = this;
 
-      if(set2.has(t1)) return t1;
-      if(set1.has(t2)) return t2;
-    }
+    protoChain.push(type);
 
-    return null;
-  }
-
-  comparable(type){
-    const proto = this.commonProto(type);
-    return proto === this || proto === type;
-  }
-
-  eq(type){ return this.name === type.name; }
-  neq(type){ return !this.eq(type); }
-  lt(type){ return this.neq(type) && this.le(type); };
-  gt(type){ return !this.le(type); };
-  ge(type){ return !this.lt(type); }
-
-  le(type){
-    if(!this.comparable(type))
+    if(inherentTypes.has(type))
       esolangs.err(`Type ${
-        O.sf(this.name)} is not comparable with ${
-        O.sf(type.name)}. Definition of ${
-        O.sf(this.name)}:\n\n${
-        this}\n\nDefinition of ${
-        O.sf(type.name)}:\n\n${
-        type}`);
+        O.sf(this.name)} has circular prototype chain. Current definition:\n\n${
+        this}\n\nPrototype chain:\n\n${
+        O.sfa(protoChain.map(a => a.name))}`);
 
-    const proto = this.commonProto(type);
-    return proto === type;
+    inherentTypes.add(type);
+    type.inheritedByTypes.add(this);
   }
 
-  inherits(type){ return this.le(type); }
+  inherits(type){ return this.inherentTypes.has(type); }
+  inheritedBy(type){ return this.inheritedByTypes.has(type); }
 
   toStr(){
     const {name, templates, ext, attribs} = this;
@@ -429,8 +491,8 @@ class FunctionDefinition extends Definition{
       arr.push(')');
     }
 
-    if(expr !== null)
-      arr.push(': ', expr);
+    if(expr !== null) arr.push(': ', expr);
+    else arr.push(';');
 
     return arr;
   }
@@ -457,6 +519,59 @@ class Type extends Base{
 
   get isBase(){
     return this.name === '*';
+  }
+
+  template(obj){
+    const mainArr = [];
+    const queue = [[mainArr, this]];
+
+    while(queue.length !== 0){
+      const [arr, type] = queue.shift();
+      const {name} = type;
+
+      if(name in obj){
+        arr.push(obj[name]);
+        continue;
+      }
+
+      const newArr = [];
+      const newType = new Type(name, newArr);
+
+      arr.push(newType);
+
+      for(const template of type.templates)
+        queue.push([newArr, template]);
+    }
+
+    return mainArr[0];
+  }
+
+  templateWithExts(templates){
+    const obj = O.obj();
+
+    for(const template of templates)
+      obj[template.name] = template.ext;
+
+    return this.template(obj);
+  }
+
+  copy(){
+    const mainArr = [];
+    const queue = [[mainArr, this]];
+
+    while(queue.length !== 0){
+      const [arr, type] = queue.shift();
+
+      const newArr = [];
+      const newType = new Type(this.name, newArr);
+
+      arr.push(newType);
+
+      for(const template of type.templates)
+        queue.push([newArr, template]);
+    }
+
+    return mainArr[0];
   }
 
   toStr(){

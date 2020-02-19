@@ -36,12 +36,12 @@ template{ type }
 funcDef{
   ident s0
   formalArgs? s0
-  funcBody?
+  funcBody
 }
 
 formalArgs{ "(" s0 formalArg*commaSep s0 ")" }
 formalArg{ type s0 ident? }
-funcBody{ ":" s0 expr }
+funcBody{ ":" s0 expr | ";" }
 
 expr{
   invocation |
