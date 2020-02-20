@@ -5,7 +5,7 @@ const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
 
-class Base{}
+class Base extends O.Stringifiable{}
 
 module.exports = {
   Base,

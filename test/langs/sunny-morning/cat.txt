@@ -1,0 +1,6 @@
+main ? cat cat
+cat ? ctor0 ctor1
+ctor0 0 left right
+ctor1 1 left right
+left < cat
+right > cat

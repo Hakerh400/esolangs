@@ -1,0 +1,8 @@
+invert ? zeros invertBit
+invertBit 1 right1 right1
+right1 > inv1
+inv1 ? inv3 inv4
+inv3 1 zeros inv5
+inv4 0 zeros inv5
+inv5 > invert
+zeros 0 zeros zeros

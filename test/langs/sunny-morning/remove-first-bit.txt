@@ -1,0 +1,7 @@
+removeFirstBit > a
+a > b
+b ? c d
+c 0 e f
+d 1 e f
+e < b
+f > b

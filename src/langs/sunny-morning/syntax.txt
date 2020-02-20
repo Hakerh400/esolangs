@@ -1,0 +1,29 @@
+script{ def*s1 }
+
+def{ ident s0 op }
+
+op{
+  construct |
+  extract |
+  cond |
+  inv
+}
+
+construct{ bit s0 ident s1 ident }
+extract{ leftOrRight s0 ident }
+cond{ "?" s0 ident s1 ident }
+inv{ "." s0 ident s1 ident }
+
+bit{ [01] }
+leftOrRight{ [<>] }
+
+ident{ [a-zA-Z0-9_]+ }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }
