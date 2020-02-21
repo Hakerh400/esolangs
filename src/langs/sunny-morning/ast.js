@@ -12,6 +12,7 @@ const rules = {
   op: e => e.fst.fst,
   construct: e => new cs.Construct(e.es[0].fst, e.es[2].fst, e.es[4].fst),
   extract: e => new cs.Extract(e.es[0].fst, e.es[2].fst),
+  cond: e => e.fst.fst,
   cond1: e => new cs.Conditional1(e.es[2].fst, e.es[4].fst),
   cond2: e => new cs.Conditional2(e.es[2].fst, e.es[4].fst, e.es[6].fst),
   inv: e => new cs.Invocation(e.es[2].fst, e.es[4].fst),

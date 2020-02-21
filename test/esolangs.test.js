@@ -12,9 +12,11 @@ const slowTests = require('./slow-tests');
 const {part, test} = jstest;
 const eq = assert.strictEqual;
 
+const args = process.argv.slice(2);
+
 const SINGLE_LANG = null;
 const TEST_CLI = SINGLE_LANG === null;
-const SKIP_SLOW_TESTS = 1;
+const SKIP_SLOW_TESTS = args.includes('--all');
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');

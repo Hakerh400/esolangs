@@ -5,13 +5,13 @@ def{ ident s0 op }
 op{
   construct |
   extract |
-  cond1 |
-  cond2 |
+  cond |
   inv
 }
 
 construct{ bit s0 ident s1 ident }
 extract{ leftOrRight s0 ident }
+cond{ cond1 | cond2 }
 cond1{ "?" s0 ident s1 ident }
 cond2{ "*" s0 ident s1 ident s1 ident }
 inv{ "." s0 ident s1 ident }
