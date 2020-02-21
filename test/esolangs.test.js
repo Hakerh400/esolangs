@@ -7,41 +7,42 @@ const O = require('omikron');
 const jstest = require('@hakerh400/jstest');
 const esolangs = require('..');
 const cli = require('./cli');
-const skipTests = require('./skip-tests');
+const slowTests = require('./slow-tests');
 
 const {part, test} = jstest;
 const eq = assert.strictEqual;
 
 const SINGLE_LANG = null;
 const TEST_CLI = SINGLE_LANG === null;
+const SKIP_SLOW_TESTS = 1;
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
 const formsDir = path.join(cwd, 'program-forms');
 
 const langs = SINGLE_LANG !== null ? [SINGLE_LANG] : esolangs.getLangs();
-const skipTestsObj = O.obj();
+const slowTestsObj = O.obj();
 
-for(const skipTest of skipTests){
-  if(typeof skipTest === 'string'){
-    skipTestsObj[skipTest] = O.obj();
-    skipTestsObj[skipTest]['*'] = 1;
+for(const slowTest of slowTests){
+  if(typeof slowTest === 'string'){
+    slowTestsObj[slowTest] = O.obj();
+    slowTestsObj[slowTest]['*'] = 1;
     continue;
   }
 
-  const [lang, test] = skipTest;
+  const [lang, test] = slowTest;
 
-  if(!(lang in skipTestsObj))
-    skipTestsObj[lang] = O.obj();
+  if(!(lang in slowTestsObj))
+    slowTestsObj[lang] = O.obj();
 
-  skipTestsObj[lang][test] = 1;
+  slowTestsObj[lang][test] = 1;
 }
 
 if(TEST_CLI) cli.test();
 
 for(const name of langs){
-  const skipTest = name in skipTestsObj ? skipTestsObj[name] : null;
-  if(skipTest !== null && '*' in skipTest) continue;
+  const slowTest = SKIP_SLOW_TESTS && name in slowTestsObj ? slowTestsObj[name] : null;
+  if(slowTest !== null && '*' in slowTest) continue;
 
   const info = esolangs.getInfo(name);
   if(O.has(info, 'wip') && info.wip) continue;
@@ -54,7 +55,7 @@ for(const name of langs){
       if(!fileName.endsWith('.txt')) continue;
 
       const programName = fileName.slice(0, fileName.length - 4);
-      if(skipTest !== null && programName in skipTest) continue;
+      if(slowTest !== null && programName in slowTest) continue;
 
       const filePath = path.join(dir, fileName);
       const src = O.rfs(filePath);

@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
-const debug = require('../../common/debug');
 const cs = require('./ctors');
 
 const types = O.enum([
@@ -60,35 +59,7 @@ class Engine{
       O.last(stack)[1] = expr;
     };
 
-    // const seen = new Set();
-    
-    // const f = (arr, tab='') => {
-    //   if(seen.has(arr)) return `${tab}(...)`;
-    //   seen.add(arr);
-
-    //   const p = tab + ' '.repeat(2);
-    //   const t = arr[0];
-
-    //   if(t <= 1) return `${tab}${t}\n${f(arr[1], p)}\n${f(arr[2], p)}`;
-    //   if(t <= 3) return `${tab}${t === 2 ? '<' : '>'}\n${f(arr[1], p)}`;
-    //   if(t <= 4) return `${tab}${'?'}\n${f(arr[1], p)}\n${f(arr[2], p)}\n${f(arr[3], p)}`;
-    //   if(t <= 5) return `${tab}${arr[1].name}\n${f(arr[2], p)}`;
-    //   if(t <= 6) return `${tab}INPUT`;
-    //   if(t <= 7) return `${tab}EOF`;
-    // };
-
-    // let sPrev = null;
-
     mainLoop: while(!done){
-      // seen.clear();
-      // let s = f(stack[0]);
-
-      // if(s !== sPrev){
-      //   sPrev = s;
-      //   log('='.repeat(100) + '\n');
-      //   debug(s);
-      // }
-
       const expr = O.last(stack);
 
       if(expr[0] <= 1){
