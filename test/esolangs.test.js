@@ -16,7 +16,7 @@ const args = process.argv.slice(2);
 
 const SINGLE_LANG = null;
 const TEST_CLI = SINGLE_LANG === null;
-const SKIP_SLOW_TESTS = args.includes('--all');
+const INCLUDE_SLOW_TESTS = 0; //args.includes('--all');
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
@@ -43,7 +43,7 @@ for(const slowTest of slowTests){
 if(TEST_CLI) cli.test();
 
 for(const name of langs){
-  const slowTest = SKIP_SLOW_TESTS && name in slowTestsObj ? slowTestsObj[name] : null;
+  const slowTest = !INCLUDE_SLOW_TESTS && name in slowTestsObj ? slowTestsObj[name] : null;
   if(slowTest !== null && '*' in slowTest) continue;
 
   const info = esolangs.getInfo(name);
