@@ -118,5 +118,9 @@
     "name": "Sunny morning",
     "id": "sunny-morning",
     "details": "https://esolangs.org/wiki/Sunny_morning"
+  }, {
+    "name": "!!SuperPrime",
+    "id": "super-prime",
+    "details": "https://esolangs.org/wiki/!!SuperPrime"
   }
 ]

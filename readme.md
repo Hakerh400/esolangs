@@ -4,6 +4,8 @@
 
 This is a collection of interpreters for [esoteric programming languages](https://esolangs.org/wiki/Main_Page).
 
+**Number of languages:** 29
+
 ## How to install
 
 First install [Node.js](https://nodejs.org/en/) version v13.x or newer, then run:
