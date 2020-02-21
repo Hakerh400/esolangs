@@ -5,7 +5,11 @@ const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
 
-class Base extends O.Stringifiable{}
+class Base extends O.Stringifiable{
+  toJSON(){
+    return this.toString();
+  }
+}
 
 class Program extends Base{
   constructor(defsArr){
@@ -53,6 +57,7 @@ class Definition extends Base{
     super();
     this.name = name;
     this.op = op;
+    // op.name = name;
   }
 
   toStr(){
@@ -72,6 +77,7 @@ class Operation extends Base{
 
   toStr(){
     return `${this.opStr} ${this.opsNames.join(' ')}`;
+    // return this.name;
   }
 }
 
@@ -99,13 +105,28 @@ class Extract extends Operation{
 }
 
 class Conditional extends Operation{
+  get isCond(){ return 1; }
+  get type(){ O.virtual('type'); }
+}
+
+class Conditional1 extends Conditional{
   constructor(op1, op2){
     super();
     this.opsNames = [op1, op2];
   }
 
-  get isCond(){ return 1; }
   get opStr(){ return '?'; }
+  get type(){ return 0; }
+}
+
+class Conditional2 extends Conditional{
+  constructor(op1, op2, op3){
+    super();
+    this.opsNames = [op1, op2, op3];
+  }
+
+  get opStr(){ return '*'; }
+  get type(){ return 1; }
 }
 
 class Invocation extends Operation{
@@ -126,5 +147,7 @@ module.exports = {
   Construct,
   Extract,
   Conditional,
+  Conditional1,
+  Conditional2,
   Invocation,
 };

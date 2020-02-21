@@ -1,0 +1,21 @@
+main . reverse a
+a 0 ident zeros
+
+reverse * left right rest1
+rest1 . reverse rest2
+rest2 * lr rest3 rest4
+rest3 0 lrr rest5
+rest4 0 lrr rest6
+rest5 1 zeros rest7
+rest6 1 zeros rest8
+rest7 0 zeros right
+rest8 1 zeros right
+
+lr . right left
+lrr . right lr
+ident ? ctor0 ctor1
+ctor0 0 left right
+ctor1 1 left right
+left < ident
+right > ident
+zeros 0 zeros zeros

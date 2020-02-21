@@ -60,7 +60,35 @@ class Engine{
       O.last(stack)[1] = expr;
     };
 
+    // const seen = new Set();
+    
+    // const f = (arr, tab='') => {
+    //   if(seen.has(arr)) return `${tab}(...)`;
+    //   seen.add(arr);
+
+    //   const p = tab + ' '.repeat(2);
+    //   const t = arr[0];
+
+    //   if(t <= 1) return `${tab}${t}\n${f(arr[1], p)}\n${f(arr[2], p)}`;
+    //   if(t <= 3) return `${tab}${t === 2 ? '<' : '>'}\n${f(arr[1], p)}`;
+    //   if(t <= 4) return `${tab}${'?'}\n${f(arr[1], p)}\n${f(arr[2], p)}\n${f(arr[3], p)}`;
+    //   if(t <= 5) return `${tab}${arr[1].name}\n${f(arr[2], p)}`;
+    //   if(t <= 6) return `${tab}INPUT`;
+    //   if(t <= 7) return `${tab}EOF`;
+    // };
+
+    // let sPrev = null;
+
     mainLoop: while(!done){
+      // seen.clear();
+      // let s = f(stack[0]);
+
+      // if(s !== sPrev){
+      //   sPrev = s;
+      //   log('='.repeat(100) + '\n');
+      //   debug(s);
+      // }
+
       const expr = O.last(stack);
 
       if(expr[0] <= 1){
@@ -91,13 +119,15 @@ class Engine{
 
           if(def.isCt) pop([def.bit, [types.INV, ops[0], expr[2]], [types.INV, ops[1], expr[2]]]);
           else if(def.isExt) pop([types.INV, ops[0], [def.type + 2, expr[2]]]);
-          else if(def.isCond) pop([types.COND, expr[2], [types.INV, ops[0], expr[2]], [types.INV, ops[1], expr[2]]]);
-          else if(def.isInv) pop([types.INV, [types.INV, ops[0], expr[2]], [types.INV, ops[1], expr[2]]]);
+          else if(def.isCond){
+            if(def.type === 0) pop([types.COND, expr[2], [types.INV, ops[0], expr[2]], [types.INV, ops[1], expr[2]]]);
+            else pop([types.COND, [types.INV, ops[0], expr[2]], [types.INV, ops[1], expr[2]], [types.INV, ops[2], expr[2]]]);
+          }else if(def.isInv) pop([types.INV, ops[0], [types.INV, ops[1], expr[2]]]);
           break;
 
         case types.INPUT:
-          inputExpr.length = 0;
-          inputExpr.push(inputBit(), [types.EOF], inputExpr = [types.INPUT]);
+          inputExpr[0] = inputBit()
+          inputExpr.push([types.EOF], inputExpr = [types.INPUT]);
           stack.pop();
           break;
 
