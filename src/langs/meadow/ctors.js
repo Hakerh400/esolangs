@@ -66,6 +66,12 @@ class Program extends Base{
       funcs[name].push(def);
     }
 
+    // ********************
+    // **                **
+    // ** Sanitize types **
+    // **                **
+    // ********************
+
     // Ensure there are no circular prototype chains
     for(const name in types){
       const type = types[name];
@@ -75,12 +81,24 @@ class Program extends Base{
         const {ext} = t;
         if(ext.isBase) break;
 
-        t = this.getType(type, t.ext.name);
-        type.addInherentType(t);
+        const extDef = this.getType(type, t.ext.name);
+
+        t.extDef = extDef;
+        type.addInherentType(extDef);
+        t = extDef;
       }
     }
 
-    // Ensure that templates, extended types and attributes are consistent
+    // Ensure there are no overriden attributes
+    // Resolve own and inherent attributes for each class
+    for(const name in types){
+      const type = types[name];
+      if(type.hasResolvedAttribs) continue;
+
+      type.resolveAttribsRec();
+    }
+
+    // Sanitize templates, extended types and attributes
     for(const name in types){
       const type = types[name];
 
@@ -211,13 +229,13 @@ class Program extends Base{
           }
 
           if(!ok)
-            esolangs.err(`Type "${
-              t}" from type expression "${
-              original}" (in the definition of ${
+            esolangs.err(`Type ${
+              O.sf(t)} from type expression ${
+              O.sf(original)} (in the definition of ${
               O.sf(context.name)}) cannot be constructed, because it violates the constraint from type definition ${
-              O.sf(def.name)} that "${
-              defTemplates[index1].name}" must be more specific or equal to "${
-              mustInherit}". Relevant definitions:\n\n${
+              O.sf(def.name)} that ${
+              O.sf(defTemplates[index1].name)} must be more specific or equal to ${
+              O.sf(mustInherit)}. Relevant definitions:\n\n${
               def}\n\n${context}`);
 
           t.templates.forEach((template, index2) => {
@@ -239,11 +257,22 @@ class Program extends Base{
 
       push(typesArr, type.ext, type.ext.templateWithExts(templates));
 
-      for(const attrib of type.attribs){
+      for(const attrib of type.attribs)
         push(typesArr, attrib.type, attrib.type.templateWithExts(templates));
-      }
 
       checkTypes(type, typesArr);
+    }
+
+    // ************************
+    // **                    **
+    // ** Sanitize functions **
+    // **                    **
+    // ************************
+
+    for(const name in funcs){
+      const funcDefs = funcs[name];
+
+      log(funcDefs.join('\n'));
     }
   }
 
@@ -401,9 +430,14 @@ class Definition extends Base{
 }
 
 class TypeDefinition extends Definition{
+  extDef = null;
   protoChain = [this];
   inherentTypes = new Set([this]);
-  inheritedByTypes = new Set([this]);
+  inherentByTypes = new Set([this]);
+
+  hasResolvedAttribs = 0;
+  allAttribsArr = [];
+  allAttribsObj = O.obj();
 
   constructor(name, templates, ext, attribs){
     super();
@@ -413,8 +447,8 @@ class TypeDefinition extends Definition{
     this.ext = ext;
     this.attribs = attribs;
 
-    const templatesObj = O.obj();
-    const attribsObj = O.obj();
+    const templatesObj = this.templatesObj = O.obj();
+    const attribsObj = this.attribsObj = O.obj();
 
     for(const template of templates){
       const {name: templateName} = template;
@@ -425,7 +459,8 @@ class TypeDefinition extends Definition{
           O.sf(templateName)}. Current definition:\n\n${
           this}`);
 
-      templatesObj[templateName] = 1;
+      template.typeDef = this;
+      templatesObj[templateName] = template;
     }
 
     for(const attrib of attribs){
@@ -437,7 +472,8 @@ class TypeDefinition extends Definition{
           O.sf(attribName)}. Current definition:\n\n${
           this}`);
 
-      attribsObj[attribName] = 1;
+      attrib.typeDef = this;
+      attribsObj[attribName] = attrib;
     }
   }
 
@@ -457,11 +493,11 @@ class TypeDefinition extends Definition{
         O.sfa(protoChain.map(a => a.name))}`);
 
     inherentTypes.add(type);
-    type.inheritedByTypes.add(this);
+    type.inherentByTypes.add(this);
   }
 
   inherits(type){ return this.inherentTypes.has(type); }
-  inheritedBy(type){ return this.inheritedByTypes.has(type); }
+  inherentBy(type){ return this.inherentByTypes.has(type); }
 
   getTemplatesObj(templates){
     const obj = O.obj();
@@ -471,6 +507,62 @@ class TypeDefinition extends Definition{
     });
 
     return obj;
+  }
+
+  resolveAttribsRec(){
+    assert(!this.hasResolvedAttribs);
+
+    const {protoChain} = this;
+
+    let start = 0;
+
+    while(start !== protoChain.length - 1){
+      const t = protoChain[start];
+      if(t.hasResolvedAttribs) break;
+      start++;
+    }
+
+    if(protoChain[start].hasResolvedAttribs)
+      start--;
+
+    for(let i = start; i !== -1; i--)
+      protoChain[i].resolveAttribs();
+  }
+
+  resolveAttribs(){
+    assert(!this.hasResolvedAttribs);
+
+    const {extDef} = this;
+
+    if(extDef !== null)
+      this.addAttribs(extDef.allAttribsArr);
+
+    this.addAttribs(this.attribs);
+  }
+
+  addAttribs(attribs){
+    for(const attrib of attribs)
+      this.addAttrib(attrib);
+
+    this.hasResolvedAttribs = 1;
+  }
+
+  addAttrib(attrib){
+    const {allAttribsArr, allAttribsObj} = this;
+    const {name} = attrib;
+
+    if(name in allAttribsObj){
+      const {typeDef} = allAttribsObj[name];
+
+      esolangs.err(`Attributes cannot be overriden. Type ${
+        O.sf(typeDef.name)} defined attribute ${
+        O.sf(name)}, but then type ${
+        O.sf(this.name)} has redefined the same attribute. Relevant type definitions:\n\n${
+        typeDef}\n\n${this}`);
+    }
+
+    allAttribsArr.push(attrib);
+    allAttribsObj[name] = attrib;
   }
 
   toStr(){
@@ -627,6 +719,8 @@ class Type extends Base{
 }
 
 class Template extends Base{
+  typeDef = null;
+
   constructor(name, ext){
     super();
 
@@ -648,6 +742,8 @@ class Template extends Base{
 }
 
 class Attribute extends Base{
+  typeDef = null;
+
   constructor(type, name){
     super();
 

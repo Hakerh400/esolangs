@@ -47,7 +47,7 @@ const source = '+[-->-[>>+>-----<<]<--<---]>-.>>>+.>>..+++[.>]<<<<.+++.------.<<
 const input = '';
 const output = esolangs.run(lang, source, input);
 
-console.log(output.toString() === 'Hello, World!');
+console.log(output.toString());
 ```
 
 For the full API documentation, see [api.md](./api.md).

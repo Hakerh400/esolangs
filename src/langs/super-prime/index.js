@@ -12,9 +12,9 @@ const run = (src, input) => {
   input = input.toString();
 
   if(!/^\d+$/.test(input))
-    return 'Expected a decimal number as input';
+    esolangs.err(`Expected a decimal number as input`);
 
-  return O.isPrime(BigInt(input)) ? '1' : '0';
+  return Buffer.from(O.isPrime(BigInt(input)) ? '1' : '0');
 };
 
 module.exports = run;

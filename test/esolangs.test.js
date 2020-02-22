@@ -62,14 +62,16 @@ for(const name of langs){
       const filePath = path.join(dir, fileName);
       const src = O.rfs(filePath);
 
-      test(programName, () => {
+      test(programName, async () => {
         const formFile = `${programName}.js`;
         const path1 = path.join(dir, formFile);
         const path2 = path.join(formsDir, formFile);
         const formFunc = require(fs.existsSync(path1) ? path1 : path2);
 
         for(const [input, expectedOutput] of formFunc(src)){
-          const actualOutput = esolangs.run(name, src, input);
+          const actualOutput = await esolangs.run(name, src, input);
+
+          assert(Buffer.isBuffer(actualOutput));
           
           eq(
             actualOutput.toString('binary'),
