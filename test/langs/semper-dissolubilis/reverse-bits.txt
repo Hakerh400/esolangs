@@ -1,0 +1,5 @@
+main(&x): reverse(x, eof)
+reverse(1(0(&x)), &y): reverse(x, 1(0(y)))
+reverse(1(1(&x)), &y): reverse(x, 1(1(y)))
+reverse(0(&x), &y): y
+eof: 0(eof)

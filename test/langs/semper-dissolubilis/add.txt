@@ -1,0 +1,231 @@
+main(&x):
+  write(int2str(add(strs2ints(split(read(x))))))
+
+strs2ints(Pair(&str1, &str2)):
+  Pair(str2int(str1), str2int(str2))
+
+str2int(&str): str2int(str, 0n)
+str2int(Pair(&char, &rest), &result):
+  str2int(rest, add(mul(result, 10n), char2int(char)))
+str2int(null, &result): result
+
+char2int(Pair(&x, &y)): char2int(x, 4n)
+char2int(Pair(&x, &y), &mult):
+  add(
+    char2int(x, shr(mult)),
+    mul(char2int(y, shr(mult)), mult)
+  )
+char2int(0, &mult): 0n
+char2int(1, &mult): 1n
+
+int2str(null): Pair(int2char(0n), null)
+int2str(&int): int2str(int, null)
+int2str(&int, &str):
+  if(neq(int, null),
+    int2str(
+      div(int, 10n),
+      Pair(int2char(mod(int, 10n)), str)
+    ),
+    str
+  )
+
+int2char(&int): Pair(int2char(int, 4n), int2char(3n, 4n))
+int2char(&int, Pair(0, &mult)):
+  Pair(
+    int2char(mod(int, shl(mult)), mult),
+    int2char(div(int, shl(mult)), mult)
+  )
+int2char(null, Pair(1, null)): 0
+int2char(Pair(1, null), Pair(1, null)): 1
+
+cmp(Pair(&x, &y)): cmp(x, y)
+cmp(&x, &y): cmp(x, y, 1, 0, 0)
+cmp(Pair(&x1, &y1), Pair(&x2, &y2), &eq, &lt, &gt):
+  cmp(
+    y1, y2,
+    and(eq, eq(x1, x2)),
+    or(and(not(x1), x2), and(lt, eq(x1, x2))),
+    or(and(x1, not(x2)), and(gt, eq(x1, x2)))
+  )
+cmp(Pair(&x, &y), null, &eq, &lt, &gt):
+  Pair(0, Pair(0, 1))
+cmp(null, Pair(&x, &y), &eq, &lt, &gt):
+  Pair(0, Pair(1, 0))
+cmp(null, null, &eq, &lt, &gt):
+  Pair(eq, Pair(lt, gt))
+
+lt(Pair(&x, &y)): lt(x, y)
+gt(Pair(&x, &y)): gt(x, y)
+le(Pair(&x, &y)): le(x, y)
+ge(Pair(&x, &y)): ge(x, y)
+lt(&x, &y): fst(snd(cmp(x, y)))
+gt(&x, &y): snd(snd(cmp(x, y)))
+le(&x, &y): or(lt(x, y), eq(x, y))
+ge(&x, &y): or(gt(x, y), eq(x, y))
+
+inc(&x): add(x, Pair(1, null))
+dec(&x): sub(x, Pair(1, null))
+
+shl(Pair(&x, &y)): Pair(0, Pair(x, y))
+shl(null): null
+
+shr(Pair(&x, &y)): y
+shr(null): null
+
+add(Pair(&x, &y)): add(x, y)
+add(&x, &y): add(x, y, 0, null)
+add(Pair(&x1, &y1), Pair(&x2, &y2), &carry, &result):
+  add(
+    y1, y2,
+    if(carry,
+      or(x1, x2),
+      and(x1, x2)
+    ),
+    Pair(xor(xor(x1, x2), carry), result)
+  )
+add(Pair(&x, &y), null, &carry, &result):
+  add(y, null, and(x, carry), Pair(xor(x, carry), result))
+add(null, Pair(&x, &y), &carry, &result):
+  add(Pair(x, y), null, carry, result)
+add(null, null, &carry, &result):
+  reverse(if(carry, Pair(1, result), result))
+
+sub(Pair(&x, &y)): sub(x, y)
+sub(&x, &y): sub(x, y, 0, null)
+sub(Pair(&x1, &y1), Pair(&x2, &y2), &carry, &result):
+  sub(
+    y1, y2,
+    if(x1,
+      and(x2, carry),
+      or(x2, carry)
+    ),
+    Pair(xor(xor(x1, x2), carry), result)
+  )
+sub(Pair(&x, &y), null, &carry, &result):
+  sub(
+    y, null,
+    and(carry, not(x)),
+    Pair(xor(x, carry), result)
+  )
+sub(null, null, 0, &result): reverse(trim(result))
+
+mul(Pair(&x, &y)): mul(x, y)
+mul(&x, &y): mul(x, y, null)
+mul(Pair(&x, &y), &z, &result):
+  mul(
+    y,
+    shl(z),
+    if(x,
+      add(result, z),
+      result
+    )
+  )
+mul(null, &x, &result): result
+
+div(Pair(&x, &y)): div(x, y)
+div(&x, &y): fst(div(reverse(x), y, 0n, 0n))
+div(Pair(&x, &y), &d, &q, &r):
+  divAux(
+    y, d, q,
+    add(shl(r), if(x, 1n, 0n))
+  )
+divAux(&n, &d, &q, &r):
+  if(ge(r, d),
+    div(n, d, Pair(1, q), sub(r, d)),
+    div(n, d, shl(q), r)
+  )
+div(null, &d, &q, &r): Pair(q, r)
+
+mod(Pair(&x, &y)): div(x, y)
+mod(&x, &y): snd(div(reverse(x), y, 0n, 0n))
+
+pow(Pair(&x, &y)): pow(x, y)
+pow(&x, &y): pow(x, y, 1n)
+pow(&x, Pair(&y, &z), &result):
+  pow(x, dec(Pair(y, z)), mul(result, x))
+pow(&x, null, &result): result
+
+trim(Pair(0, &x)): trim(x)
+trim(Pair(1, &x)): Pair(1, x)
+trim(null): null
+
+0n: null 1n: inc(0n) 2n: inc(1n) 3n: inc(2n)
+4n: inc(3n) 5n: inc(4n) 6n: inc(5n) 7n: inc(6n)
+8n: inc(7n) 9n: inc(8n) 10n: inc(9n) 11n: inc(10n)
+
+isSpace(&x): not(fst(fst(snd(x))))
+
+split(&str): split(str, null)
+split(Pair(&char, &rest), &str):
+  if(
+    isSpace(char),
+    Pair(reverse(str), rest),
+    split(rest, Pair(char, str))
+  )
+
+join(Pair(&x, &y)): join(x, y)
+join(&x, &y): join(x, y, null)
+join(&x, &y, &str): prepend(prepend(str, y), x)
+
+unshift(&str, &x): Pair(x, str)
+push(&str, &x): reverse(Pair(x, reverse(str)))
+
+prepend(&str, &x): prepend(str, reverse(x), 1)
+prepend(&str, Pair(&x, &y), 1): prepend(Pair(x, str), y, 1)
+prepend(&str, null, 1): str
+
+fst(Pair(&x, &y)): x
+snd(Pair(&x, &y)): y
+
+if(0, &x, &y): y
+if(1, &x, &y): x
+
+not(&x): if(x, 0, 1)
+or(0, &x): x
+or(1, &x): 1
+and(0, &x): 0
+and(1, &x): x
+xor(&x, &y): not(eq(x, y))
+
+eq(Pair(&x, &y)): eq(x, y)
+eq(Pair(&x1, &y1), Pair(&x2, &y2)): and(eq(x1, x2), eq(y1, y2))
+eq(Pair(&x, &y), null): 0
+eq(null, Pair(&x, &y)): 0
+eq(null, null): 1
+eq(0, &x): not(x)
+eq(1, &x): x
+
+neq(Pair(&x, &y)): neq(x, y)
+neq(&x, &y): not(eq(x, y))
+
+swap(Pair(&x, &y)): Pair(y, x)
+
+reverse(&str): reverse(str, null)
+reverse(Pair(&char, &rest), &str):
+  reverse(rest, Pair(char, str))
+reverse(null, &str): str
+
+read(1(&x)):
+  Pair(read(1(x), b8), read(skip(1(x), b8)))
+read(0(&x)): null
+b8: 1(1(1(0)))
+
+read(&x, 1(&y)):
+  Pair(read(x, y), read(skip(x, y), y))
+read(1(0(&x)), 0): 0
+read(1(1(&x)), 0): 1
+read(0(&x), 0): 0
+
+skip(&x, 1(&y)): skip(skip(x, y), y)
+skip(1(0(&x)), 0): x
+skip(1(1(&x)), 0): x
+skip(0(&x), 0): eof
+
+write(&x): write(x, eof)
+write(Pair(&x, &y), &str):
+  write(x, write(y, str))
+write(0, &str): 1(0(str))
+write(1, &str): 1(1(str))
+write(null, &str): str
+
+eof: 0(eof)
