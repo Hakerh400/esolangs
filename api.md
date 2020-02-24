@@ -51,7 +51,7 @@ Execute the source code `source` that is written in `name` language, having `inp
 
 Safe version of `esolangs.run`. While the unsafe version may never halt and can even crash the process if a fatal error occurs (for example out-of-memory errors cannot be catched - they always crash the process), the `runSafe` method is always safe to invoke. It is always asynchronous (regardless of the `async` property of the langauge info object) and returns a promise that either resolves to a buffer containing the result or rejects with an error.
 
-Result is an array of two elements. If the first element is `0`, the second element is a string representing the error message. If the first element is `1`, the second element is a buffer that represents the program's output. Promise rejects with an error only in case of fatal errors (for example time limit is exceeded, or out-of-memory happened (which cannot be catches using `esolangs.run`)).
+Result is an array of two elements. If the first element is `0`, the second element is a string representing the error message. If the first element is `1`, the second element is a buffer that represents the program's output. Promise rejects with an error only in case of fatal errors (for example time limit is exceeded, or out-of-memory happened (which cannot be catched using `esolangs.run`)).
 
 `sandboxOptions` is an optional parameter which is an object that contains the following properties:
 
