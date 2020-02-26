@@ -129,6 +129,7 @@
   }, {
     "name": "Esolang on steroids",
     "id": "esolang-on-steroids",
-    "details": "https://esolangs.org/wiki/Esolang_on_steroids"
+    "details": null,
+    "wip": true
   }
 ]
