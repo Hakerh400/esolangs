@@ -4,26 +4,26 @@ funcDef{
   type s0
   ident s0
   "(" s0 formalArgs s0 ")" s0
-  "{" s0 funcBody s0 "}"
+  funcBody
 }
 
 formalArgs{ formalArg*commaSep }
 formalArg{ type s0 ident }
-funcBody{ stat*s0 }
+funcBody{ block }
 
 stat{
   varDef |
   block |
   control |
   ret |
-  e
+  exprStat
 }
 
 statOrVarDef{ stat | varDef }
-
 varDef{ type s0 ident s0 "=" s0 e s0 ";" }
 block{ "{" s0 stat*s0 s0 "}" }
 ret{ "return" s0 e s0 ";" }
+exprStat{ e s0 ";" }
 
 control{
   if |
@@ -56,24 +56,24 @@ while{
   stat
 }
 
-e{ e6_ }
+e{ e1_ }
 
-e1_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 | e5 | e4 | e3 | e1 }
-e3_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 | e5 | e4 | e3 }
-e4_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 | e5 | e4 }
-e5_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 | e5 }
-e6_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 }
-e8_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 }
-e9_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 }
-e10_ { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 }
-e11_ { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 }
-e12_ { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 }
-e13_ { e21 | e20 | e18 | e17 | e15 | e14 | e13 }
-e14_ { e21 | e20 | e18 | e17 | e15 | e14 }
-e15_ { e21 | e20 | e18 | e17 | e15 }
-e17_ { e21 | e20 | e18 | e17 }
-e18_ { e21 | e20 | e18 }
-e20_ { e21 | e20 }
+e1_  { e1  | e3_ }
+e3_  { e3  | e4_ }
+e4_  { e4  | e5_ }
+e5_  { e5  | e6_ }
+e6_  { e6  | e8_ }
+e8_  { e8  | e9_ }
+e9_  { e9  | e10_ }
+e10_ { e10 | e11_ }
+e11_ { e11 | e12_ }
+e12_ { e12 | e13_ }
+e13_ { e13 | e14_ }
+e14_ { e14 | e15_ }
+e15_ { e15 | e17_ }
+e17_ { e17 | e18_ }
+e18_ { e18 | e20_ }
+e20_ { e20 | e21_ }
 e21_ { e21 }
 
 e1{ comma }
@@ -92,7 +92,7 @@ e15{ mulDivMod }
 e17{ unaryPre }
 e18{ unaryPost }
 e20{ index | call }
-e21{ group | ident }
+e21{ group | ident | literal }
 
 comma{ e1_ s0 "," s0 e3_ }
 assign{ e4_ s0 assignOp s0 e3_ }
@@ -110,7 +110,7 @@ mulDivMod{ e15_ s0 mulDivModOp s0 e17_ }
 unaryPre{ unaryPreOp s0 e17_ }
 unaryPost{ e18_ s0 unaryPostOp }
 index{ e20_ s0 "[" s0 e1_ s0 "]" }
-call{ e20_ s0 "(" s0 e3_*commaSep s0 ")" }
+call{ ident s0 "(" s0 e3_*commaSep s0 ")" }
 group{ "(" s0 e1_ s0 ")" }
 
 assignOp{ "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "<<=" | ">>=" | "&=" | "^=" | "|=" }
@@ -129,6 +129,8 @@ typeName{ "void" | "bool" | "int" }
 ptrs{ "*"*s0 }
 
 ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
+literal{ int }
+int{ [0-9]+ }
 
 commaSep{ s0 "," s0 }
 
