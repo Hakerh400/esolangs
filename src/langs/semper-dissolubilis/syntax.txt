@@ -1,4 +1,4 @@
-script{ func*s0 }
+script{ s0 func*s0 s0 }
 
 func{ expr s0 ":" s0 expr }
 

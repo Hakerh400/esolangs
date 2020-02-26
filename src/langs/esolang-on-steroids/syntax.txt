@@ -1,0 +1,142 @@
+script{ s0 funcDef*s0 s0 }
+
+funcDef{
+  type s0
+  ident s0
+  "(" s0 formalArgs s0 ")" s0
+  "{" s0 funcBody s0 "}"
+}
+
+formalArgs{ formalArg*commaSep }
+formalArg{ type s0 ident }
+funcBody{ stat*s0 }
+
+stat{
+  varDef |
+  block |
+  control |
+  ret |
+  e
+}
+
+statOrVarDef{ stat | varDef }
+
+varDef{ type s0 ident s0 "=" s0 e s0 ";" }
+block{ "{" s0 stat*s0 s0 "}" }
+ret{ "return" s0 e s0 ";" }
+
+control{
+  if |
+  for |
+  while
+}
+
+if{
+  "if" s0
+  "(" s0 e s0 ")" s0
+  stat s0
+  else?
+}
+
+else{ "else" s0 stat }
+
+for{
+  "for" s0
+  "(" s0
+    statOrVarDef s0 ";" s0
+    e s0 ";" s0
+    e
+  s0 ")" s0
+  stat
+}
+
+while{
+  "while" s0
+  "(" s0 e s0 ")" s0
+  stat
+}
+
+e{ e6_ }
+
+e1_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 | e5 | e4 | e3 | e1 }
+e3_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 | e5 | e4 | e3 }
+e4_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 | e5 | e4 }
+e5_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 | e5 }
+e6_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 | e6 }
+e8_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 | e8 }
+e9_  { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 | e9 }
+e10_ { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 | e10 }
+e11_ { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 | e11 }
+e12_ { e21 | e20 | e18 | e17 | e15 | e14 | e13 | e12 }
+e13_ { e21 | e20 | e18 | e17 | e15 | e14 | e13 }
+e14_ { e21 | e20 | e18 | e17 | e15 | e14 }
+e15_ { e21 | e20 | e18 | e17 | e15 }
+e17_ { e21 | e20 | e18 | e17 }
+e18_ { e21 | e20 | e18 }
+e20_ { e21 | e20 }
+e21_ { e21 }
+
+e1{ comma }
+e3{ assign }
+e4{ cond }
+e5{ lOr }
+e6{ lAnd }
+e8{ bOr }
+e9{ bXor }
+e10{ bAnd }
+e11{ equal }
+e12{ cmp }
+e13{ shift }
+e14{ addSub }
+e15{ mulDivMod }
+e17{ unaryPre }
+e18{ unaryPost }
+e20{ index | call }
+e21{ group | ident }
+
+comma{ e1_ s0 "," s0 e3_ }
+assign{ e4_ s0 assignOp s0 e3_ }
+cond{ e4_ s0 "?" s0 e3_ s0 ":" s0 e3_ }
+lOr{ e6_+lOrSep }
+lAnd{ e8_+lAndSep }
+bOr{ "|" }
+bXor{ "^" }
+bAnd{ "&" }
+equal{ e11_ s0 eqOp s0 e12_ }
+cmp{ e12_ s0 cmpOp s0 e13_ }
+shift{ e13_ s0 shiftOp s0 e14_ }
+addSub{ e14_ s0 addSubOp s0 e15_ }
+mulDivMod{ e15_ s0 mulDivModOp s0 e17_ }
+unaryPre{ unaryPreOp s0 e17_ }
+unaryPost{ e18_ s0 unaryPostOp }
+index{ e20_ s0 "[" s0 e1_ s0 "]" }
+call{ e20_ s0 "(" s0 e3_*commaSep s0 ")" }
+group{ "(" s0 e1_ s0 ")" }
+
+assignOp{ "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "<<=" | ">>=" | "&=" | "^=" | "|=" }
+lOrSep{ s0 "||" s0 }
+lAndSep{ s0 "&&" s0 }
+eqOp{ "==" | "!=" }
+cmpOp{ "<" | ">" | "<=" | ">=" }
+shiftOp{ "<<" | ">>" }
+addSubOp{ "+" | "-" }
+mulDivModOp{ "*" | "/" | "%" }
+unaryPreOp{ "!" | "~" | "+" | "-" | "++" | "--" }
+unaryPostOp{ "++" | "--" }
+
+type{ typeName s0 ptrs }
+typeName{ "void" | "bool" | "int" }
+ptrs{ "*"*s0 }
+
+ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
+
+commaSep{ s0 "," s0 }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

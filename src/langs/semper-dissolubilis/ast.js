@@ -7,7 +7,7 @@ const esolangs = require('../..');
 const cs = require('./ctors');
 
 const rules = {
-  script: e => new cs.Program(e.fst.arr),
+  script: e => new cs.Program(e.es[1].arr),
   func: e => new cs.Function(e.es[0].fst, e.es[4].fst),
   args: e => e.es[2].arr,
   expr: e => new cs.Expression(e.es[0].fst, e.es[2].jst),
