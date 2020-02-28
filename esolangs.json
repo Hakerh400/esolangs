@@ -127,6 +127,11 @@
     "id": "semper-dissolubilis",
     "details": "https://esolangs.org/wiki/Semper_dissolubilis"
   }, {
+    "name": "int**",
+    "id": "int-star-star",
+    "details": null,
+    "wip": true
+  }, {
     "name": "ƎↃИAЯT",
     "id": "trance",
     "details": null,

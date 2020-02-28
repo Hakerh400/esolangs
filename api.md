@@ -14,6 +14,8 @@ Version of the module.
 
 Default is `false`. When set to `true`, errors that are related to user programs will be displayed differently than internal errors and will terminate the process immediately (except in `runSafe` method).
 
+Enabling debug mode also allows you to run work-in-progress languages, which is not possible in non-debug mode.
+
 ## Methods
 
 ### `esolangs.getLangs()`
