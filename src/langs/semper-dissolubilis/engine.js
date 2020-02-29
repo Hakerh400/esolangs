@@ -75,68 +75,68 @@ class Engine{
 
       const expr = reduceInfo !== null ? reduceInfo[2] : mainExpr;
 
-      assert(!expr.reduced);
+      if(!expr.reduced){
+        if(expr.ident === '#input'){
+          expr.ident = inputBit() ? '1' : '0';
+          expr.addArg(inputExpr = cex('#input'));
+          continue;
+        }
 
-      if(expr.ident === '#input'){
-        expr.ident = inputBit() ? '1' : '0';
-        expr.addArg(inputExpr = cex('#input'));
-        continue;
-      }
+        if(expr.ident in funcsObj){
+          const funcs = funcsObj[expr.ident];
+          const argsNum = expr.args.length;
 
-      if(expr.ident in funcsObj){
-        const funcs = funcsObj[expr.ident];
-        const argsNum = expr.args.length;
+          findFunc: for(const func of funcs){
+            const {expr1, expr2} = func;
 
-        findFunc: for(const func of funcs){
-          const {expr1, expr2} = func;
-
-          if(expr1.args.length !== argsNum)
-            continue;
-
-          const stack = O.ca(argsNum, i => [expr.args, i, expr1.args[i]]);
-          const paramsObj = O.obj();
-
-          let reduceCandidate = null;
-
-          while(stack.length !== 0){
-            const [args, index, e1] = stack.pop();
-            const e2 = args[index];
-
-            if(e1.isParam){
-              paramsObj[e1.ident] = e2;
+            if(expr1.args.length !== argsNum)
               continue;
+
+            const stack = O.ca(argsNum, i => [expr.args, i, expr1.args[i]]);
+            const paramsObj = O.obj();
+
+            let reduceCandidate = null;
+
+            while(stack.length !== 0){
+              const [args, index, e1] = stack.pop();
+              const e2 = args[index];
+
+              if(e1.isParam){
+                paramsObj[e1.ident] = e2;
+                continue;
+              }
+
+              if(!e2.reduced){
+                if(reduceCandidate === null)
+                  reduceCandidate = [args, index, e2];
+                continue;
+              }
+
+              if(e1.ident !== e2.ident)
+                continue findFunc;
+
+              const args1 = e1.args;
+              const args2 = e2.args;
+
+              if(args1.length !== args2.length)
+                continue findFunc;
+
+              for(let i = 0; i !== args1.length; i++)
+                stack.push([args2, i, args1[i]]);
             }
 
-            if(!e2.reduced){
-              if(reduceCandidate === null)
-                reduceCandidate = [args, index, e2];
-              continue;
+            if(reduceCandidate !== null){
+              reduceInfo = reduceCandidate;
+              continue mainLoop;
             }
 
-            if(e1.ident !== e2.ident)
-              continue findFunc;
-
-            const args1 = e1.args;
-            const args2 = e2.args;
-
-            if(args1.length !== args2.length)
-              continue findFunc;
-
-            for(let i = 0; i !== args1.length; i++)
-              stack.push([args2, i, args1[i]]);
-          }
-
-          if(reduceCandidate !== null){
-            reduceInfo = reduceCandidate;
+            pop(expr2.substitute(paramsObj));
             continue mainLoop;
           }
-
-          pop(expr2.substitute(paramsObj));
-          continue mainLoop;
         }
-      }
 
-      expr.reduced = 1;
+        expr.reduced = 1;
+      }
 
       if(reduceInfo !== null){
         pop(expr);

@@ -1,0 +1,33 @@
+script{ s0 func*s0 s0 }
+
+func{
+  ident s0
+  args? s0
+  ":" s0
+  expr
+}
+
+args{ "(" s0 arg*commaSep s0 ")" }
+arg{ expr }
+
+expr{ sum }
+sum{ exprTerm+plusSep }
+
+exprTerm{ literal | ident | call }
+call{ ident s0 args }
+
+ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
+literal{ integer }
+integer{ [0-9]+ }
+
+commaSep{ s0 "," s0 }
+plusSep{ s0 "+" s0 }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }
