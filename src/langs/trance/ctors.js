@@ -21,9 +21,8 @@ class Program extends Base{
 
     // Add functions
     for(const func of funcsArr){
-      const {name, args, argNames} = func;
+      const {name, args, argNames, argOffsets} = func;
       const argsNum = args.length;
-      const argNamesObj = O.obj();
 
       const createObj = () => {
         const obj = O.obj();
@@ -98,18 +97,20 @@ class Program extends Base{
 
         const argName = e1.name;
 
-        if(argName in argNamesObj)
+        if(argName in argNames)
           err(func, `Duplicated argument ${O.sf(argName)}`);
 
-        argNamesObj[argName] = 1;
-        argNames[i] = argName;
+        argNames[argName] = i;
+        argOffsets[argName] = e2.val;
+
         addEntry(arg, e2.val, 1);
       }
 
-      if('#' in obj)
-        esolangs.err(`Ambiguous function definition\n\n${func}`);
+      if('func' in obj)
+        esolangs.err(`Ambiguous function definitions\n\n${
+          obj.func}\n\n${func}`);
 
-      obj['#'] = func.expr;
+      obj.func = func;
     }
 
     // Sanitize function arguments
@@ -145,8 +146,61 @@ class Program extends Base{
       }
     }
 
-    // BigInt.prototype.toJSON = {a(){return String(this)}}.a;
-    // log(O.sf(funcsObj));
+    // Sanitize function expressions
+    for(const func of funcsArr){
+      const {argNames, expr} = func;
+      const queue = [[func, 'expr', expr]];
+
+      while(queue.length !== 0){
+        const [parent, key, expr] = queue.shift();
+
+        if(expr.isSum){
+          const {elems} = expr;
+
+          elems.forEach((elem, index) => {
+            queue.push([elems, index, elem]);
+          });
+
+          continue;
+        }
+
+        if(expr.isCall){
+          const {ident, args} = expr;
+
+          if(!(ident in funcsObj))
+            err(func, `Undefined function ${
+              O.sf(ident)} in expression ${
+              O.sf(expr)}`);
+
+          if(!(expr.args.length in funcsObj[ident]))
+            err(func, `No overloaded function ${
+              O.sf(ident)} called from expression ${
+              O.sf(expr)} takes ${
+              O.gnum('argument', expr.args.length)}`);
+
+          args.forEach((arg, index) => {
+            queue.push([args, index, arg]);
+          });
+
+          continue;
+        }
+
+        if(expr.isIdent){
+          const {name} = expr;
+
+          if(name in argNames)
+            continue;
+
+          if(name in funcsObj){
+            parent[key] = new Call(name, []);
+            queue.unshift([parent, key, parent[key]]);
+            continue;
+          }
+
+          err(func, `Undefined identifier ${O.sf(name)}`);
+        }
+      }
+    }
   }
 
   toStr(){
@@ -156,6 +210,7 @@ class Program extends Base{
 
 class Function extends Base{
   argNames = O.obj();
+  argOffsets = O.obj();
 
   constructor(name, args, expr){
     super();
@@ -185,10 +240,53 @@ class Expression extends Base{
   get isCall(){ return 0; }
   get isIdent(){ return 0; }
   get isInt(){ return 0; }
+
+  subst(paramsObj){
+    const mainArr = [];
+    const stack = [[[this], mainArr]];
+
+    while(stack.length !== 0){
+      const [args1, args2] = O.last(stack);
+      const index = args2.length;
+
+      if(index === args1.length){
+        stack.pop();
+        continue;
+      }
+
+      const expr = args1[index];
+
+      if(expr.isInt){
+        args2.push(expr);
+        continue;
+      }
+
+      if(expr.isIdent){
+        args2.push(paramsObj[expr.name]);
+        continue;
+      }
+
+      if(expr.isSum){
+        const exprNew = new Sum();
+        args2.push(exprNew);
+        stack.push([expr.elems, exprNew.elems]);
+        continue;
+      }
+
+      if(expr.isCall){
+        const exprNew = new Call(expr.ident);
+        args2.push(exprNew);
+        stack.push([expr.args, exprNew.args]);
+        continue;
+      }
+    }
+
+    return mainArr[0];
+  }
 }
 
 class Sum extends Expression{
-  constructor(elems){
+  constructor(elems=[]){
     super();
 
     this.elems = elems;
@@ -202,7 +300,9 @@ class Sum extends Expression{
 }
 
 class Call extends Expression{
-  constructor(ident, args){
+  reduced = 0;
+
+  constructor(ident, args=[]){
     super();
 
     this.ident = ident;
@@ -251,7 +351,6 @@ class Integer extends Expression{
     return String(this.val);
   }
 }
-
 
 module.exports = {
   Base,
