@@ -31,10 +31,10 @@ class Program extends Base{
       };
 
       if(!(name in funcsObj))
-        funcsObj[name] = createObj();
+        funcsObj[name] = O.obj();
 
       if(!(argsNum in funcsObj[name]))
-        funcsObj[name][argsNum] = O.obj();
+        funcsObj[name][argsNum] = createObj();
 
       const mainObj = funcsObj[name][argsNum];
       let obj = mainObj;
