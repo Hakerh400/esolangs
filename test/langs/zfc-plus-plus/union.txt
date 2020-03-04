@@ -1,0 +1,2 @@
+main(x): main1(~x)
+main1(x): x

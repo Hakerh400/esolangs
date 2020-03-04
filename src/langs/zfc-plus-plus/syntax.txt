@@ -2,9 +2,11 @@ script{ s0 funcDef*s0 s0 }
 
 funcDef{
   ident s0
-  "(" s0 ident*commaSep s0 ")" s0
+  formalArgs? s0
   ":" s0 expr
 }
+
+formalArgs{ "(" s0 ident*commaSep s0 ")" }
 
 expr{
   ident |
@@ -17,7 +19,7 @@ invert{ "!" s0 expr }
 set{ "{" s0 expr*commaSep s0 "}" }
 
 call{ ident s0 "(" s0 arg*commaSep s0 ")" }
-arg{ "~"? s0 expr }
+arg{ "~"* s0 expr }
 
 ident{ [a-zA-Z0-9_]+ }
 

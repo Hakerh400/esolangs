@@ -35,29 +35,78 @@ class Program extends Base{
 
     // Sanitize function expressions
     for(const func of funcsArr){
-      func.expr.topDown(expr => {
+      func.expr.bottomUp(expr => {
         if(expr.isIdent){
-          if(!(expr.name in func.argNames))
-            func.err(`Undefined identifier ${O.sf(expr.name)}`);
+          const {name} = expr;
 
-          expr.argIndex = func.argNames[expr.name];
+          if(!(name in func.argNames)){
+            if(!(name in funcsObj && 0 in funcsObj[name]))
+              func.err(`Undefined identifier ${O.sf(name)}`);
+
+            expr.markedAsCall = 1;
+            return;
+          }
+
+          expr.argIndex = func.argNames[name];
+          return;
+        }
+
+        if(expr.isVector){
+          const {arr} = expr;
+
+          for(let i = 0; i !== arr.length; i++){
+            const e = arr[i];
+
+            if(e.isIdent && e.markedAsCall){
+              const {name} = e;
+              const call = new Call(name);
+
+              call.funcRef = funcsObj[name][0];
+              arr[i] = call;
+            }
+          }
+
+          if(expr.isCall){
+            const argsNum = expr.args.length;
+            const funcName = expr.func;
+
+            if(!(funcName in funcsObj && argsNum in funcsObj[funcName]))
+              func.err(`Missing definition for function ${
+                O.sf(funcName)} that takes ${O.gnum('argument', argsNum)}`);
+
+            expr.funcRef = funcsObj[funcName][argsNum];
+            return;
+          }
 
           return;
         }
 
-        if(expr.isCall){
-          const argsNum = expr.args.length;
-          const funcName = expr.func;
+        if(expr.isUnary){
+          const e = expr.expr;
 
-          if(!(funcName in funcsObj && argsNum in funcsObj[funcName]))
-            func.err(`Missing definition for function ${
-              O.sf(funcName)} that takes ${O.gnum('argument', argsNum)}`);
+          if(e.isIdent && e.markedAsCall){
+            const {name} = e;
+            const call = new Call(name);
 
-          expr.funcRef = funcsObj[funcName][argsNum];
+            call.funcRef = funcsObj[name][0];
+            expr.expr = call;
+          }
 
           return;
         }
+
+        assert.fail();
       });
+
+      const e = func.expr;
+
+      if(e.isIdent && e.markedAsCall){
+        const {name} = e;
+        const call = new Call(name);
+
+        call.funcRef = funcsObj[name][0];
+        func.expr = call;
+      }
     }
   }
 
@@ -132,8 +181,12 @@ class Expression extends Base{
       const expr = arr1[index];
 
       if(expr.isIdent){
+        assert(!expr.markedAsCall);
+        assert(expr.argIndex !== null);
+
         const arg = args[expr.argIndex];
         assert(arg.isArg);
+
         arr2.push(args[expr.argIndex].expr);
         continue;
       }
@@ -166,7 +219,7 @@ class Expression extends Base{
         const arr = [];
         const arg = new Argument();
 
-        arg.isSpread = expr.isSpread;
+        arg.spreadNum = expr.spreadNum;
         arr2.push(arg);
         unaryExprs.push([arg, arr]);
         stack.push([[expr.expr], arr]);
@@ -205,6 +258,10 @@ class VectorExpression extends Expression{
   get isVector(){ return 1; }
   get len(){ return this.arr.length; }
   get reduced(){ return this.reducedNum === this.arr.length; }
+
+  iter(){
+    return this.arr;
+  }
 }
 
 class Set extends VectorExpression{
@@ -283,10 +340,6 @@ class Set extends VectorExpression{
     return 1;
   }
 
-  iter(){
-    return this.elems;
-  }
-
   toStr(){
     const arr = ['{'];
     this.join(arr, this.elems, ', ');
@@ -312,15 +365,17 @@ class Call extends VectorExpression{
     assert(this.funcRef !== null);
 
     const {func, funcRef, args} = this;
-    const spreadIndex = args.findIndex(arg => arg.isSpread);
+    const spreadIndex = args.findIndex(arg => arg.spreadNum !== 0);
 
     if(spreadIndex === -1)
       return funcRef.expr.subst(args);
 
+    const spreadNumNew = args[spreadIndex].spreadNum - 1;
+
     const union =  new Union(new Set(
       args[spreadIndex].expr.arr.map(elem => {
         const argsNew = args.slice();
-        argsNew[spreadIndex] = new Argument(elem);
+        argsNew[spreadIndex] = new Argument(elem, spreadNumNew);
 
         const callNew = new Call(func, argsNew);
         callNew.funcRef = funcRef;
@@ -332,14 +387,16 @@ class Call extends VectorExpression{
     return union;
   }
 
-  iter(){
-    return this.args;
-  }
-
   toStr(){
-    const arr = [this.func, '('];
-    this.join(arr, this.args, ', ');
-    arr.push(')');
+    const {args} = this;
+    const arr = [this.func];
+
+    if(args.length !== 0){
+      arr.push('(');
+      this.join(arr, args, ', ');
+      arr.push(')');
+    }
+
     return arr;
   }
 }
@@ -353,26 +410,23 @@ class UnaryExpression extends Expression{
 
   get isUnary(){ return 1; }
   get reduced(){ return this.reducedNum === 1; }
-}
-
-class Argument extends UnaryExpression{
-  constructor(expr, isSpread=0){
-    super(expr);
-
-    this.isSpread = isSpread;
-  }
-
-  get isArg(){ return 1; }
 
   iter(){
     return this.expr;
   }
+}
+
+class Argument extends UnaryExpression{
+  constructor(expr, spreadNum=0){
+    super(expr);
+
+    this.spreadNum = spreadNum;
+  }
+
+  get isArg(){ return 1; }
 
   toStr(){
-    const arr = [];
-    if(this.isSpread) arr.push('~');
-    arr.push(this.expr);
-    return arr;
+    return ['~'.repeat(this.spreadNum), this.expr];
   }
 }
 
@@ -382,10 +436,6 @@ class Invert extends UnaryExpression{
   }
 
   get isInvert(){ return 1; }
-
-  iter(){
-    return this.expr;
-  }
 
   toStr(){
     return ['!', this.expr];
@@ -399,10 +449,6 @@ class Union extends UnaryExpression{
 
   get isUnion(){ return 1; }
 
-  iter(){
-    return this.expr;
-  }
-
   toStr(){
     return ['U', this.expr];
   }
@@ -410,6 +456,7 @@ class Union extends UnaryExpression{
 
 class Identifier extends Expression{
   argIndex = null;
+  markedAsCall = 0;
 
   constructor(name){
     super();

@@ -9,7 +9,7 @@ const cs = require('./ctors');
 
 const {SET_EMPTY, SET_SINGLETON} = cs.Set;
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 const MAIN_FUNC_NAME = 'main';
 const MAIN_FUNC_ARGS_NUM = 1;
@@ -22,9 +22,7 @@ class Engine{
   }
 
   run(){
-    const {parsed: prog, input} = this;
-    const io = new O.IO(input, 0, 1);
-
+    const {parsed: prog} = this;
     const {funcsObj} = prog;
 
     if(!(MAIN_FUNC_NAME in funcsObj))
@@ -37,12 +35,8 @@ class Engine{
         O.gnum('argument', MAIN_FUNC_ARGS_NUM)}`);
 
     const mainSet = new cs.Set();
-
-    const mainCall = new cs.Call('main', [
-      new cs.Argument(
-        new cs.Set([new cs.Set()]),
-      ),
-    ]);
+    const inputSet = parseSet(this.input.toString());
+    const mainCall = new cs.Call('main', [new cs.Argument(inputSet)]);
     
     mainCall.funcRef = funcsObj[MAIN_FUNC_NAME][MAIN_FUNC_ARGS_NUM];
     mainSet.elems.push(mainCall);
@@ -105,22 +99,6 @@ class Engine{
           sPrev = s;
           log(s);
         }
-
-        // log(`${stack.map(expr => {
-        //   let s = null;
-
-        //   try{
-        //     s = expr.toString();
-        //   }catch{}
-
-        //   if(s === null){
-        //     log(`\n${'='.repeat(100)}\n`);
-        //     O.logf(expr);
-        //     O.exit();
-        //   }
-
-        //   return s;
-        // }).join('\n')}\n`);
       }
 
       const expr = O.last(stack);
@@ -187,14 +165,45 @@ class Engine{
       assert.fail();
     }
 
-    // log('---> ' + mainSet.arr[0]);
-
-    this.output = io.getOutput();
+    this.output = Buffer.from(mainSet.arr[0].toString());
   }
   
   getOutput(){
     return this.output;
   }
 }
+
+const parseSet = str => {
+  const err = () => {
+    esolangs.err(`Input is not a valid set`);
+  };
+
+  str = str.replace(/\s+/g, '');
+  if(str.replace(/[\{\},]+/g, '').length !== 0) err();
+  if(/^,|,$|,,|,\}|\{,|\}\{/.test(str)) err();
+  str = str.replace(/,+/g, '');
+
+  const stack = [];
+
+  for(let i = 0; i !== str.length; i++){
+    if(str[i] === '{'){
+      stack.push(new cs.Set());
+      continue;
+    }
+
+    if(stack.length === 0) err();
+
+    const set = stack.pop().reduce();
+
+    if(stack.length === 0){
+      if(i !== str.length - 1) err();
+      return set;
+    }
+
+    O.last(stack).elems.push(set);
+  }
+
+  err();
+};
 
 module.exports = Engine;
