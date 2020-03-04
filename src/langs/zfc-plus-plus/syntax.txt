@@ -1,0 +1,33 @@
+script{ s0 funcDef*s0 s0 }
+
+funcDef{
+  ident s0
+  "(" s0 ident*commaSep s0 ")" s0
+  ":" s0 expr
+}
+
+expr{
+  ident |
+  invert |
+  set |
+  call
+}
+
+invert{ "!" s0 expr }
+set{ "{" s0 expr*commaSep s0 "}" }
+
+call{ ident s0 "(" s0 arg*commaSep s0 ")" }
+arg{ "~"? s0 expr }
+
+ident{ [a-zA-Z0-9_]+ }
+
+commaSep{ s0 "," s0 }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

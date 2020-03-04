@@ -112,12 +112,6 @@ class Engine{
         continue;
       }
 
-      if(elem.isIdent){
-        sum.pop();
-        assert.fail();
-        continue;
-      }
-
       if(elem.isInt){
         sum.pop();
         sum[2] += elem.val;

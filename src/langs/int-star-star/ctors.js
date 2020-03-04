@@ -293,7 +293,7 @@ class Identifier extends Expression{
     this.name = name;
   }
 
-  iter(){}
+  iter(){ return null; }
 
   toStr(){
     return this.name;
@@ -309,7 +309,7 @@ class Integer extends Literal{
     this.val = val;
   }
 
-  iter(){}
+  iter(){ return null; }
 
   toStr(){
     return String(this.val);
