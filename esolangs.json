@@ -139,5 +139,9 @@
     "name": "ZFC++",
     "id": "zfc-plus-plus",
     "details": "https://esolangs.org/wiki/ZFC%2B%2B"
+  }, {
+    "name": "Siterip",
+    "id": "siterip",
+    "details": "https://esolangs.org/wiki/Siterip"
   }
 ]
