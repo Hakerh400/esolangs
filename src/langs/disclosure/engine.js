@@ -45,6 +45,8 @@ class Engine{
     this.parsed = parsed;
     this.input = input;
     this.output = null;
+
+    O.exit(this.parsed.toString());
   }
 
   run(){
@@ -319,7 +321,7 @@ class Engine{
                   case cs.UnaryPlus: break;
 
                   case cs.TakeAddress: {
-                    O.exit(op);
+                    O.exit(op.prototype+'');
                   } break;
 
                   case cs.Addition: add(auxRegs[dest], auxRegs[other]); break;

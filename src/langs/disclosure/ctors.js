@@ -6,38 +6,13 @@ const O = require('omikron');
 const esolangs = require('../..');
 const VarSet = require('./var-set');
 
-class Base{
-  toStr(){ O.virtual('toStr'); }
-
-  toString(){
-    const stack = [this];
-    let str = '';
-
-    while(stack.length !== 0){
-      const elem = stack.shift();
-      if(typeof elem === 'string'){
-        str += elem;
-        continue;
-      }
-
-      const arr = elem.toStr();
-      if(typeof arr === 'string'){
-        str += arr;
-        continue;
-      }
-
-      for(let i = arr.length - 1; i !== -1; i--)
-        stack.unshift(arr[i]);
-    }
-
-    return str;
-  }
-}
+class Base extends O.Stringifiable{}
 
 class Global extends Base{
   constructor(globalEnts){
     super();
 
+    this.globalEnts = globalEnts;
     const ents = this.ents = O.obj();
 
     for(const ent of globalEnts){
@@ -49,6 +24,12 @@ class Global extends Base{
       ents[name] = ent;
       ent.globalEnts = ents;
     }
+  }
+
+  toStr(){
+    const arr = [];
+    this.join(arr, this.globalEnts, '\n\n');
+    return arr;
   }
 }
 
@@ -126,7 +107,7 @@ class FunctionType extends Type{
   }
 }
 
-class Statement{}
+class Statement extends Base{}
 
 class EntityDef extends Statement{
   globalEnts = null;
@@ -147,17 +128,29 @@ class VariableDef extends EntityDef{
   }
 
   get entType(){ return 'variable'; }
+
+  toStr(){
+    return [this.type, ' ', this.name, ' = ', this.val, ';'];
+  }
 }
 
 class FunctionDef extends EntityDef{
   constructor(name, ret, args, body){
     super(name, new FunctionType(0, ret, args.map(a => a.type)));
+    this.ret = ret;
     this.args = args;
     this.body = body;
     body.func = this;
   }
 
   get entType(){ return 'function'; }
+
+  toStr(){
+    const arr = [this.ret, ' ', this.name, '('];
+    this.join(arr, this.args, ', ');
+    arr.push(')', this.body);
+    return arr;
+  }
 }
 
 class FormalArgument extends Base{
@@ -244,6 +237,13 @@ class CodeBlock extends Statement{
       }
     }
   }
+
+  toStr(){
+    const arr = [this.inc, '{\n'];
+    this.join(arr, this.stats, '\n');
+    arr.push(this.dec, '\n}');
+    return arr;
+  }
 }
 
 class Control extends Statement{
@@ -282,18 +282,51 @@ class UnaryOperation extends Operation{
     super();
     this.op = op;
   }
+
+  iter(){
+    return this.op;
+  }
 }
 
-class UnaryPlus extends UnaryOperation{}
-class UnaryMinus extends UnaryOperation{}
-class TakeAddress extends UnaryOperation{}
-class Dereference extends UnaryOperation{}
+class UnaryPlus extends UnaryOperation{
+  toStr(){
+    const arr = ['+'];
+    if(this.op instanceof UnaryPlus) arr.push(' ');
+    arr.push(this.op);
+    return arr;
+  }
+}
+
+class UnaryMinus extends UnaryOperation{
+  toStr(){
+    const arr = ['-'];
+    if(this.op instanceof UnaryMinus) arr.push(' ');
+    arr.push(this.op);
+    return arr;
+  }
+}
+
+class TakeAddress extends UnaryOperation{
+  toStr(){
+    return ['&', this.op];
+  }
+}
+
+class Dereference extends UnaryOperation{
+  toStr(){
+    return ['*', this.op];
+  }
+}
 
 class BinaryOperation extends Operation{
   constructor(op1, op2){
     super();
     this.op1 = op1;
     this.op2 = op2;
+  }
+
+  iter(){
+    return [this.op1, this.op2];
   }
 }
 
@@ -310,6 +343,10 @@ class Call extends Operation{
     this.func = func;
     this.args = args;
   }
+
+  iter(){
+    return [this.func, ...this.args];
+  }
 }
 
 class Identifier extends Value{
@@ -317,9 +354,17 @@ class Identifier extends Value{
     super();
     this.name = name;
   }
+
+  iter(){ return null; }
+
+  toStr(){
+    return this.name;
+  }
 }
 
-class Literal extends Value{}
+class Literal extends Value{
+  iter(){ return null; }
+}
 
 class Number extends Literal{}
 
@@ -327,6 +372,10 @@ class Integer extends Number{
   constructor(val){
     super();
     this.val = val;
+  }
+
+  toStr(){
+    return String(this.val);
   }
 }
 

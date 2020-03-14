@@ -1,0 +1,72 @@
+script{ tapeSize s0 insts }
+
+tapeSize{ [0-9]+ }
+insts{ s0 inst*s0 s0 }
+inst{ cmd | if | loop }
+
+if{
+  "?" s0 cond s0
+  "(" s0 insts s0 ")"
+  s0 else?
+}
+
+else{
+  ":" s0
+  "(" s0 insts s0 ")"
+}
+
+loop{
+  "?" s0 cond s0
+  "{" s0 insts s0 "}"
+}
+
+cond{ "!"? s0 condType }
+
+cmd{
+  goUp |
+  goDown |
+  goLeft |
+  goRight |
+  tapeLeft |
+  tapeRight |
+  flipBit |
+  flipCity |
+  home
+}
+
+condType{
+  isCity |
+  isCityUp |
+  isCityDown |
+  isCityLeft |
+  isCityRight |
+  isBit |
+  isFull
+}
+
+goUp{ "^" }
+goDown{ "v"i }
+goLeft{ "<" }
+goRight{ ">" }
+tapeLeft{ "~<" }
+tapeRight{ "~>" }
+flipBit{ "!" }
+flipCity{ "@" }
+home{ "%" }
+
+isCity{ "#" }
+isCityUp{ "^" }
+isCityDown{ "v"i }
+isCityLeft{ "<" }
+isCityRight{ ">" }
+isBit{ "." }
+isFull{ "@" }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

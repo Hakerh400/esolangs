@@ -14,4 +14,3 @@ If you want to request support for a specific esoteric language, you can open an
 * Languages whose specification is not free and publicly available
 * Interpreters or compilers that are not licensed under an [Unlicense](https://unlicense.org/)-compatible license
 * Languages which perform file system operations, network connections, or other side-effects
-* Languages which depend on the current date or time and it is the core part of the language

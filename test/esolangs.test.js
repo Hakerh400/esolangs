@@ -51,6 +51,8 @@ for(const name of langs){
 
   part(`Language ${O.sf(name)}`, () => {
     const dir = path.join(langsDir, info.id);
+    if(!fs.existsSync(dir)) return;
+
     const fileNames = O.sortAsc(fs.readdirSync(dir));
 
     for(const fileName of fileNames){
