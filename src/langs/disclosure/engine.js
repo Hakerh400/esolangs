@@ -46,7 +46,7 @@ class Engine{
     this.input = input;
     this.output = null;
 
-    O.exit(this.parsed.toString());
+    log(this.parsed.toString());
   }
 
   run(){
@@ -119,11 +119,11 @@ class Engine{
     const inc = a => add(a, 1);
     const dec = a => sub(a, 1);
 
-    const addr = (varIndex, auxReg='cx') => {
-      if(varIndex === 0) return `[bp]`;
-      mov(`cx`, `bp`);
-      sub(`cx`, varIndex);
-      return `[cx]`;
+    const addr = (varIndex, lvalue=0, auxReg='cx') => {
+      if(varIndex === 0) return lvalue ? 'bp' : `[bp]`;
+      mov(auxReg, `bp`);
+      sub(auxReg, varIndex);
+      return lvalue ? auxReg : `[${auxReg}]`;
     };
 
     const push = a => {
@@ -235,48 +235,48 @@ class Engine{
               case 'eval': {
                 const dest = elem[1];
                 const otherFree = elem[2];
-                const val = elem[3];
+                const expr = elem[3];
 
                 const other = dest ^ 1;
                 const destReg = auxRegs[dest];
                 const otherReg = auxRegs[other];
 
-                if(val instanceof cs.Integer){
-                  mov(destReg, val.val);
+                if(expr instanceof cs.Integer){
+                  mov(destReg, expr.val);
                   continue;
                 }
 
-                if(val instanceof cs.Identifier){
-                  mov(destReg, addr(block.getOffset(val.name)));
+                if(expr instanceof cs.Identifier){
+                  mov(destReg, addr(block.getOffset(expr.name), expr.lvalue));
                   continue;
                 }
 
-                if(val instanceof cs.BinaryOperation){
+                if(expr instanceof cs.BinaryOperation){
                   if(!otherFree){
                     push(otherReg);
                     stack.unshift(['pop', other]);
                   }
 
                   stack.unshift(
-                    ['eval', dest, 1, val.op1],
-                    ['eval', other, 0, val.op2],
-                    ['apply', dest, val.constructor],
+                    ['eval', dest, 1, expr.op1],
+                    ['eval', other, 0, expr.op2],
+                    ['apply', dest, expr],
                   );
                   continue;
                 }
 
-                if(val instanceof cs.UnaryOperation){
+                if(expr instanceof cs.UnaryOperation){
                   stack.unshift(
-                    ['eval', dest, otherFree, val.op],
-                    ['apply', dest, val.constructor],
+                    ['eval', dest, otherFree, expr.op],
+                    ['apply', dest, expr],
                   );
                   continue;
                 }
 
-                if(val instanceof cs.Call){
-                  if(!(val.func instanceof cs.Identifier)) O.noimpl('Custom call');
+                if(expr instanceof cs.Call){
+                  if(!(expr.func instanceof cs.Identifier)) O.noimpl('Custom call');
 
-                  const {name} = val.func;
+                  const {name} = expr.func;
 
                   if(!(name in globalEnts && globalEnts[name] instanceof cs.FunctionDef)){
                     if(!(name in asmFuncs))
@@ -291,11 +291,11 @@ class Engine{
                   }
 
                   stack.unshift(
-                    // ['eval', dest, otherFree, val.func],
-                    ['apply', dest, val.constructor, val.func.name],
+                    // ['eval', dest, otherFree, expr.func],
+                    ['apply', dest, expr, expr.func.name],
                   );
 
-                  for(const arg of val.args){
+                  for(const arg of expr.args){
                     stack.unshift(
                       ['eval', dest, otherFree, arg],
                       ['push', dest],
@@ -305,23 +305,31 @@ class Engine{
                   continue;
                 }
 
-                O.noimpl(val.constructor.name);
+                O.noimpl(expr.constructor.name);
               } break;
 
               case 'apply': {
                 const dest = elem[1];
-                const op = elem[2];
+                const expr = elem[2];
+                const ctor = expr.constructor;
 
                 const other = dest ^ 1;
                 const destReg = auxRegs[dest];
                 const otherReg = auxRegs[other];
 
-                switch(op){
+                switch(ctor){
                   case cs.UnaryMinus: mul(auxRegs[dest], -1); break;
                   case cs.UnaryPlus: break;
 
-                  case cs.TakeAddress: {
-                    O.exit(op.prototype+'');
+                  case cs.TakeAddress: break;
+
+                  case cs.Dereference: {
+                    if(expr.lvalue) break;
+                    mov(auxRegs[dest], `[${auxRegs[dest]}]`);
+                  } break;
+
+                  case cs.Assignment: {
+                    mov(`[${auxRegs[dest]}]`, auxRegs[other]);
                   } break;
 
                   case cs.Addition: add(auxRegs[dest], auxRegs[other]); break;
@@ -336,7 +344,7 @@ class Engine{
                     if(!otherFree) mov(otherReg, `ex`);
                   } break;
 
-                  default: O.noimpl(op.name); break;
+                  default: O.noimpl(ctor.name); break;
                 }
               } break;
 
@@ -370,7 +378,7 @@ class Engine{
             }
 
             if(stat instanceof cs.VariableDef){
-              const expr = stat.val;
+              const {expr} = stat;
               if(expr === null) continue;
 
               evalExpr(expr);
@@ -379,7 +387,7 @@ class Engine{
             }
 
             if(stat instanceof cs.Return){
-              if(stat.val !== null) evalExpr(stat.val);
+              if(stat.expr !== null) evalExpr(stat.expr);
               mov(`dx`, `ax`);
               leave();
               continue;
@@ -403,8 +411,8 @@ class Engine{
               continue;
             }
 
-            if(stat instanceof cs.Value){
-              evalExpr(stat);
+            if(stat instanceof cs.ExpressionStatement){
+              evalExpr(stat.expr);
               continue;
             }
 
@@ -462,7 +470,8 @@ class Engine{
 
       const str = parts[i];
       const indirection = str.match(/^\[*/)[0].length;
-      const op = BigInt(str.slice(indirection, str.length - indirection));
+      const opStr = str.slice(indirection, str.length - indirection);
+      const op = BigInt(opStr);
 
       return [op, indirection - 1];
     };

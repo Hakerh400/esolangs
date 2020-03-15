@@ -9,13 +9,13 @@ const VarSet = require('./var-set');
 class Base extends O.Stringifiable{}
 
 class Global extends Base{
-  constructor(globalEnts){
+  constructor(entsArr){
     super();
 
-    this.globalEnts = globalEnts;
+    this.entsArr = entsArr;
     const ents = this.ents = O.obj();
 
-    for(const ent of globalEnts){
+    for(const ent of entsArr){
       const {name} = ent;
 
       if(ent.name in ents)
@@ -28,7 +28,7 @@ class Global extends Base{
 
   toStr(){
     const arr = [];
-    this.join(arr, this.globalEnts, '\n\n');
+    this.join(arr, this.entsArr, '\n\n');
     return arr;
   }
 }
@@ -122,15 +122,15 @@ class EntityDef extends Statement{
 };
 
 class VariableDef extends EntityDef{
-  constructor(name, type, val){
+  constructor(name, type, expr){
     super(name, type);
-    this.val = val;
+    this.expr = expr.sanitize();
   }
 
   get entType(){ return 'variable'; }
 
   toStr(){
-    return [this.type, ' ', this.name, ' = ', this.val, ';'];
+    return [this.type, ' ', this.name, ' = ', this.expr, ';'];
   }
 }
 
@@ -174,6 +174,9 @@ class CodeBlock extends Statement{
 
   constructor(stats){
     super();
+
+    if(stats.length === 1 && stats[0] instanceof CodeBlock)
+      stats = stats[0].stats;
 
     this.stats = stats;
 
@@ -233,7 +236,6 @@ class CodeBlock extends Statement{
         if(block === null) return offset;
 
         offset += block.varsArr.length;
-        block  =block.parent;
       }
     }
   }
@@ -253,6 +255,7 @@ class Control extends Statement{
 class If extends Control{
   constructor(cond, ifBlock, elseBlock){
     super();
+
     this.cond = cond;
     this.ifBlock = ifBlock;
     this.elseBlock = elseBlock;
@@ -262,20 +265,92 @@ class If extends Control{
     this.ifBlock.parent = block;
     this.elseBlock.parent = block;
   }
-}
 
-class Return extends Statement{
-  constructor(val){
-    super();
-    this.val = val;
+  toStr(){
+    const {ifBlock, elseBlock} = this;
+    const stats1 = ifBlock.stats;
+    const stats2 = elseBlock.stats;
+    const arr = ['if(', this.cond, ')'];
+
+    if(stats1.length === 1){
+      arr.push(this.inc, '\n', stats1[0], this.dec);
+    }else{
+      arr.push(ifBlock);
+    }
+
+    if(stats2.length !== 0){
+      if(stats1.length === 1)
+        arr.push('\n');
+
+      arr.push('else');
+
+      if(stats2.length === 1){
+        arr.push(this.inc, '\n', stats2[0], this.dec);
+      }else{
+        arr.push(elseBlock);
+      }
+    }
+
+    return arr;
   }
 }
 
-class Value extends Base{
-  type = null;
+class Return extends Statement{
+  constructor(expr){
+    super();
+    this.expr = expr.sanitize();
+  }
+
+  toStr(){
+    return ['return ', this.expr, ';'];
+  }
 }
 
-class Operation extends Value{}
+class ExpressionStatement extends Statement{
+  constructor(expr){
+    super();
+    this.expr = expr.sanitize();
+  }
+
+  toStr(){
+    return [this.expr, ';'];
+  }
+}
+
+class Expression extends Base{
+  type = null;
+  lvalue = 0;
+
+  sanitize(){
+    this.topDown(expr => {
+      if(expr.lvalue){
+        if(expr instanceof Identifier)
+          return;
+
+        if(expr instanceof Dereference)
+          return;
+
+        esolangs.err(`Cannot interpret ${
+          O.sf(expr)} as lvalue. Entire expression:\n\n${
+          this}`);
+      }
+
+      if(expr instanceof TakeAddress){
+        expr.op.lvalue = 1;
+        return;
+      }
+
+      if(expr instanceof Assignment){
+        expr.op1.lvalue = 1;
+        return;
+      }
+    });
+
+    return this;
+  }
+}
+
+class Operation extends Expression{}
 
 class UnaryOperation extends Operation{
   constructor(op){
@@ -330,12 +405,41 @@ class BinaryOperation extends Operation{
   }
 }
 
-class Assignment extends BinaryOperation{}
-class Addition extends BinaryOperation{}
-class Subtraction extends BinaryOperation{}
-class Multiplication extends BinaryOperation{}
-class Division extends BinaryOperation{}
-class Modulo extends BinaryOperation{}
+class Assignment extends BinaryOperation{
+  toStr(){
+    return [this.op1, ' = ', this.op2];
+  }
+}
+
+class Addition extends BinaryOperation{
+  toStr(){
+    return [this.op1, ' + ', this.op2];
+  }
+}
+
+class Subtraction extends BinaryOperation{
+  toStr(){
+    return [this.op1, ' - ', this.op2];
+  }
+}
+
+class Multiplication extends BinaryOperation{
+  toStr(){
+    return [this.op1, ' * ', this.op2];
+  }
+}
+
+class Division extends BinaryOperation{
+  toStr(){
+    return [this.op1, ' / ', this.op2];
+  }
+}
+
+class Modulo extends BinaryOperation{
+  toStr(){
+    return [this.op1, ' % ', this.op2];
+  }
+}
 
 class Call extends Operation{
   constructor(func, args){
@@ -349,7 +453,7 @@ class Call extends Operation{
   }
 }
 
-class Identifier extends Value{
+class Identifier extends Expression{
   constructor(name){
     super();
     this.name = name;
@@ -362,7 +466,7 @@ class Identifier extends Value{
   }
 }
 
-class Literal extends Value{
+class Literal extends Expression{
   iter(){ return null; }
 }
 
@@ -394,7 +498,8 @@ module.exports = {
   Control,
   If,
   Return,
-  Value,
+  ExpressionStatement,
+  Expression,
   Operation,
   UnaryOperation,
   UnaryPlus,

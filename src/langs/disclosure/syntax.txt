@@ -25,7 +25,7 @@ statement{
   varDef |
   control |
   return |
-  expr s0 ";"
+  exprStat
 }
 
 control{
@@ -38,6 +38,8 @@ else{ "else" s0 statement }
 return{
   "return" s0 expr? s0 ";"
 }
+
+exprStat{ expr s0 ";" }
 
 expr{ expr1_ }
 

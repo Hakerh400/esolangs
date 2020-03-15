@@ -10,8 +10,8 @@ const cs = require('./ctors');
 const cmds = require('./cmds');
 const conds = require('./conds');
 
-const DEBUG = 1;
-const ADD_RANDOM_CITIES = 0;
+const DEBUG = 0;
+const ADD_RANDOM_CITIES = 1;
 
 class Engine{
   constructor(parsed, input){
@@ -274,8 +274,8 @@ class Engine{
           case cmds.goDown: move(vx, vy + 1); break;
           case cmds.goLeft: move(vx - 1, vy); break;
           case cmds.goRight: move(vx + 1, vy); break;
-          case cmds.tapeLeft: ip = visitedAll ? ip - 1n : tapeSize !== 0n ? ip !== 0n ? ip - 1n : tapeSize - 1n : 0n; break;
-          case cmds.tapeRight: ip = visitedAll ? ip + 1n : tapeSize !== 0n ? ip !== tapeSize - 1n ? ip + 1n : 0n : 0n; break;
+          case cmds.tapeLeft: tapeSize !== 0n ? ip !== 0n ? ip - 1n : tapeSize - 1n : 0n; break;
+          case cmds.tapeRight: tapeSize !== 0n ? ip !== tapeSize - 1n ? ip + 1n : 0n : 0n; break;
           case cmds.flipBit: tape[ip] ^= 1; break;
           case cmds.flipCity: if(visitedAll) map.set(vx, vy, map.get(vx, vy) ^ 1); break;
           case cmds.home: vx = sx; vy = sy; break;

@@ -7,7 +7,7 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const Memory = require('./memory');
 
-const DEBUG = 0;
+const DEBUG = 1;
 
 const maxInt = BigInt(Number.MAX_SAFE_INTEGER);
 
