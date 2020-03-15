@@ -2,11 +2,12 @@
 
 const fs = require('fs');
 const path = require('path');
+const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../../..');
 const cs = require('./ctors');
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 const TAB_SIZE = 2;
 const TAB = ' '.repeat(TAB_SIZE);
@@ -46,14 +47,18 @@ class Engine{
     this.input = input;
     this.output = null;
 
-    log(this.parsed.toString());
+    if(DEBUG){
+      log(this.parsed.toString());
+    }
   }
 
   run(){
     const asm = this.generateAssembly();
     const src = this.compile(asm);
 
-    this.output = esolangs.run('Daydream', src, '');
+    this.output = esolangs.run('Daydream', src, this.input, {
+      debug: DEBUG,
+    });
   }
 
   generateAssembly(){
@@ -64,8 +69,8 @@ class Engine{
       esolangs.err(`Missing definition for global function "main"`);
 
     const mainFunc = globalEnts.main;
-
     const expectedMainType = new cs.FunctionType(0, new cs.PrimitiveType(0, 'void'), []);
+
     if(!mainFunc.type.eq(expectedMainType)){
       const s1 = O.sf(mainFunc.type.toString());
       const s2 = O.sf(String(expectedMainType.toString()));
@@ -127,13 +132,13 @@ class Engine{
     };
 
     const push = a => {
-      mov(`[sp]`, `${a}`);
       dec('sp');
+      mov(`[sp]`, `${a}`);
     };
 
     const pop = a => {
-      inc('sp');
       mov(`${a}`, `[sp]`);
+      inc('sp');
     };
 
     const jmp = addr => {
@@ -144,7 +149,7 @@ class Engine{
       const argsNum = name in globalEnts ?
         globalEnts[name].args.length : 2;
 
-      inst('mov cx, ip');
+      mov(`cx`, `ip`);
       add('cx', 15);
       push('cx');
       mov(`ip`, `:func@${name}`);
@@ -154,17 +159,17 @@ class Engine{
     const ret = (a=null) => {
       if(a !== null) mov(`ax`, `${a}`);
       pop('cx');
-      inst('mov ip, cx');
+      mov(`ip`, `cx`);
     };
 
     const enter = (a=0) => {
       push('bp');
-      inst('mov bp, sp');
+      mov(`bp`, `sp`);
       sub(`sp`, a);
     };
 
     const leave = () => {
-      inst('mov sp, bp');
+      mov(`sp`, `bp`);
       pop('bp');
       ret();
     };
@@ -186,17 +191,6 @@ class Engine{
       block.hasEndLabel = 1;
       return `block@${labelIndex}-end`;
     };
-
-    const asmFuncs = O.nproto({
-      _out: [0, () => {
-        label('func@_out');
-        enter();
-        mov(`ax`, addr(-3));
-        mov(`bx`, addr(-4));
-        inst(`out [ax], bx`);
-        leave();
-      }],
-    });
 
     num(':sys@start');
     num('-:sys@stack');
@@ -278,12 +272,8 @@ class Engine{
 
                   const {name} = expr.func;
 
-                  if(!(name in globalEnts && globalEnts[name] instanceof cs.FunctionDef)){
-                    if(!(name in asmFuncs))
-                      esolangs.err(`Undefined function ${O.sf(name)}`);
-
-                    asmFuncs[name][0] = 1;
-                  }
+                  if(!(name in globalEnts && globalEnts[name] instanceof cs.FunctionDef))
+                    esolangs.err(`Undefined function ${O.sf(name)}`);
 
                   if(!otherFree){
                     push(otherReg);
@@ -416,6 +406,13 @@ class Engine{
               continue;
             }
 
+            if(stat instanceof cs.Asm){
+              for(const instr of stat.insts)
+                inst(instr.str);
+
+              continue;
+            }
+
             O.noimpl(stat.constructor.name);
           }
 
@@ -435,13 +432,6 @@ class Engine{
       }
 
       O.noimpl(ent.constructor.name);
-    }
-
-    for(const name in asmFuncs){
-      const details = asmFuncs[name];
-      if(!details[0]) continue;
-
-      details[1]();
     }
 
     label('sys@stack');
@@ -472,6 +462,8 @@ class Engine{
       const indirection = str.match(/^\[*/)[0].length;
       const opStr = str.slice(indirection, str.length - indirection);
       const op = BigInt(opStr);
+
+      assert(indirection <= 2, parts);
 
       return [op, indirection - 1];
     };

@@ -124,13 +124,20 @@ class EntityDef extends Statement{
 class VariableDef extends EntityDef{
   constructor(name, type, expr){
     super(name, type);
-    this.expr = expr.sanitize();
+    this.expr = expr !== null ? expr.sanitize() : null;
   }
 
   get entType(){ return 'variable'; }
 
   toStr(){
-    return [this.type, ' ', this.name, ' = ', this.expr, ';'];
+    const arr = [this.type, ' ', this.name];
+
+    if(this.expr !== null)
+      arr.push(' = ', this.expr);
+
+    arr.push(';');
+
+    return arr;
   }
 }
 
@@ -158,6 +165,10 @@ class FormalArgument extends Base{
     super();
     this.name = name.name;
     this.type = type;
+  }
+
+  toStr(){
+    return [this.type, ' ', this.name];
   }
 }
 
@@ -226,7 +237,7 @@ class CodeBlock extends Statement{
         if(index === -1)
           esolangs.err(`Identifier ${O.sf(name)} is not defined`);
 
-        return -3 - index;
+        return -(index + 2)
       }
 
       let offset = map[name];
@@ -306,6 +317,25 @@ class Return extends Statement{
   }
 }
 
+class Asm extends Statement{
+  constructor(insts){
+    super();
+    this.insts = insts;
+  }
+
+  toStr(){
+    if(this.insts.length === 0)
+      return 'asm{}';
+
+    const arr = [this.inc, 'asm{\n'];
+
+    this.join(arr, this.insts, '\n');
+    arr.push(this.dec, '\n}');
+
+    return arr;
+  }
+}
+
 class ExpressionStatement extends Statement{
   constructor(expr){
     super();
@@ -314,6 +344,17 @@ class ExpressionStatement extends Statement{
 
   toStr(){
     return [this.expr, ';'];
+  }
+}
+
+class Instruction extends Base{
+  constructor(str){
+    super();
+    this.str = str;
+  }
+
+  toStr(){
+    return [this.str, ';'];
   }
 }
 
@@ -451,6 +492,15 @@ class Call extends Operation{
   iter(){
     return [this.func, ...this.args];
   }
+
+  toStr(){
+    const arr = [this.func, '('];
+
+    this.join(arr, this.args, ', ');
+    arr.push(')');
+
+    return arr;
+  }
 }
 
 class Identifier extends Expression{
@@ -498,7 +548,9 @@ module.exports = {
   Control,
   If,
   Return,
+  Asm,
   ExpressionStatement,
+  Instruction,
   Expression,
   Operation,
   UnaryOperation,

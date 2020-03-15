@@ -7,11 +7,15 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const Memory = require('./memory');
 
-const DEBUG = 1;
+const defaultOpts = {
+  debug: 0,
+};
 
-const maxInt = BigInt(Number.MAX_SAFE_INTEGER);
+const MAX_OUT_LEN = BigInt(Number.MAX_SAFE_INTEGER);
 
-const run = (src, input) => {
+const run = (src, input, opts=O.obj()) => {
+  opts = Object.assign(O.obj(), defaultOpts, opts);
+
   src = src.toString().trim();
   input = Buffer.from(input);
 
@@ -69,20 +73,24 @@ const run = (src, input) => {
     const op2i = inst & (shifted ? 64n : 32n) ? 1 : inst & (shifted ? 128n : 64n) ? 0 : -1;
     const op2Addr = mem.get(ip + 2n, op2i);
 
-    if(DEBUG){
+    if(opts.debug){
       if(first) first = 0;
       else debug();
 
       log(`\n${'='.repeat(100)}\n`);
-      log(O.ca(200, i => {
-        i = BigInt(i);
-        let str = String(mem.get(i));
+      log([mem, io].map((mem, index) => {
+        return O.ca(500, i => {
+          i = BigInt(i);
+          let str = String(mem.get(i));
 
-        if(i === ip) str = ` [${str}`;
-        else if(i === ip + 2n) str = `${str}] `;
+          if(index === 0){
+            if(i === ip) str = ` [${str}`;
+            else if(i === ip + 2n) str = `${str}] `;
+          }
 
-        return str;
-      }).join(','));
+          return str;
+        }).join(',')
+      }).join('\n\n'));
 
       const formatOp = (op, ind) => {
         return `${'['.repeat(ind + 1)}${op}${']'.repeat(ind + 1)}`;
@@ -120,7 +128,7 @@ const run = (src, input) => {
         case 0x07: res = op2 !== 0n ? op1 / op2 : 0n; break;
       }
 
-      if(DEBUG){
+      if(opts.debug){
         log();
         log(`op1 = ${mem.get(op1Addr)}`);
         log(`op2 = ${mem.get(op2Addr)}`);
@@ -159,12 +167,22 @@ const run = (src, input) => {
       mem.set(0n, ip + 3n);
       mem.set(op1Addr, val);
 
+      if(opts.debug){
+        log();
+        log(`IO[${addr}] = ${val}`);
+      }
+
       continue;
     }
 
     const val = mem.get(op2Addr);
 
     io.set(op1Addr, val);
+
+    if(opts.debug){
+      log();
+      log(`IO[${op1Addr}] = ${val}`);
+    }
 
     if(op1Addr === 0n && (val & 1n) !== 0)
       break;
@@ -174,7 +192,7 @@ const run = (src, input) => {
 
   const outputLen = io.get(1n);
   if(outputLen < 0n) esolangs.err('Output length cannot be negative');
-  if(outputLen > maxInt) esolangs.err('Output length is too large');
+  if(outputLen > MAX_OUT_LEN) esolangs.err('Output length is too large');
 
   const output = Buffer.alloc(Number(outputLen));
 

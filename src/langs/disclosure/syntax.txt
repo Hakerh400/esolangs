@@ -25,6 +25,7 @@ statement{
   varDef |
   control |
   return |
+  asm |
   exprStat
 }
 
@@ -39,8 +40,10 @@ return{
   "return" s0 expr? s0 ";"
 }
 
-exprStat{ expr s0 ";" }
+asm{ "asm" s0 "{" s0 inst*s0 s0 "}" }
+inst{ [^;}]* ";" }
 
+exprStat{ expr s0 ";" }
 expr{ expr1_ }
 
 expr1_{ expr1 | expr2_ }
