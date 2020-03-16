@@ -147,5 +147,9 @@
     "name": "DAMN COVID-19",
     "id": "damn-covid-19",
     "details": "https://esolangs.org/wiki/DAMN_COVID-19"
+  }, {
+    "name": "Self-modifying Turing machine",
+    "id": "smtm",
+    "details": "https://esolangs.org/wiki/Self-modifying_Turing_machine"
   }
 ]

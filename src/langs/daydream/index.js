@@ -191,8 +191,12 @@ const run = (src, input, opts=O.obj()) => {
   }
 
   const outputLen = io.get(1n);
-  if(outputLen < 0n) esolangs.err('Output length cannot be negative');
-  if(outputLen > MAX_OUT_LEN) esolangs.err('Output length is too large');
+
+  if(outputLen < 0n)
+    esolangs.err(`Output length cannot be negative (length: ${outputLen})`);
+
+  if(outputLen > MAX_OUT_LEN)
+    esolangs.err(`Output length is too large (length: ${outputLen})`);
 
   const output = Buffer.alloc(Number(outputLen));
 

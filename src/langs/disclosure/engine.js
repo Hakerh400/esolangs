@@ -4,10 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
-const esolangs = require('../../..');
+const esolangs = require('../..');
+const debug = require('../../common/debug');
 const cs = require('./ctors');
 
-const DEBUG = 0;
+const DEBUG = 1;
 
 const TAB_SIZE = 2;
 const TAB = ' '.repeat(TAB_SIZE);
@@ -49,6 +50,7 @@ class Engine{
 
     if(DEBUG){
       log(this.parsed.toString());
+      debug(`\n${'='.repeat(100)}`);
     }
   }
 
@@ -132,13 +134,13 @@ class Engine{
     };
 
     const push = a => {
-      dec('sp');
+      dec(`sp`);
       mov(`[sp]`, `${a}`);
     };
 
     const pop = a => {
       mov(`${a}`, `[sp]`);
-      inc('sp');
+      inc(`sp`);
     };
 
     const jmp = addr => {
@@ -146,19 +148,22 @@ class Engine{
     };
 
     const callFunc = name => {
-      const argsNum = name in globalEnts ?
-        globalEnts[name].args.length : 2;
+      assert(name in globalEnts, String(name));
+      const argsNum = globalEnts[name].args.length;
 
       mov(`cx`, `ip`);
-      add('cx', 15);
-      push('cx');
+      add(`cx`, 15);
+      push(`cx`);
       mov(`ip`, `:func@${name}`);
-      add('sp', argsNum);
     };
 
-    const ret = (a=null) => {
+    const ret = (funcName, a=null) => {
+      assert(funcName in globalEnts, String(funcName));
+      const argsNum = globalEnts[funcName].args.length;
+
       if(a !== null) mov(`ax`, `${a}`);
-      pop('cx');
+      pop(`cx`);
+      add(`sp`, argsNum);
       mov(`ip`, `cx`);
     };
 
@@ -168,10 +173,10 @@ class Engine{
       sub(`sp`, a);
     };
 
-    const leave = () => {
+    const leave = (funcName, name=0) => {
       mov(`sp`, `bp`);
       pop('bp');
-      ret();
+      ret(funcName);
     };
 
     let blockLabelsNum = 0;
@@ -179,6 +184,11 @@ class Engine{
     const getStartLabel = block => {
       const labelIndex = block.labelIndex !== null ?
         block.labelIndex : block.labelIndex = blockLabelsNum++;
+
+      // if(labelIndex === 0){
+      //   log(new Error().stack);
+      //   debug(block+'');
+      // }
 
       block.hasStartLabel = 1;
       return `block@${labelIndex}-start`;
@@ -349,15 +359,19 @@ class Engine{
           }
         };
 
+        let b_ = new Set();
+
         blocksLoop: while(block !== null){
+          log(block+'');
+          if(b_.has(block)) z;
+          b_.add(block);
+
           const {stats} = block;
 
-          if(block.start){
-            if(block.hasStartLabel)
-              label(getStartLabel(block));
+          if(block.hasStartLabel)
+            label(getStartLabel(block));
 
-            sub(`sp`, block.varsNum);
-          }
+          sub(`sp`, block.varsNum);
 
           while(stats.length !== 0){
             const stat = stats.shift();
@@ -379,7 +393,7 @@ class Engine{
             if(stat instanceof cs.Return){
               if(stat.expr !== null) evalExpr(stat.expr);
               mov(`dx`, `ax`);
-              leave();
+              leave(entName);
               continue;
             }
 
@@ -427,7 +441,7 @@ class Engine{
           block = block.parent;
         }
         
-        leave();
+        leave(entName);
         continue;
       }
 
@@ -445,7 +459,8 @@ class Engine{
         }
       }).join('\n');
 
-      log(`\n${str}\n`);
+      log(str);
+      debug(`\n${'='.repeat(100)}`);
     }
 
     return asm;

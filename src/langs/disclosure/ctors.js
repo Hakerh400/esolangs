@@ -181,8 +181,6 @@ class CodeBlock extends Statement{
   hasEndLabel = 0;
   onEnd = null;
 
-  start = 1;
-
   constructor(stats){
     super();
 
@@ -196,7 +194,7 @@ class CodeBlock extends Statement{
     for(const stat of stats){
       if(stat instanceof VariableDef){
         if(vars.has(stat.name))
-          esolangs.err(`Duplicate definition of variable ${O.sf(stat.name)}`);
+          esolangs.err(`Redefinition of variable ${O.sf(stat.name)}`);
 
         vars.add(stat);
         continue;
