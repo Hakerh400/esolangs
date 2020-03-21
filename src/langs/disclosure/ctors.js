@@ -43,6 +43,7 @@ class Type extends Base{
   static cmp(stack, t1, t2){ O.virtual('cmp', 1) }
 
   get pstr(){ return '*'.repeat(this.ptrs); }
+  get isVoid(){ return 0; }
 
   eq(type){
     const stack = [[this, type]];
@@ -69,6 +70,10 @@ class PrimitiveType extends Type{
 
   static cmp(stack, t1, t2){
     return t1.name === t2.name;
+  }
+
+  get isVoid(){
+    return this.name === 'void' && this.ptrs === 0;
   }
 
   toStr(){
@@ -151,6 +156,7 @@ class FunctionDef extends EntityDef{
   }
 
   get entType(){ return 'function'; }
+  get isVoid(){ return this.ret.isVoid; }
 
   toStr(){
     const arr = [this.ret, ' ', this.name, '('];
@@ -177,6 +183,8 @@ class CodeBlock extends Statement{
   parent = null;
 
   labelIndex = null;
+  hasStartRef = 0;
+  hasEndRef = 0;
   hasStartLabel = 0;
   hasEndLabel = 0;
   onEnd = null;
@@ -235,16 +243,16 @@ class CodeBlock extends Statement{
         if(index === -1)
           esolangs.err(`Identifier ${O.sf(name)} is not defined`);
 
-        return -(index + 2)
+        return -(index + 2);
       }
 
       let offset = map[name];
 
       while(1){
         block = block.parent;
-        if(block === null) return offset;
+        if(block === null) return offset + 1;
 
-        offset += block.varsArr.length;
+        offset += block.varsNum;
       }
     }
   }

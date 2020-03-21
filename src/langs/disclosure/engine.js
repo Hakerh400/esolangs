@@ -8,7 +8,7 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const cs = require('./ctors');
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 const TAB_SIZE = 2;
 const TAB = ' '.repeat(TAB_SIZE);
@@ -55,7 +55,10 @@ class Engine{
   }
 
   run(){
+    log('Compiling');
     const asm = this.generateAssembly();
+
+    log('Running\n');
     const src = this.compile(asm);
 
     this.output = esolangs.run('Daydream', src, this.input, {
@@ -167,10 +170,10 @@ class Engine{
       mov(`ip`, `cx`);
     };
 
-    const enter = (a=0) => {
+    const enter = (/*a=0*/) => {
       push('bp');
       mov(`bp`, `sp`);
-      sub(`sp`, a);
+      // sub(`sp`, a);
     };
 
     const leave = (funcName, name=0) => {
@@ -190,7 +193,7 @@ class Engine{
       //   debug(block+'');
       // }
 
-      block.hasStartLabel = 1;
+      block.hasStartRef = 1;
       return `block@${labelIndex}-start`;
     };
 
@@ -198,7 +201,7 @@ class Engine{
       const labelIndex = block.labelIndex !== null ?
         block.labelIndex : block.labelIndex = blockLabelsNum++;
 
-      block.hasEndLabel = 1;
+      block.hasEndRef = 1;
       return `block@${labelIndex}-end`;
     };
 
@@ -225,7 +228,7 @@ class Engine{
         const func = ent;
 
         label(`func@${func.name}`);
-        enter(func.body.vars.size);
+        enter(/*func.body.vars.size*/);
 
         let block = func.body;
 
@@ -359,19 +362,21 @@ class Engine{
           }
         };
 
-        let b_ = new Set();
+        // let b_ = new Set();
 
         blocksLoop: while(block !== null){
-          log(block+'');
-          if(b_.has(block)) z;
-          b_.add(block);
+          // log(block+'');
+          // if(b_.has(block)) z;
+          // b_.add(block);
 
-          const {stats} = block;
-
-          if(block.hasStartLabel)
+          if(block.hasStartRef && !block.hasStartLabel){
+            block.hasStartLabel = 1;
             label(getStartLabel(block));
+          }
 
           sub(`sp`, block.varsNum);
+          
+          const {stats} = block;
 
           while(stats.length !== 0){
             const stat = stats.shift();
@@ -392,7 +397,10 @@ class Engine{
 
             if(stat instanceof cs.Return){
               if(stat.expr !== null) evalExpr(stat.expr);
-              mov(`dx`, `ax`);
+
+              if(!globalEnts[entName].isVoid)
+                mov(`dx`, `ax`);
+
               leave(entName);
               continue;
             }
@@ -409,6 +417,7 @@ class Engine{
 
               ifBlock.onEnd = () => {
                 jmp(`:${getEndLabel(elseBlock)}`);
+
               };
 
               stats.unshift(ifBlock, elseBlock);
@@ -430,8 +439,10 @@ class Engine{
             O.noimpl(stat.constructor.name);
           }
 
-          if(block.hasEndLabel)
+          if(block.hasEndRef && !block.hasEndLabel){
+            block.hasEndLabel = 1;
             label(getEndLabel(block));
+          }
 
           add(`sp`, block.varsNum);
 

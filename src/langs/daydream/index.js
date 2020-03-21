@@ -58,6 +58,7 @@ const run = (src, input, opts=O.obj()) => {
   // 0E - in  dest, src
   // 0F - out dest, src
 
+  const stackBase = -mem.get(2n);
   let first = 1;
 
   while(1){
@@ -78,10 +79,11 @@ const run = (src, input, opts=O.obj()) => {
       else debug();
 
       log(`\n${'='.repeat(100)}\n`);
-      log([mem, io].map((mem, index) => {
-        return O.ca(500, i => {
+
+      log([mem, io].map((m, index) => {
+        return `${m === mem ? 'MEM' : 'IO'} ---> ${O.ca(200, i => {
           i = BigInt(i);
-          let str = String(mem.get(i));
+          let str = String(m.get(i));
 
           if(index === 0){
             if(i === ip) str = ` [${str}`;
@@ -89,8 +91,18 @@ const run = (src, input, opts=O.obj()) => {
           }
 
           return str;
-        }).join(',')
+        }).join(',')}`;
       }).join('\n\n'));
+
+      const sp = -mem.get(2n);
+      const stackSize = sp - stackBase;
+
+      log();
+      log(`STACK ---> ${
+        stackSize === 0n ? '(empty)' :
+        stackSize < 0n || stackSize > 1000n ? '(corrupted)' :
+        O.ca(Number(stackSize), i => mem.get(sp - BigInt(i))).join(',')
+      }`);
 
       const formatOp = (op, ind) => {
         return `${'['.repeat(ind + 1)}${op}${']'.repeat(ind + 1)}`;
@@ -101,13 +113,9 @@ const run = (src, input, opts=O.obj()) => {
       const op2 = mem.get(ip + 2n);
 
       let inst = `\n${opName} ${formatOp(op1, op1i)}, ${formatOp(op2, op2i)}`.
-        replace(/\[0\]/g, 'ip').
-        replace(/\[1\]/g, 'bp').
-        replace(/\[2\]/g, 'sp').
-        replace(/\[3\]/g, 'ax').
-        replace(/\[4\]/g, 'bx').
-        replace(/\[5\]/g, 'cx').
-        replace(/\[6\]/g, 'dx');
+        replace(/\[([0-6])\]/g, (a, b) => {
+          return 'ip,bp,sp,ax,bx,cx,dx'.split(',')[b];
+        });
 
       log(inst);
     }
@@ -179,6 +187,7 @@ const run = (src, input, opts=O.obj()) => {
 
     io.set(op1Addr, val);
 
+    // log(`${op1Addr} ---> ${val}`);
     if(opts.debug){
       log();
       log(`IO[${op1Addr}] = ${val}`);

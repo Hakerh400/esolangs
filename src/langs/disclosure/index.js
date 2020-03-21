@@ -13,6 +13,8 @@ const cwd = __dirname;
 const syntax = O.rfs(path.join(cwd, 'syntax.txt'), 1);
 
 const run = (src, input) => {
+  log('Parsing');
+
   const parsed = parser.parse(syntax, src, ast);
   if(parsed === null) return '';
 
