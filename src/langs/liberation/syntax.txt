@@ -1,0 +1,18 @@
+script{ s0 rule*s1 s0 }
+
+rule{ lhs s0 "-" s0 rhs }
+
+lhs{ "#"? lhsElem* "." lhsElem* "#"? }
+rhs{ "/" | rhsElem+ }
+
+lhsElem{ [01] }
+rhsElem{ [01.] }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

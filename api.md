@@ -47,7 +47,7 @@ Similar to `esolangs.getInfo(name)`. Returns information about the language with
 
 Execute the source code `source` that is written in `name` language, having `input` as the string on stdin. `name` is a string, while `source` and `input` can be either strings or buffers. `name` is the language name. The return value is either a buffer or a promise. This method may throw an error.
 
-`options` is an optional argument. It specified, it must be an object containing options for specific interpreter. Options are currently not documented.
+`options` is an optional argument. If specified, it must be an object containing options for specific interpreter. Options are currently not documented.
 
 ### `esolangs.runSafe(name, source, input[, options[, sandboxOptions]])`
 

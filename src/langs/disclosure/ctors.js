@@ -312,6 +312,33 @@ class If extends Control{
   }
 }
 
+class While extends Control{
+  constructor(cond, block){
+    super();
+
+    this.cond = cond;
+    this.block = block;
+  }
+
+  setParent(block){
+    this.block.parent = block;
+  }
+
+  toStr(){
+    const {block} = this;
+    const {stats} = this.block;
+    const arr = ['while(', this.cond, ')'];
+
+    if(stats.length === 1){
+      arr.push(this.inc, '\n', stats[0], this.dec);
+    }else{
+      arr.push(block);
+    }
+
+    return arr;
+  }
+}
+
 class Return extends Statement{
   constructor(expr){
     super();
@@ -458,6 +485,12 @@ class Assignment extends BinaryOperation{
   }
 }
 
+class BitwiseOr extends BinaryOperation{
+  toStr(){
+    return [this.op1, ' | ', this.op2];
+  }
+}
+
 class Addition extends BinaryOperation{
   toStr(){
     return [this.op1, ' + ', this.op2];
@@ -553,6 +586,7 @@ module.exports = {
   CodeBlock,
   Control,
   If,
+  While,
   Return,
   Asm,
   ExpressionStatement,
@@ -566,6 +600,7 @@ module.exports = {
   Dereference,
   BinaryOperation,
   Assignment,
+  BitwiseOr,
   Addition,
   Subtraction,
   Multiplication,

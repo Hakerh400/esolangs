@@ -30,11 +30,13 @@ statement{
 }
 
 control{
-  if
+  if |
+  while
 }
 
 if{ "if" s0 "(" s0 expr s0 ")" s0 statement s0 else? }
 else{ "else" s0 statement }
+while{ "while" s0 "(" s0 expr s0 ")" s0 statement }
 
 return{
   "return" s0 expr? s0 ";"
@@ -75,7 +77,7 @@ expr4{ "..." }
 expr5{ "..." }
 expr6{ "..." }
 expr7{ "..." }
-expr8{ "..." }
+expr8{ bOr }
 expr9{ "..." }
 expr10{ "..." }
 expr11{ "..." }
@@ -91,6 +93,7 @@ expr20{ call }
 expr21{ literal | ident | grouping }
 
 assign{ expr4_ s0 "=" s0 expr3_ }
+bOr{ expr8_ s0 "|" s0 expr9_ }
 add{ expr14_ s0 "+" s0 expr15_ }
 sub{ expr14_ s0 "-" s0 expr15_ }
 mul{ expr15_ s0 "*" s0 expr16_ }

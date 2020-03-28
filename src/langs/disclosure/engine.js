@@ -8,7 +8,7 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const cs = require('./ctors');
 
-const DEBUG = 0;
+const DEBUG = 1;
 
 const TAB_SIZE = 2;
 const TAB = ' '.repeat(TAB_SIZE);
@@ -55,13 +55,14 @@ class Engine{
   }
 
   run(){
-    log('Compiling');
+    log('Compiling to assembly');
     const asm = this.generateAssembly();
 
-    log('Running\n');
-    const src = this.compile(asm);
+    log('Compiling to bytecode');
+    const bytecode = this.compile(asm);
 
-    this.output = esolangs.run('Daydream', src, this.input, {
+    log('Running\n');
+    this.output = esolangs.run('Daydream', bytecode, this.input, {
       debug: DEBUG,
     });
   }
@@ -188,11 +189,6 @@ class Engine{
       const labelIndex = block.labelIndex !== null ?
         block.labelIndex : block.labelIndex = blockLabelsNum++;
 
-      // if(labelIndex === 0){
-      //   log(new Error().stack);
-      //   debug(block+'');
-      // }
-
       block.hasStartRef = 1;
       return `block@${labelIndex}-start`;
     };
@@ -203,6 +199,16 @@ class Engine{
 
       block.hasEndRef = 1;
       return `block@${labelIndex}-end`;
+    };
+
+    const symLabelsMap = O.obj();
+    let symLabelsNum = 0;
+
+    const getLabel = sym => {
+      if(!(sym in symLabelsMap))
+        symLabelsMap[sym] = symLabelsNum++;
+
+      return `label@${symLabelsMap[sym]}`;
     };
 
     num(':sys@start');
@@ -335,6 +341,7 @@ class Engine{
                     mov(`[${auxRegs[dest]}]`, auxRegs[other]);
                   } break;
 
+                  case cs.BitwiseOr: inst(`or ${auxRegs[dest]}, ${auxRegs[other]}`); break;
                   case cs.Addition: add(auxRegs[dest], auxRegs[other]); break;
                   case cs.Subtraction: sub(auxRegs[dest], auxRegs[other]); break;
                   case cs.Multiplication: mul(auxRegs[dest], auxRegs[other]); break;
@@ -408,8 +415,8 @@ class Engine{
             if(stat instanceof cs.If){
               const {cond, ifBlock, elseBlock} = stat;
 
-              ifBlock.TYPE = 'IF';
-              elseBlock.TYPE = 'ELSE';
+              // ifBlock.TYPE = 'IF';
+              // elseBlock.TYPE = 'ELSE';
 
               evalExpr(cond);
               inst(`eq ax, 0`);
@@ -417,10 +424,29 @@ class Engine{
 
               ifBlock.onEnd = () => {
                 jmp(`:${getEndLabel(elseBlock)}`);
-
               };
 
               stats.unshift(ifBlock, elseBlock);
+              continue;
+            }
+
+            if(stat instanceof cs.While){
+              const {cond, block} = stat;
+
+              // block.TYPE = 'WHILE';
+
+              const sym = Symbol();
+              label(getLabel(sym));
+
+              evalExpr(cond);
+              inst(`eq ax, 0`);
+              jmp(`:${getEndLabel(block)}`);
+
+              block.onEnd = () => {
+                jmp(`:${getLabel(sym)}`);
+              };
+
+              stats.unshift(block);
               continue;
             }
 

@@ -151,5 +151,9 @@
     "name": "Self-modifying Turing machine",
     "id": "smtm",
     "details": "https://esolangs.org/wiki/Self-modifying_Turing_machine"
+  }, {
+    "name": "Liberation",
+    "id": "liberation",
+    "details": "https://esolangs.org/wiki/Liberation"
   }
 ]
