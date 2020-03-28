@@ -9,7 +9,7 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const cs = require('./ctors');
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 class Engine{
   constructor(parsed, input){
