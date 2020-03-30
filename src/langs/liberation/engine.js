@@ -16,7 +16,7 @@ class Engine{
     input = input.toString().replace(/[\s+]/g, '');
 
     if(!/^[01]*$/.test(input))
-      esolangs.err(`Input string can contain only bits`);
+      esolangs.err(`Input string can only contain bits`);
 
     this.parsed = parsed;
     this.input = input;

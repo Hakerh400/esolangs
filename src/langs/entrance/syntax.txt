@@ -1,0 +1,28 @@
+script{ s0 rule*s0 s0 }
+
+rule{
+  vars? s0
+  premises? s0
+  expr
+}
+
+vars{ "[" s0 var*commaSep s0 "]" }
+var{ ident s0 constraints? }
+constraints{ "\\" s0 "{" s0 expr*commaSep s0 "}" }
+premises{ expr*commaSep s0 "|-" s0 }
+
+expr{ ident args? }
+args{ "(" s0 expr*commaSep s0 ")" }
+
+ident{ [a-zA-Z0-9_]+ }
+
+commaSep{ s0 "," s0 }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

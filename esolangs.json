@@ -155,5 +155,10 @@
     "name": "Liberation",
     "id": "liberation",
     "details": "https://esolangs.org/wiki/Liberation"
+  }, {
+    "name": "Entrance",
+    "id": "entrance",
+    "details": null,
+    "wip": true
   }
 ]
