@@ -259,9 +259,8 @@ class VectorExpression extends Expression{
   get len(){ return this.arr.length; }
   get reduced(){ return this.reducedNum === this.arr.length; }
 
-  iter(){
-    return this.arr;
-  }
+  get chNum(){ return this.arr.length; }
+  getCh(i){ return this.arr[i]; }
 }
 
 class Set extends VectorExpression{
@@ -411,9 +410,8 @@ class UnaryExpression extends Expression{
   get isUnary(){ return 1; }
   get reduced(){ return this.reducedNum === 1; }
 
-  iter(){
-    return this.expr;
-  }
+  get chNum(){ return 1; }
+  getCh(i){ return this.expr; }
 }
 
 class Argument extends UnaryExpression{
@@ -466,9 +464,7 @@ class Identifier extends Expression{
 
   get isIdent(){ return 1; }
 
-  iter(){
-    return null;
-  }
+  get chNum(){ return 0; }
 
   toStr(){
     return this.name;

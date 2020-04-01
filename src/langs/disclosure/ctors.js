@@ -432,9 +432,8 @@ class UnaryOperation extends Operation{
     this.op = op;
   }
 
-  iter(){
-    return this.op;
-  }
+  get chNum(){ return 1; }
+  getCh(){ return this.op; }
 }
 
 class UnaryPlus extends UnaryOperation{
@@ -474,9 +473,8 @@ class BinaryOperation extends Operation{
     this.op2 = op2;
   }
 
-  iter(){
-    return [this.op1, this.op2];
-  }
+  get chNum(){ return 2; }
+  getCh(i){ return i === 0 ? this.op1 : this.op2; }
 }
 
 class Assignment extends BinaryOperation{
@@ -528,9 +526,8 @@ class Call extends Operation{
     this.args = args;
   }
 
-  iter(){
-    return [this.func, ...this.args];
-  }
+  get chNum(){ return this.args.length + 1; }
+  getCh(i){ return i === 0 ? this.func : this.args[i - 1]; }
 
   toStr(){
     const arr = [this.func, '('];
@@ -548,7 +545,7 @@ class Identifier extends Expression{
     this.name = name;
   }
 
-  iter(){ return null; }
+  get chNum(){ return 0; }
 
   toStr(){
     return this.name;
@@ -556,7 +553,7 @@ class Identifier extends Expression{
 }
 
 class Literal extends Expression{
-  iter(){ return null; }
+  get chNum(){ return 0; }
 }
 
 class Number extends Literal{}
