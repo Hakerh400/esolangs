@@ -71,15 +71,18 @@ class VariableDefinition extends Base{
 }
 
 class Expression extends Base{
-  constructor(ident, args){
+  constructor(name, args=[]){
     super();
 
-    this.ident = ident;
+    this.name = name;
     this.args = args;
   }
 
+  get chNum(){ return this.args.length; }
+  getCh(i){ return this.args[i]; }
+
   toStr(){
-    const arr = [this.ident];
+    const arr = [this.name];
 
     if(this.args.length !== 0){
       arr.push('(');

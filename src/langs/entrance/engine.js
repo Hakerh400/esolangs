@@ -17,7 +17,37 @@ class Engine{
   run(){
     const {parsed: system, input} = this;
 
-    const output = system.toString();
+    // const output = system.toString();
+
+    const e1 = system.rules[0].conclusion;
+    let e2;
+
+    {
+      const map = new Map();
+      let last;
+
+      e1.bottomUp(expr => {
+        const {name} = expr;
+        const args = expr.args.map(a => map.get(a) || a);
+
+        const exprNew = name !== 'f' ?
+          new cs.Expression(name, args) :
+          new cs.Expression('A', [
+            new cs.Expression('g1', args),
+            new cs.Expression('g2', args),
+          ]);
+
+        map.set(expr, exprNew);
+        last = exprNew;
+      });
+
+      e2 = last;
+    }
+
+    log(e1.toString());
+    log(e2.toString());
+
+    O.exit();
 
     this.output = Buffer.from(output);
   }
