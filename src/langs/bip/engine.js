@@ -169,18 +169,23 @@ class Engine{
           continue;
         }
 
-        const cond = assertType(name, evalExpr(stat.cond), 'boolean');
+        if(stat.cond !== null){
+          const cond = assertType(name, evalExpr(stat.cond), 'boolean');
 
-        if(!cond){
-          stat.initialized = 0;
-          continue;
+          if(!cond){
+            stat.initialized = 0;
+            continue;
+          }
         }
 
-        stack.unshift(stat.stat2, stat);
+        stack.unshift(stat);
+        
+        if(stat.stat2 !== null)
+          stack.unshift(stat.stat2);
 
         for(const s of stat.stats.slice().reverse())
           stack.unshift(s);
-        
+
         continue;
       }
 

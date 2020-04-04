@@ -23,10 +23,14 @@ ifOrElseStr{ "if"i | "else"i }
 ifComment{ "and"i whitespace+ inlineComment }
 
 for{
-  "for"i s0 "(" s0 "initialization is"i s1 assignment s1
-  "and termination is"i s1 exprPart s1
-  "and increment is"i s1 assignment s0 ")" s0 "then"i s1 stat*s1 s1
+  "for"i s0 "(" s0 forParam*andSep s0 ")" s0 "then"i s1 stat*s1 s1
   "and end for"i
+}
+
+forParam{
+  "initialization is"i s1 assignment |
+  "termination is"i s1 exprPart |
+  "increment is"i s1 assignment
 }
 
 say{ "say"i s1 exprArithmeticOrTerm woutNewLine? }
@@ -35,6 +39,7 @@ end{ "end"i s1 .* }
 
 expr{ exprPart+exprSep }
 exprSep{ s1 andOr s1 }
+andSep{ s1 "and"i s1 }
 andOr{ "and"i | "or"i }
 
 exprPart{

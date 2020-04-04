@@ -47,11 +47,22 @@ class If extends Control{
 class For extends Control{
   initialized = 0;
 
-  constructor(stat1, cond, stat2, stats){
+  constructor(params, stats){
     super();
-    this.stat1 = stat1;
-    this.cond = cond;
-    this.stat2 = stat2;
+
+    this.stat1 = null;
+    this.cond = null;
+    this.stat2 = null;
+
+    for(const [type, stat] of params){
+      const name = ['stat1', 'cond', 'stat2'][type];
+
+      if(this[name] !== null)
+        esolangs.err(`FOR statement cannot have multiple parameters of the same type`);
+
+      this[name] = stat;
+    }
+
     this.stats = stats;
   }
 }
