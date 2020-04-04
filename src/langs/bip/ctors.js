@@ -47,12 +47,12 @@ class If extends Control{
 class For extends Control{
   initialized = 0;
 
-  constructor(stat1, cond, stat2, stat3){
+  constructor(stat1, cond, stat2, stats){
     super();
     this.stat1 = stat1;
     this.cond = cond;
     this.stat2 = stat2;
-    this.stat3 = stat3;
+    this.stats = stats;
   }
 }
 

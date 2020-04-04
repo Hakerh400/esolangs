@@ -14,7 +14,7 @@ const eq = assert.strictEqual;
 
 const args = process.argv.slice(2);
 
-const SINGLE_LANG = null;
+const SINGLE_LANG = 'Baba is program';
 const TEST_CLI = SINGLE_LANG === null;
 const INCLUDE_SLOW_TESTS = 0;
 

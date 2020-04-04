@@ -25,7 +25,7 @@ ifComment{ "and"i whitespace+ inlineComment }
 for{
   "for"i s0 "(" s0 "initialization is"i s1 assignment s1
   "and termination is"i s1 exprPart s1
-  "and increment is"i s1 assignment s0 ")" s0 "then"i s1 stat s1
+  "and increment is"i s1 assignment s0 ")" s0 "then"i s1 stat*s1 s1
   "and end for"i
 }
 

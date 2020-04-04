@@ -18,7 +18,7 @@ const rules = {
   elseBody: e => e.es[e.pti === 0 ? 0 : 2].fst,
   ifOrElseStr: e => e.fst.fst,
   ifComment: e => e.fst.fst,
-  for: e => new cs.For(e.es[6].fst, e.es[10].fst, e.es[14].fst, e.es[20].fst),
+  for: e => new cs.For(e.es[6].fst, e.es[10].fst, e.es[14].fst, e.es[20].arr),
   say: e => new cs.Say(e.es[2].fst, e.es[3].arr.length === 0),
   woutNewLine: e => e.fst.fst,
   end: e => new cs.End(),
