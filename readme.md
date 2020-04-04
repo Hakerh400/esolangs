@@ -33,7 +33,8 @@ node index <language> <source> <input> <output>
 
 If any error occurs, it will be written to the console and the output file will not be created.
 
-For languages that support interactive mode (see [api.md](./api.md) for details) it is possible to replace `<input> <output>` with `--interactive`. The standard input and output will be used instead of files.
+For languages that support interactive mode (see [api.md](./api.md) for details) it is possible to<br/>
+replace `<input> <output>` with `--interactive` flag. The standard input and output will be used instead of files.
 
 ### API
 
