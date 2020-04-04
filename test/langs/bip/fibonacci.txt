@@ -1,0 +1,29 @@
+BLOCK-COMMENT IS
+Fibonacci Sequence
+
+Equivalent Java code:
+
+int n = 12
+int x1 = 0
+int x2 = 1
+
+for (i = 1; i <= n; i++) {
+  System.out.println("x1")
+  int sum = x1 + x2
+  x1 = x2
+  x2 = sum
+}
+
+AND END BLOCK-COMMENT
+
+COMMENT To set your own # of terms, replace 12 below with any number
+n IS 12
+x1 IS 0
+x2 IS 1
+
+FOR (INITIALIZATION IS i IS 1 AND TERMINATION IS i IS LESS THAN OR EQUAL TO n AND INCREMENT IS i IS ADDED) THEN
+  SAY x1
+  sum IS x1 PLUS x2
+  x1 IS x2
+  x2 IS sum
+AND END FOR
