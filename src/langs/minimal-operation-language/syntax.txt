@@ -1,6 +1,45 @@
-script{ s0 }
+script{ s0 line*lineBreakSep s0 }
 
-whitespace{ [ \r\n\t] }
+line{ lhs? s0 rhs }
+lhs{ expr? s0 [:;] }
+rhs{ expr }
+
+expr{ expr1_ }
+
+expr1_{ expr1 | expr2_ }
+expr2_{ expr2 | expr3_ }
+expr3_{ expr3 | expr4_ }
+expr4_{ expr4 | expr5_ }
+expr5_{ expr5 | expr6_ }
+expr6_{ expr6 | expr7_ }
+expr7_{ expr7 | expr8_ }
+expr8_{ expr8 }
+
+expr1{ neq }
+expr2{ eq }
+expr3{ sub }
+expr4{ add }
+expr5{ div }
+expr6{ mul }
+expr7{ exp }
+expr8{ group | term }
+
+neq{ expr1_ s0 "!=" s0 expr2_ }
+eq{ expr2_ s0 "==" s0 expr3_ }
+sub{ expr3_ s0 "-" s0 expr4_ }
+add{ expr4_ s0 "+" s0 expr5_ }
+div{ expr5_ s0 "/" s0 expr6_ }
+mul{ expr6_ s0 "*" s0 expr7_ }
+exp{ expr7_ s0 "^" s0 expr8_ }
+group{ "(" s0 expr s0 ")" }
+term{ num | in }
+
+num{ "0" | [1-9] [0-9]* }
+in{ "?" }
+
+whitespace{ [ \t] }
+lineBreak{ "\r\n" | [\r\n] }
+lineBreakSep{ s0 lineBreak s0 }
 comment{ inlineComment | multilineComment }
 inlineComment{ "//" [^\r\n]* }
 multilineComment{ "/*" .*? "*/"}
