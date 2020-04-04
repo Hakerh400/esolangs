@@ -34,7 +34,7 @@ const exec = () => {
     return;
   }
 
-  esolangs.run(info.name, src);
+  esolangs.run(info.name, src, null);
 };
 
 const read = file => {
