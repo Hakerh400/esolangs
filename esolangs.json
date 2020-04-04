@@ -160,5 +160,11 @@
     "id": "entrance",
     "details": null,
     "wip": true
+  }, {
+    "name": "Minimal operation language",
+    "id": "minimal-operation-language",
+    "details": "https://esolangs.org/wiki/Minimal_operation_language",
+    "interactive": true,
+    "wip": true
   }
 ]

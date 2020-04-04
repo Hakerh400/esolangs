@@ -34,6 +34,7 @@ Names and IDs are unique among all languages. Besides the above properties, the 
 * `details` - Reference (usually a URL) where more details about the language can be found.
 * `async` - Boolean value. If true, a program in that language runs asynchronously and the result is a promise that resolves to a buffer containing the program's output.
 * `wip` - Boolean value. If true, the interpreter is still a work-in-progress.
+* `interactive` - Boolean value. If true, the interpreter can process user input in real time.
 
 If the language with the given name does not exist in the list of supported languages, the return value is `null`.
 
@@ -49,11 +50,15 @@ Execute the source code `source` that is written in `name` language, having `inp
 
 `options` is an optional argument. If specified, it must be an object containing options for specific interpreter. Options are currently not documented.
 
+If `input` is `null`, the interpreter will run the program in interactive mode. User input will be read from stdin and the output will be written to stdout. It is an error if the language does not support interactive mode.
+
 ### `esolangs.runSafe(name, source, input[, options[, sandboxOptions]])`
 
 Safe version of `esolangs.run`. While the unsafe version may never halt and can even crash the process if a fatal error occurs (for example out-of-memory errors cannot be catched - they always crash the process), the `runSafe` method is always safe to invoke. It is always asynchronous (regardless of the `async` property of the langauge info object) and returns a promise that either resolves to a buffer containing the result or rejects with an error.
 
 Result is an array of two elements. If the first element is `0`, the second element is a string representing the error message. If the first element is `1`, the second element is a buffer that represents the program's output. Promise rejects with an error only in case of fatal errors (for example time limit is exceeded, or out-of-memory happened (which cannot be catched using `esolangs.run`)).
+
+Argument `input` cannot be `null`, unlike in `esolangs.run` method.
 
 `sandboxOptions` is an optional parameter which is an object that contains the following properties:
 

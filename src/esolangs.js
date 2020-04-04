@@ -49,9 +49,16 @@ const esolangs = {
       esolangs.err(`Language ${O.sf(name)} is still a work-in-progress`);
 
     const func = require(path.join(langsDir, info.id));
-    const result = func(Buffer.from(src), Buffer.from(input), opts);
 
-    return result;
+    if(input !== null){
+      const result = func(Buffer.from(src), Buffer.from(input), opts);
+      return result;
+    }
+
+    if(!('interactive' in info && info.interactive))
+      esolangs.err(`Language ${O.sf(name)} does not support interactive mode`);
+
+    func(Buffer.from(src), null, opts);
   },
 
   async runSafe(name, src, input, opts=null, sbxOpts=null){

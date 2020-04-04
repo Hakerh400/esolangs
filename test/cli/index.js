@@ -39,9 +39,12 @@ const runTest = () => {
         outputFile,
       ]);
 
-      assert(stdout.length === 0);
-      assert(stderr.length === 0);
-      assert(O.rfs(outputFile, 1) === esolangs.getStr('hello-world'));
+      assert(stdout.length === 0, stdout.toString());
+      assert(stderr.length === 0, stderr.toString());
+
+      const expected = esolangs.getStr('hello-world');
+      const actual = O.rfs(outputFile, 1);
+      assert(expected === actual, actual);
     });
   });
 };

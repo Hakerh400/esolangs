@@ -12,18 +12,29 @@ const isInvoked = () => {
 };
 
 const exec = () => {
-  if(args.length !== 4)
-    err(`Invalid arguments\nUsage: node index <language> <source> <input> <output>`);
+  let interactive = 0;
 
-  const [id, fsrc, fin, fout] = args;
+  if(args.length === 3){
+    if(O.last(args) !== '--interactive') errArgs();
+    interactive = 1;
+  }else if(args.length !== 4) errArgs();
+
+  const [id, fsrc] = args;
   const info = esolangs.getInfoById(id);
   if(info === null) err(`Unsupported language with ID ${O.sf(id)}`);
 
   const src = read(fsrc);
-  const input = read(fin);
-  const output = esolangs.run(info.name, src, input);
 
-  write(fout, output);
+  if(!interactive){
+    const [fin, fout] = args.slice(2);
+    const input = read(fin);
+    const output = esolangs.run(info.name, src, input);
+
+    write(fout, output);
+    return;
+  }
+
+  esolangs.run(info.name, src);
 };
 
 const read = file => {
@@ -40,6 +51,10 @@ const write = (file, buf) => {
   }catch(e){
     err(`Unable to write file ${O.sf(file)}\n${e.message}`);
   }
+};
+
+const errArgs = () => {
+  err(`Invalid arguments\nUsage: node index <language> <source> <input> <output>`);
 };
 
 const err = msg => {
