@@ -57,9 +57,10 @@ class For extends Control{
 }
 
 class Say extends Base{
-  constructor(expr){
+  constructor(expr, newLine){
     super();
     this.expr = expr;
+    this.newLine = newLine;
   }
 }
 

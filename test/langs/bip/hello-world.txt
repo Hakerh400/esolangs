@@ -1,1 +1,1 @@
-SAY "Hello, World!"
+SAY "Hello, World!" WITHOUT A NEW LINE

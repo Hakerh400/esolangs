@@ -17,8 +17,6 @@ class Engine{
   run(){
     const {parsed: system, input} = this;
 
-    // const output = system.toString();
-
     const e1 = system.rules[0].conclusion;
     let e2;
 

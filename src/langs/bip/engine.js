@@ -179,6 +179,7 @@ class Engine{
       if(stat instanceof cs.Say){
         const val = evalExpr(stat.expr);
         output += val;
+        if(stat.newLine) output += '\n';
         continue;
       }
 

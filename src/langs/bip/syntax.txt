@@ -29,7 +29,8 @@ for{
   "and end for"i
 }
 
-say{ "say"i s1 exprArithmeticOrTerm }
+say{ "say"i s1 exprArithmeticOrTerm woutNewLine? }
+woutNewLine{ s1 "without"i s1 "a"i s1 "new"i s1 "line"i }
 end{ "end"i s1 .* }
 
 expr{ exprPart+exprSep }

@@ -7,6 +7,25 @@ const esolangs = require('../../..');
 
 module.exports = src => {
   return [
-    ['A', 'Hello, World!103AbarNiceStuffi is 1i is 2i is 3i is 4i is 5i is 6i is 7i is 8i is 9i is 10YOU'],
+    [
+      'A',
+      'Hello, World!\n' +
+      '103\n' +
+      'A\n' +
+      'bar\n' +
+      'Nice\n' +
+      'Stuff\n' +
+      'i is 1\n' +
+      'i is 2\n' +
+      'i is 3\n' +
+      'i is 4\n' +
+      'i is 5\n' +
+      'i is 6\n' +
+      'i is 7\n' +
+      'i is 8\n' +
+      'i is 9\n' +
+      'i is 10\n' +
+      'YOU\n',
+    ],
   ];
 };
