@@ -16,7 +16,7 @@ expr7_{ expr7 | expr8_ }
 expr8_{ expr8 }
 
 expr1{ neq }
-expr2{ eq }
+expr2{ equ }
 expr3{ sub }
 expr4{ add }
 expr5{ div }
@@ -25,7 +25,7 @@ expr7{ exp }
 expr8{ group | term }
 
 neq{ expr1_ s0 "!=" s0 expr2_ }
-eq{ expr2_ s0 "==" s0 expr3_ }
+equ{ expr2_ s0 "==" s0 expr3_ }
 sub{ expr3_ s0 "-" s0 expr4_ }
 add{ expr4_ s0 "+" s0 expr5_ }
 div{ expr5_ s0 "/" s0 expr6_ }
@@ -39,7 +39,7 @@ in{ "?" }
 
 whitespace{ [ \t] }
 lineBreak{ "\r\n" | [\r\n] }
-lineBreakSep{ s0 lineBreak s0 }
+lineBreakSep{ s0 lineBreak+s0 s0 }
 comment{ inlineComment | multilineComment }
 inlineComment{ "//" [^\r\n]* }
 multilineComment{ "/*" .*? "*/"}
