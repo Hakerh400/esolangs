@@ -51,13 +51,13 @@ class Engine{
           const n2 = map.get(op2);
 
           switch(expr.type){
-            case 'neq': map.set(expr, n1 !== n2); break;
-            case 'equ': map.set(expr, n1 === n2); break;
+            case 'neq': map.set(expr, n1 !== n2 | 0); break;
+            case 'equ': map.set(expr, n1 === n2 | 0); break;
             case 'sub': map.set(expr, n1 - n2); break;
             case 'add': map.set(expr, n1 + n2); break;
             case 'div': map.set(expr, n1 / n2); break;
             case 'mul': map.set(expr, n1 * n2); break;
-            case 'exp': map.set(expr, n1 ^ n2); break;
+            case 'exp': map.set(expr, n1 ** n2); break;
             default: assert.fail(expr.type); break;
           }
 
