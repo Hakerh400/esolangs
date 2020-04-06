@@ -1,4 +1,14 @@
-script{ s0 rule*s0 s0 }
+script{ s0 "#" s0 mode s0 }
+
+mode{
+  "solve" s1 modeSolve |
+  "prove" s1 modeProve
+}
+
+modeSolve{ vars? s0 equation*s0 }
+modeProve{ rule*s0 }
+
+equation{ expr s0 "=" s0 expr }
 
 rule{
   vars? s0
@@ -8,7 +18,7 @@ rule{
 
 vars{ "[" s0 var*commaSep s0 "]" }
 var{ ident s0 constraints? }
-constraints{ "\\" s0 "{" s0 expr*commaSep s0 "}" }
+constraints{ "\\" s0 "{" s0 ident*commaSep s0 "}" }
 premises{ expr*commaSep s0 "|-" s0 }
 
 expr{ ident args? }

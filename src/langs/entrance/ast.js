@@ -7,7 +7,11 @@ const esolangs = require('../..');
 const cs = require('./ctors');
 
 const rules = {
-  script: e => new cs.System(e.es[1].arr),
+  script: e => new cs.Program(e.es[3].fst),
+  mode: e => e.es[2].fst,
+  modeSolve: e => new cs.ModeSolve(e.es[0].jst, e.es[2].arr),
+  modeProve: e => new cs.ModeProve(e.fst.arr),
+  equation: e => new cs.Equation(e.es[0].fst, e.es[4].fst),
   rule: e => new cs.Rule(e.es[0].jst, e.es[2].jst, e.es[4].fst),
   vars: e => e.es[2].arr,
   var: e => new cs.VariableDefinition(e.es[0].fst, e.es[2].jst),
