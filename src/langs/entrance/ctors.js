@@ -51,7 +51,7 @@ class Mode extends Base{
       if(info.arity !== infoCur.arity)
         esolangs.err(`Arity mismatch for identifier ${O.sf(name)}`);
 
-      return;
+      return this;
     }
 
     this.#identsInfo[name] = info;
@@ -113,7 +113,12 @@ class ModeSolve extends Mode{
         if(info.isVar)
           esolangs.err(`Constraint ${
             O.sf(constraint)} for variable ${
-            O.sf(name)} is invalid`);
+            O.sf(name)} must be a constant`);
+
+        if(info.arity !== 0)
+          esolangs.err(`Constraint ${
+            O.sf(constraint)} for variable ${
+            O.sf(name)} must have arity 0`);
       }
     }
   }
@@ -221,7 +226,6 @@ class VariableDefinition extends Base{
       constraintsObj['#']++;
     }
 
-
     this.constraints = constraintsObj;
   }
 
@@ -239,11 +243,18 @@ class VariableDefinition extends Base{
 }
 
 class Expression extends Base{
-  constructor(name, args=[]){
+  static any = new Expression('*');
+
+  static arg(i){
+    return new Expression(i, [], 1);
+  }
+
+  constructor(name, args=[], isArg=0){
     super();
 
     this.name = name;
     this.args = args;
+    this.isArg = isArg;
   }
 
   get chNum(){ return this.args.length; }
@@ -267,8 +278,44 @@ class Expression extends Base{
     return 1;
   }
 
+  substVars(varsObj){
+    const map = new Map();
+
+    this.bottomUp(expr => {
+      const {name} = expr;
+      const args = expr.args.map(a => map.get(a));
+
+      if(!(name in varsObj)){
+        map.set(expr, new Expression(name, args));
+        return;
+      }
+
+      map.set(expr, varsObj[name].substArgs(args));
+    });
+
+    return map.get(this);
+  }
+
+  substArgs(sArgs){
+    const map = new Map();
+
+    this.bottomUp(expr => {
+      const {name} = expr;
+
+      if(!expr.isArg){
+        const args = expr.args.map(a => map.get(a));
+        map.set(expr, new Expression(name, args));
+        return;
+      }
+
+      map.set(expr, sArgs[name]);
+    });
+
+    return map.get(this);
+  }
+
   toStr(){
-    const arr = [this.name];
+    const arr = [String(this.name)];
 
     if(this.args.length !== 0){
       arr.push('(');
