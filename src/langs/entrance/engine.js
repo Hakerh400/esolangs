@@ -8,7 +8,9 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const cs = require('./ctors');
 
-const anyExpr = cs.Expression.any
+const DEBUG = 0;
+
+const anyExpr = cs.Expression.any;
 
 class Engine{
   constructor(parsed, input){
@@ -158,7 +160,7 @@ class Engine{
       const state = queue.pop();
       const {vars, eqs} = state;
 
-      // log(state.toString());
+      if(DEBUG) log(state.toString());
 
       const eq = eqs.top();
       const {lhs, rhs} = eq;
@@ -218,7 +220,7 @@ class Engine{
         queue.push(stateNew);
       }
 
-      // debug(`\n${'='.repeat(100)}`);
+      if(DEBUG) debug(`\n${'='.repeat(100)}`);
     }
   }
   

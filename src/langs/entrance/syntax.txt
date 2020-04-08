@@ -24,7 +24,7 @@ premises{ expr*commaSep s0 "|-" s0 }
 expr{ ident args? }
 args{ "(" s0 expr*commaSep s0 ")" }
 
-ident{ [a-zA-Z_]+ }
+ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
 
 commaSep{ s0 "," s0 }
 

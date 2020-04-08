@@ -1,0 +1,27 @@
+script{ s0 inst*s0 s0 }
+
+inst{
+  label? s0
+  var s0
+  op s0
+}
+
+label{ ident s0 ":" }
+var{ [xy] }
+op{ xor | shl | shr | if }
+
+xor{ "~" }
+shl{ "+" }
+shr{ "-" }
+if{ "?" s0 ident s0 ident }
+
+ident{ [a-zA-Z0-9_]+ }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

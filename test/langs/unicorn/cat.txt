@@ -1,0 +1,6 @@
+      x? copy exit
+copy: x- y+ y~ y+
+      x? flip next
+flip: y~
+next: x- x? copy exit
+exit: x~

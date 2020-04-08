@@ -165,5 +165,9 @@
     "id": "minimal-operation-language",
     "details": "https://esolangs.org/wiki/Minimal_operation_language",
     "interactive": true
+  }, {
+    "name": "Hello today I am a unicorn",
+    "id": "unicorn",
+    "details": "https://esolangs.org/wiki/Hello_today_I_am_a_unicorn"
   }
 ]

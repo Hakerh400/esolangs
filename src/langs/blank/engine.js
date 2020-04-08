@@ -5,6 +5,7 @@ const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
+const debug = require('../../common/debug');
 const cs = require('./ctors');
 
 class Engine{
