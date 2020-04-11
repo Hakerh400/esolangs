@@ -1,0 +1,46 @@
+script{ s0 inst*s1 s0 }
+
+inst{
+  label |
+  assign |
+  set |
+  cmp |
+  jmp |
+  inp |
+  eof |
+  out |
+  nop
+}
+
+label{ ident s0 ":" }
+assign{ ident s0 "=" s0 expr }
+
+get{ "get"i s1 ident s1 ident }
+set{ "set"i s1 ident s1 ident s1 ident }
+all{ "all"i s1 ident }
+cmp{ "cmp"i s1 ident s1 ident }
+jmp{ "jmp"i s1 ident }
+inp{ "inp"i }
+eof{ "eof"i }
+out{ "out"i s1 bit }
+nop{ "nop"i }
+
+expr{
+  var |
+  get |
+  all
+}
+
+var{ ident }
+
+ident{ [a-zA-Z0-9_]+ }
+bit{ [01] }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

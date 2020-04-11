@@ -169,5 +169,9 @@
     "name": "Hello today I am a unicorn",
     "id": "unicorn",
     "details": "https://esolangs.org/wiki/Hello_today_I_am_a_unicorn"
+  }, {
+    "name": "Bunk bed",
+    "id": "bunk-bed",
+    "details": "https://esolangs.org/wiki/Bunk_bed"
   }
 ]
