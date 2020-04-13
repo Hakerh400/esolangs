@@ -1,4 +1,3 @@
-/*.bat
-/local-test
+/local-test/srcs
 /package-lock.json
 /node_modules

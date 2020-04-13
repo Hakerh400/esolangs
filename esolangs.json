@@ -173,5 +173,9 @@
     "name": "Bunk bed",
     "id": "bunk-bed",
     "details": "https://esolangs.org/wiki/Bunk_bed"
+  }, {
+    "name": "Stopwatch",
+    "id": "stopwatch",
+    "details": null
   }
 ]
