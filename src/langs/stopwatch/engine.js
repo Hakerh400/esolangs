@@ -16,8 +16,10 @@ class Engine{
   }
 
   run(){
-    const {parsed, input} = this;
+    const {parsed: prog, input} = this;
     const output = [];
+
+    O.exit(prog.toString());
 
     this.output = Buffer.from(output);
   }

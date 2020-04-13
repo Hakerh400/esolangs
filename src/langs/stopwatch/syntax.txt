@@ -1,4 +1,81 @@
-script{ s0 }
+script{ s0 func*s0 s0 }
+
+func{ ident s0 formalArgs s0 body }
+formalArgs{ "(" s0 ident*commaSep s0 ")" }
+body{ block }
+
+block{ "{" s0 stat*newLineSep s0 "}" }
+
+stat{
+  exprStat |
+  assign |
+  varDef |
+  parallel |
+  do |
+  repeat |
+  forsplits |
+  return |
+  wait |
+  out
+}
+
+exprStat{ expr }
+assign{ ident s0 "=" s0 expr }
+varDef{ "var" s1 ident }
+parallel{ "parallel" s0 block }
+do{ "do" s0 block }
+repeat{ "repeat" s0 block }
+
+forsplits{
+  "forsplits" s0
+  "(" s0 expr{2}commaSep s0 ")" s0
+  block
+}
+
+return{ "return" exprWithSep }
+wait{ "wait" exprWithSep }
+out{ "out" exprWithSep }
+
+expr{
+  exprWoutGroup |
+  group
+}
+
+exprWoutGroup{
+  watch |
+  start |
+  sleep |
+  split |
+  time |
+  stop |
+  call |
+  var |
+  literal
+}
+
+exprWithSep{
+  s1 exprWoutGroup |
+  s0 group
+}
+
+watch{ "watch" }
+start{ "start" exprWithSep }
+sleep{ "sleep" exprWithSep }
+split{ "split" exprWithSep }
+time{ "time" exprWithSep }
+stop{ "stop" exprWithSep }
+
+call{ ident s0 args }
+args{ "(" s0 expr*commaSep s0 ")" }
+var{ ident }
+group{ "(" s0 expr s0 ")" }
+
+ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
+literal{ int }
+int{ [0-9]+ }
+
+commaSep{ s0 "," s0 }
+newLineSep{ [ \t]* [\r\n] s0 }
 
 whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }

@@ -26,7 +26,7 @@ const run = async args => {
       details: null,
     });
     langsNum = arr.length;
-    O.wfs(esolangsJson, O.sf(arr).replace(/\},[\r\n]\s*\{/g, '}, {'));
+    O.wfs(esolangsJson, O.srlf(O.sf(arr).replace(/\},[\r\n]\s*\{/g, '}, {')));
   }
 
   // Update readme.md
