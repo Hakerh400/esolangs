@@ -5,17 +5,26 @@ mode{
   "prove" s1 modeProve
 }
 
-modeSolve{ vars? s0 equation*s0 }
-modeProve{ rule*s0 }
+modeSolve{
+  vars? s0
+  equation*s0
+}
+
+modeProve{
+  rule*?s0 s0
+  expr
+}
 
 equation{ expr s0 "=" s0 expr }
 
 rule{
+  label? s0
   vars? s0
   premises? s0
   expr
 }
 
+label{ identAny s0 ":" }
 vars{ "[" s0 var*commaSep s0 "]" }
 var{ ident s0 constraints? }
 constraints{ "\\" s0 "{" s0 ident*commaSep s0 "}" }
@@ -25,6 +34,7 @@ expr{ ident args? }
 args{ "(" s0 expr*commaSep s0 ")" }
 
 ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
+identAny{ [a-zA-Z0-9_]+ }
 
 commaSep{ s0 "," s0 }
 

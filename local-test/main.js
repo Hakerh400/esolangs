@@ -9,9 +9,9 @@ const cwd = __dirname;
 
 const langNameFile = path.join(cwd, 'lang.txt');
 const name = O.rfs(langNameFile, 1);
-const id = esolangs.getInfo(name).id;
+const info = esolangs.getInfo(name);
 
-const srcFile = path.join(cwd, `srcs/${id}.txt`);
+const srcFile = path.join(cwd, `srcs/${info.id}.txt`);
 const inputFile = path.join(cwd, 'input.txt');
 
 const opts = {
@@ -22,8 +22,10 @@ const opts = {
 const main = () => {
   esolangs.debugMode = 1;
 
+  const outputOnly = O.has(info, 'outputOnly') && info.outputOnly;
+
   const src = O.rfs(srcFile);
-  const input = O.rfs(inputFile);
+  const input = !outputOnly ? O.rfs(inputFile) : null;
   const output = esolangs.run(name, src, input, opts);
   
   log(String(output));

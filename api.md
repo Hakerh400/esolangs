@@ -35,6 +35,7 @@ Names and IDs are unique among all languages. Besides the above properties, the 
 * `async` - Boolean value. If true, a program in that language runs asynchronously and the result is a promise that resolves to a buffer containing the program's output.
 * `wip` - Boolean value. If true, the interpreter is still a work-in-progress.
 * `interactive` - Boolean value. If true, the interpreter can process user input in real time.
+* `outputOnly` - Boolean value. If true, a program in that language only produces output and does not take any input.
 
 If the language with the given name does not exist in the list of supported languages, the return value is `null`.
 

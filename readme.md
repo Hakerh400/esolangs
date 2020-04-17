@@ -31,10 +31,12 @@ node index <language> <source> <input> <output>
 * `<input>` - path to the file containing program's standard input.
 * `<output>` - path to the file which the program's output will be written into. The file will be overwritten if exists.
 
-If any error occurs, it will be written to the console and the output file will not be created.
+For output-only languages the `<input>` parameter should be omitted.
 
 For languages that support interactive mode (see [api.md](./api.md) for details) you can<br/>
 replace `<input> <output>` with `--interactive` flag. The standard input and output will be used instead of files.
+
+If any error occurs, it will be written to the console and the output file will not be created.
 
 ### API
 

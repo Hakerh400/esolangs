@@ -52,21 +52,21 @@ const esolangs = {
     const outputOnly = O.has(info, 'outputOnly') && info.outputOnly;
 
     if(hasInput && outputOnly)
-      esolangs.err(`Language ${O.f(name)} is an output-only language and does not take input ` +
-        `(parameter \`input\` must be null`);
+      esolangs.err(`Language ${O.sf(name)} is an output-only language and does not take input ` +
+        `(parameter \`input\` must be null)`);
 
     if(!hasInput && !outputOnly)
-      esolangs.err(`Language ${O.f(name)} is not an output-only language and must take input ` +
-        `(parameter \`input\` cannot be null`);
+      esolangs.err(`Language ${O.sf(name)} is not an output-only language and must take input ` +
+        `(parameter \`input\` cannot be null)`);
 
     const func = require(path.join(langsDir, info.id));
 
-    if(input !== null){
+    if(hasInput){
       const result = func(Buffer.from(src), Buffer.from(input), opts);
       return result;
     }
 
-    if(!('interactive' in info && info.interactive))
+    if(!outputOnly && !('interactive' in info && info.interactive))
       esolangs.err(`Language ${O.sf(name)} does not support interactive mode`);
 
     func(Buffer.from(src), null, opts);
