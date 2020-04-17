@@ -19,7 +19,7 @@ class Engine{
     const {parsed: prog, input} = this;
     const output = [];
 
-    O.exit(prog.toString());
+    const funcs = prog.funcsObj;
 
     this.output = Buffer.from(output);
   }

@@ -159,6 +159,7 @@
     "name": "Entrance",
     "id": "entrance",
     "details": null,
+    "outputOnly": true,
     "wip": true
   }, {
     "name": "Minimal operation language",
@@ -176,7 +177,7 @@
   }, {
     "name": "Stopwatch",
     "id": "stopwatch",
-    "details": null,
+    "details": "https://esolangs.org/wiki/Stopwatch",
     "wip": true
   }
 ]

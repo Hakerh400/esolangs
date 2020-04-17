@@ -30,7 +30,7 @@ class Engine{
         O.sf(MAIN_FUNC_NAME)}`);
 
     if(!(MAIN_FUNC_ARGS_NUM in funcsObj[MAIN_FUNC_NAME]))
-      esolangs.err(`There must be a definition for function ${
+      esolangs.err(`There must be a definition of function ${
         O.sf(MAIN_FUNC_NAME)} that takes ${
         O.gnum('argument', MAIN_FUNC_ARGS_NUM)}`);
 

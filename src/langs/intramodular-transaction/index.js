@@ -66,7 +66,7 @@ const run = (src, input) => {
     const opnds = opndsStr !== '' ? opndsStr.split(/\s+/).map(a => name2id(a)) : [];
     const arity = opnds.length;
 
-    if(content.trim() === '') err(`Missing definition of operator ${O.sf(id2name(opId))}`);
+    if(content.trim() === '') err(`Missing definition for operator ${O.sf(id2name(opId))}`);
     if(opId in ops) err(`Duplicate definition of ${O.sf(id2name(opId))}`);
 
     ops[opId] = {

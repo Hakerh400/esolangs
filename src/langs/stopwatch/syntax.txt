@@ -13,9 +13,8 @@ stat{
   parallel |
   do |
   repeat |
-  forsplits |
+  forSplits |
   return |
-  wait |
   out
 }
 
@@ -26,14 +25,14 @@ parallel{ "parallel" s0 block }
 do{ "do" s0 block }
 repeat{ "repeat" s0 block }
 
-forsplits{
+forSplits{
   "forsplits" s0
   "(" s0 expr{2}commaSep s0 ")" s0
   block
 }
 
 return{ "return" exprWithSep }
-wait{ "wait" exprWithSep }
+wait{ "wait" s1 "in"}
 out{ "out" exprWithSep }
 
 expr{
@@ -46,8 +45,10 @@ exprWoutGroup{
   start |
   sleep |
   split |
+  step |
   time |
   stop |
+  wait |
   call |
   var |
   literal

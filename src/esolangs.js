@@ -39,7 +39,7 @@ const esolangs = {
     return langsIdsObj[id];
   },
 
-  run(name, src, input, opts=null){
+  run(name, src, input=null, opts=null){
     const info = esolangs.getInfo(name);
 
     if(info === null)
@@ -47,6 +47,17 @@ const esolangs = {
 
     if(!this.debugMode && O.has(info, 'wip') && info.wip)
       esolangs.err(`Language ${O.sf(name)} is still a work-in-progress`);
+
+    const hasInput = input !== null;
+    const outputOnly = O.has(info, 'outputOnly') && info.outputOnly;
+
+    if(hasInput && outputOnly)
+      esolangs.err(`Language ${O.f(name)} is an output-only language and does not take input ` +
+        `(parameter \`input\` must be null`);
+
+    if(!hasInput && !outputOnly)
+      esolangs.err(`Language ${O.f(name)} is not an output-only language and must take input ` +
+        `(parameter \`input\` cannot be null`);
 
     const func = require(path.join(langsDir, info.id));
 

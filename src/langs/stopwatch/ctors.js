@@ -19,7 +19,7 @@ class Program extends Base{
       const {name} = func;
 
       if(name in funcsObj)
-        esolangs.err(`Multiple definitions for function ${
+        esolangs.err(`Multiple definitions of function ${
           O.sf(name)}\n\n${
           funcsObj[name]}\n\n${
           func}`);
@@ -130,6 +130,75 @@ class Return extends Statement{
   }
 }
 
+class Out extends Statement{
+  constructor(expr){
+    super();
+
+    this.expr = expr;
+  }
+
+  toStr(){
+    return ['out ', this.expr];
+  }
+}
+
+class Control extends Statement{}
+
+class Parallel extends Control{
+  constructor(block){
+    super();
+
+    this.block = block;
+  }
+
+  toStr(){
+    return ['parallel', this.block];
+  }
+}
+
+class Do extends Control{
+  constructor(block){
+    super();
+
+    this.block = block;
+  }
+
+  toStr(){
+    return ['do', this.block];
+  }
+}
+
+class Repeat extends Control{
+  constructor(block){
+    super();
+
+    this.block = block;
+  }
+
+  toStr(){
+    return ['repeat', this.block];
+  }
+}
+
+class ForSplits extends Control{
+  constructor(args, block){
+    super();
+
+    this.args = args;
+    this.block = block;
+  }
+
+  toStr(){
+    const arr = [];
+
+    arr.push('forsplits(');
+    this.join(arr, this.args, ', ');
+    arr.push(')', this.block);
+
+    return arr;
+  }
+}
+
 class Expression extends Base{}
 
 class Watch extends Expression{
@@ -168,12 +237,45 @@ class Split extends WatchOperation{
   get opName(){ return 'split'; }
 }
 
+class Step extends WatchOperation{
+  get opName(){ return 'step'; }
+}
+
 class Time extends WatchOperation{
   get opName(){ return 'time'; }
 }
 
 class Stop extends WatchOperation{
   get opName(){ return 'stop'; }
+}
+
+class Wait extends Expression{
+  constructor(){
+    super();
+  }
+
+  toStr(){
+    return ['wait in'];
+  }
+}
+
+class Call extends Expression{
+  constructor(name, args){
+    super();
+
+    this.name = name;
+    this.args = args;
+  }
+
+  toStr(){
+    const arr = [];
+
+    arr.push(this.name, '(');
+    this.join(arr, this.args, ', ');
+    arr.push(')');
+
+    return arr;
+  }
 }
 
 class Literal extends Expression{}
@@ -200,14 +302,23 @@ module.exports = {
   Assignment,
   VariableDefinition,
   Return,
+  Out,
+  Control,
+  Parallel,
+  Do,
+  Repeat,
+  ForSplits,
   Expression,
   Watch,
   WatchOperation,
   Start,
   Sleep,
   Split,
+  Step,
   Time,
   Stop,
+  Wait,
+  Call,
   Literal,
   Integer,
 };

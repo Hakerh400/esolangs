@@ -12,9 +12,9 @@ const cs = require('./ctors');
 const cwd = __dirname;
 const syntax = O.rfs(path.join(cwd, 'syntax.txt'), 1);
 
-const run = (src, input) => {
+const run = src => {
   const parsed = parser.parse(syntax, src, ast);
-  const eng = new Engine(parsed, Buffer.from(input));
+  const eng = new Engine(parsed);
   
   eng.run();
 

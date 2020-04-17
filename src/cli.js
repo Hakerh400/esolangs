@@ -12,29 +12,35 @@ const isInvoked = () => {
 };
 
 const exec = () => {
-  let interactive = 0;
+  const interactive = O.last(args) === '--interactive';
 
-  if(args.length === 3){
-    if(O.last(args) !== '--interactive') errArgs();
-    interactive = 1;
-  }else if(args.length !== 4) errArgs();
+  if(interactive){
+    args.pop();
+  }
 
-  const [id, fsrc] = args;
+  if(args.length < 2) errArgs();
+
+  const [id, fsrc] = args.splice(0, 2);
   const info = esolangs.getInfoById(id);
   if(info === null) err(`Unsupported language with ID ${O.sf(id)}`);
 
   const src = read(fsrc);
 
-  if(!interactive){
-    const [fin, fout] = args.slice(2);
-    const input = read(fin);
-    const output = esolangs.run(info.name, src, input);
-
-    write(fout, output);
+  if(interactive){
+    if(args.length !== 0) errArgs();
+    esolangs.run(info.name, src, null);
     return;
   }
 
-  esolangs.run(info.name, src, null);
+  if(args.length < 1 || args.length > 2) errArgs();
+
+  const hasInput = args.length === 2;
+  const fin = hasInput ? args[0] : null;
+  const fout = hasInput ? args[1] : args[0];
+  const input = hasInput ? read(fin) : null;
+  const output = esolangs.run(info.name, src, input);
+
+  write(fout, output);
 };
 
 const read = file => {
@@ -54,15 +60,22 @@ const write = (file, buf) => {
 };
 
 const errArgs = () => {
-  err(`Invalid arguments\nUsage: node index <language> <source> <input> <output>`);
+  if(process.argv.length !== 2)
+    err('Invalid arguments\n', 0);
+
+  log(
+    `Usage: node index <language> <source> <input> <output>\n` +
+    `Parameter <input> should be omitted for output-only languages\n` +
+    `For interactive mode add --interactive flag instead of <input> <output>`
+  );
 };
 
-const err = msg => {
+const err = (msg, exit=1) => {
   log(`ERROR: ${msg}`);
-  process.exit(1);
+  if(exit) process.exit(1);
 };
 
 module.exports = {
   isInvoked,
-  exec,
+  exec: () => exec(args.slice()),
 };
