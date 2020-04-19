@@ -66,10 +66,15 @@ const esolangs = {
       return result;
     }
 
-    if(!outputOnly && !('interactive' in info && info.interactive))
+    src = Buffer.from(src);
+
+    if(outputOnly)
+      return func(src, null, opts);
+
+    if(!('interactive' in info && info.interactive))
       esolangs.err(`Language ${O.sf(name)} does not support interactive mode`);
 
-    func(Buffer.from(src), null, opts);
+    func(src, null, opts);
   },
 
   async runSafe(name, src, input, opts=null, sbxOpts=null){

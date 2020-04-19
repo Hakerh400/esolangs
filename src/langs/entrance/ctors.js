@@ -6,7 +6,7 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 
-const SHOW_IDENT_INFO = 1;
+const SHOW_IDENT_INFO = 0;
 
 class Base extends O.Stringifiable{}
 
@@ -18,56 +18,12 @@ class Program extends Base{
   }
 
   toStr(){
-    const {mode} = this;
-    const arr = ['# ', mode.modeName];
-
-    if(SHOW_IDENT_INFO){
-      if(mode.identsNum !== 0){
-        arr.push('\n', this.prefixPush, '// ', '\n');
-        this.join(arr, mode.identsArr, '\n\n');
-        arr.push(this.prefixPop);
-      }
-    }
-
-    arr.push('\n\n', mode);
-
-    return arr;
+    return this.mode;
   }
 }
 
 class Mode extends Base{
-  #identsInfo = O.obj();
-  #identsNum = 0;
-
-  get identsNum(){ return this.#identsNum; }
-  get identsArr(){ return Object.values(this.#identsInfo); }
-  hasInfo(name){ return name in this.#identsInfo; }
-  getInfo(name){ return this.#identsInfo[name]; }
-
-  setInfo(name, info){
-    if(name in this.#identsInfo){
-      const infoCur = this.#identsInfo[name];
-
-      if(info.arity !== infoCur.arity)
-        esolangs.err(`Arity mismatch for identifier ${O.sf(name)}`);
-
-      return this;
-    }
-
-    this.#identsInfo[name] = info;
-    this.#identsNum++;
-  }
-
-  initInfo(){
-    this.topDown(elem => {
-      if(!(elem instanceof Expression)) return;
-
-      const info = new IdentifierInfo(elem.name, elem.arity);
-      this.setInfo(elem.name, info);
-    });
-  }
-
-  get modeName(){ return O.virtual('modeName'); }
+  get name(){ return O.virtual('name'); }
 }
 
 class ModeSolve extends Mode{
@@ -77,20 +33,149 @@ class ModeSolve extends Mode{
     this.vars = vars;
     this.eqs = eqs;
 
-    this.initInfo();
+    const identSet = this.identSet = new IdentifierSet(this);
+
+    identSet.extractInfoArr(eqs);
+    identSet.sanitize(vars);
+  }
+
+  get name(){ return 'solve'; }
+
+  get chNum(){ return this.eqs.length; }
+  getCh(i){ return this.eqs[i]; }
+
+  toStr(){
+    const arr = ['# ', this.name, this.identSet];
+
+    if(this.vars.length !== 0){
+      arr.push('\n\n[');
+      this.join(arr, this.vars, ', ');
+      arr.push(']');
+    }
+
+    if(this.eqs.length !== 0){
+      arr.push('\n\n');
+      this.join(arr, this.eqs, '\n');
+    }
+
+    return arr;
+  }
+}
+
+class ModeProve extends Mode{
+  constructor(rules, target){
+    super();
+
+    this.rules = rules;
+    this.target = target;
+
+    const identSet = this.identSet = new IdentifierSet(this);
+
+    identSet.extractInfo(this.target);
+    identSet.concat(this.rules.map(a => a.identSet));
+  }
+
+  get name(){ return 'prove'; }
+
+  get chNum(){ return this.rules.length; }
+  getCh(i){ return this.rules[i]; }
+
+  toStr(){
+    const arr = ['# ', this.name, this.identSet];
+
+    if(this.rules.length !== 0){
+      arr.push('\n\n');
+      this.join(arr, this.rules, '\n');
+    }
+
+    arr.push('\n\n', this.target);
+
+    return arr;
+  }
+}
+
+class IdentifierSet extends Base{
+  #info = O.obj();
+  #identsNum = 0;
+
+  constructor(ctx){
+    super();
+
+    this.ctx = ctx;
+  }
+
+  get identsNum(){ return this.#identsNum; }
+  get identsArr(){ return Object.values(this.#info); }
+  has(name){ return name in this.#info; }
+  get(name){ return this.#info[name]; }
+
+  concat(arr){
+    const {ctx} = this;
+
+    for(const identSet of arr){
+      for(const info of identSet){
+        const {name} = info;
+
+
+        if(!this.has(name)){
+          this.add(name, info);
+          continue;
+        }
+
+        if(!info.eq(this.get(name)))
+          esolangs.err(`Identifier ${
+            O.sf(name)} has inconsistent definitions\n\n${
+            ctx}`);
+      }
+    }
+
+    return this;
+  }
+
+  add(name, info){
+    if(name in this.#info){
+      const infoCur = this.#info[name];
+
+      if(info.arity !== infoCur.arity)
+        esolangs.err(`Arity mismatch for identifier ${O.sf(name)}`);
+
+      return this;
+    }
+
+    this.#info[name] = info;
+    this.#identsNum++;
+  }
+
+  extractInfo(elem){
+    elem.topDown(elem => {
+      if(!(elem instanceof Expression)) return;
+
+      const info = new IdentifierInfo(elem.name, elem.arity);
+      this.add(elem.name, info);
+    });
+  }
+
+  extractInfoArr(arr){
+    for(const elem of arr)
+      this.extractInfo(elem);
+  }
+
+  sanitize(vars){
+    const {ctx} = this;
 
     for(const varDef of vars){
       const {name, constraints} = varDef;
 
-      if(!this.hasInfo(name)){
-        this.setInfo(name, new IdentifierInfo(name, 0, 1));
+      if(!this.has(name)){
+        this.add(name, new IdentifierInfo(name, 0, 1));
         continue;
       }
 
-      const info = this.getInfo(name);
+      const info = this.get(name);
 
       if(info.isVar === 1)
-        esolangs.err(`Redefinition of variable ${O.sf(name)}`);
+        esolangs.err(`Redefinition of variable ${O.sf(name)}\n\n${
+        ctx}`);
 
       info.isVar = 1;
       info.constraints = constraints;
@@ -102,63 +187,100 @@ class ModeSolve extends Mode{
       for(const constraint in constraints){
         if(constraint === '#') continue;
 
-        if(!this.hasInfo(constraint)){
-          delete constraints[constraint];
-          constraints['#']--;
+        if(!this.has(constraint)){
+          // delete constraints[constraint];
+          // constraints['#']--;
           continue;
         }
 
-        const info = this.getInfo(constraint);
+        const info = this.get(constraint);
 
         if(info.isVar)
           esolangs.err(`Constraint ${
             O.sf(constraint)} for variable ${
-            O.sf(name)} must be a constant`);
+            O.sf(name)} must be a constant\n\n${
+            ctx}`);
 
         if(info.arity !== 0)
           esolangs.err(`Constraint ${
             O.sf(constraint)} for variable ${
-            O.sf(name)} must have arity 0`);
+            O.sf(name)} must have arity 0\n\n${
+            ctx}`);
       }
     }
   }
 
-  get modeName(){ return 'solve'; }
-
-  get chNum(){ return this.eqs.length; }
-  getCh(i){ return this.eqs[i]; }
-
   toStr(){
     const arr = [];
 
-    if(this.vars.length !== 0){
-      arr.push('[');
-      this.join(arr, this.vars, ', ');
-      arr.push(']\n\n');
+    if(SHOW_IDENT_INFO && this.identsNum !== 0){
+      arr.push('\n', this.prefixPush, '// ', '\n');
+      this.join(arr, this.identsArr, '\n\n');
+      arr.push(this.prefixPop);
     }
-
-    if(this.eqs.length !== 0)
-      this.join(arr, this.eqs, '\n');
 
     return arr;
   }
+
+  *[Symbol.iterator](){
+    yield* this.identsArr;
+  }
 }
 
-class ModeProve extends Mode{
-  constructor(rules){
+class IdentifierInfo extends Base{
+  constructor(name, arity, isVar=0, constraints=null){
     super();
 
-    this.rules = rules;
-    O.noimpl('ModeProve');
+    this.name = name;
+    this.arity = arity;
+    this.isVar = isVar;
+    this.constraints = constraints;
   }
 
-  get modeName(){ return 'prove'; }
+  eq(info){
+    if(!(
+      this.name === info.name &&
+      this.arity === info.arity &&
+      (this.isVar ^ info.isVar) === 0
+    )) return 0;
 
-  get chNum(){ return this.rules.length; }
-  getCh(i){ return this.rules[i]; }
+    const cs1 = this.constraints;
+    const cs2 = info.constraints;
+
+    if(cs1 === null || cs2 === null)
+      return cs1 === cs2;
+
+    for(const key in cs1)
+      if(!(key in cs2))
+        return 0;
+
+    for(const key in cs2)
+      if(!(key in cs1))
+        return 0;
+
+    return 1;
+  }
 
   toStr(){
-    return this.join([], this.rules, '\n');
+    const arr = [
+      this.inc, this.name, ':',
+      '\narity: ', String(this.arity),
+      '\ntype: ', this.isVar ? 'variable' : 'constant',
+    ];
+
+    if(this.constraints !== null){
+      const constraints = O.keys(this.constraints).filter(a => a !== '#');
+
+      if(constraints.length !== 0){
+        arr.push('\nconstraints: {');
+        this.join(arr, constraints, ', ');
+        arr.push('}');
+      }
+    }
+
+    arr.push(this.dec);
+
+    return arr;
   }
 }
 
@@ -178,17 +300,27 @@ class Equation extends Base{
   }
 }
 
-class Rule extends Base{
-  constructor(vars, premises, conclusion){
+class InferenceRule extends Base{
+  constructor(name, vars, premises, conclusion){
     super();
 
+    this.name = name;
     this.vars = vars;
     this.premises = premises;
     this.conclusion = conclusion;
+
+    const identSet = this.identSet = new IdentifierSet(this);
+
+    identSet.extractInfoArr(premises);
+    identSet.extractInfoArr(conclusion);
+    identSet.sanitize(vars);
   }
 
   toStr(){
     const arr = [];
+
+    if(this.name !== null)
+      arr.push(this.name, ': ');
 
     if(this.vars.length !== 0){
       arr.push('[');
@@ -327,47 +459,16 @@ class Expression extends Base{
   }
 }
 
-class IdentifierInfo extends Base{
-  constructor(name, arity, isVar=0, constraints=null){
-    super();
-
-    this.name = name;
-    this.arity = arity;
-    this.isVar = isVar;
-    this.constraints = constraints;
-  }
-
-  toStr(){
-    const arr = [
-      this.inc, this.name, ':',
-      '\narity: ', String(this.arity),
-      '\ntype: ', this.isVar ? 'variable' : 'constant',
-    ];
-
-    if(this.constraints !== null){
-      const constraints = O.keys(this.constraints).filter(a => a !== '#');
-
-      if(constraints.length !== 0){
-        arr.push('\nconstraints: {');
-        this.join(arr, constraints, ', ');
-        arr.push('}');
-      }
-    }
-
-    arr.push(this.dec);
-
-    return arr;
-  }
-}
-
 module.exports = {
   Base,
   Program,
   Mode,
   ModeSolve,
   ModeProve,
+  IdentifierSet,
+  IdentifierInfo,
   Equation,
-  Rule,
+  InferenceRule,
   VariableDefinition,
   Expression,
 };

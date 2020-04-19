@@ -20,6 +20,29 @@ class Engine{
 
   run(){
     const {parsed: prog} = this;
+    const modeName = prog.mode.name;
+
+    if(modeName === 'solve'){
+      this.modeSolve();
+      return;
+    }
+
+    if(modeName === 'prove'){
+      this.modeProve();
+      return;
+    }
+
+    assert.fail(modeName);
+  }
+
+  modeProve(){
+    const {parsed: prog} = this;
+
+    O.exit(prog+'');
+  }
+
+  modeSolve(){
+    const {parsed: prog} = this;
     const {mode} = prog;
     const varDefs = mode.vars;
     const queue = new O.PriorityQueue();
@@ -58,9 +81,7 @@ class Engine{
 
     // Main loop
     mainLoop: while(1){
-      if(queue.isEmpty){
-        return noSol();
-      }
+      if(queue.isEmpty) return noSol();
 
       const state = queue.pop();
       const {vars, eqs} = state;
@@ -127,6 +148,8 @@ class Engine{
 
       if(DEBUG) debug(`\n${'='.repeat(100)}`);
     }
+
+    assert.fail();
   }
   
   getOutput(){
