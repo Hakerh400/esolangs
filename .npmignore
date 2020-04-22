@@ -1,3 +1,5 @@
-/local-test/srcs
 /package-lock.json
 /node_modules
+/local-test/srcs
+/local-test/lang.txt
+/local-test/input.txt
