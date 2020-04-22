@@ -179,5 +179,9 @@
     "id": "stopwatch",
     "details": "https://esolangs.org/wiki/Stopwatch",
     "wip": true
+  }, {
+    "name": "Gummy Bear",
+    "id": "gummy-bear",
+    "details": "https://esolangs.org/wiki/Gummy_Bear"
   }
 ]

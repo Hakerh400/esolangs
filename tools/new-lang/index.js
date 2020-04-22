@@ -87,7 +87,7 @@ const openFile = file => {
     const {textEditor} = config;
     if(textEditor === null) return res(null);
 
-    const proc = cp.spawn(textEditor, [dest]);
+    const proc = cp.spawn(textEditor, [file]);
 
     proc.on('exit', code => {
       if(code === 0) res(0);

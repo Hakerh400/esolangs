@@ -1,0 +1,21 @@
+script{ s0 rule*s0 s0 }
+
+rule{ lhs rhsOrEnd }
+
+lhs{ lhs1 "." lhs2 }
+lhs1{ "#"? bits }
+lhs2{ bits "#"? }
+
+rhsOrEnd{ "." rhs | "~" }
+rhs{ bits{2}"." }
+
+bits{ [01]* }
+
+whitespace{ [ \r\n\t|] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }
