@@ -183,5 +183,9 @@
     "name": "Gummy Bear",
     "id": "gummy-bear",
     "details": "https://esolangs.org/wiki/Gummy_Bear"
+  }, {
+    "name": "Happy Fantasy",
+    "id": "happy-fantasy",
+    "details": "https://esolangs.org/wiki/Happy_Fantasy"
   }
 ]
