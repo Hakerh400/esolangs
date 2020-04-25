@@ -387,6 +387,15 @@ class Expression extends Base{
     this.name = name;
     this.args = args;
     this.isArg = isArg;
+
+    {
+      let id = String(this.name);
+
+      if(args.length !== 0)
+        id += `(${args.join(', ')})`;
+
+      this.id = id;
+    }
   }
 
   get chNum(){ return this.args.length; }
@@ -447,15 +456,7 @@ class Expression extends Base{
   }
 
   toStr(){
-    const arr = [String(this.name)];
-
-    if(this.args.length !== 0){
-      arr.push('(');
-      this.join(arr, this.args, ', ');
-      arr.push(')');
-    }
-
-    return arr;
+    return this.id;
   }
 }
 

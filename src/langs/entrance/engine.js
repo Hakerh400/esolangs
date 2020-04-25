@@ -8,7 +8,7 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const cs = require('./ctors');
 
-const DEBUG = 0;
+const DEBUG = 1;
 
 const anyExpr = cs.Expression.any;
 
@@ -37,57 +37,43 @@ class Engine{
 
   modeProve(){
     const {parsed: prog} = this;
-
-    O.exit(prog+'');
-  }
-
-  modeSolve(){
-    const {parsed: prog} = this;
     const {mode} = prog;
     const varDefs = mode.vars;
     const queue = new O.PriorityQueue();
 
-    const getSol = state => {
-      this.output = state.getSolution(varDefs).toString();
+    const getProof = state => {
+      O.noimpl();
     };
 
-    const noSol = () => {
-      this.output = 'No solution exists';
-    };
-
-    let auxVarsNum = 0n;
-
-    const getAuxName = () => {
-      return `_${auxVarsNum++}`;
+    const noProof = () => {
+      this.output = 'The statement is unprovable within the system';
     };
 
     // Init the first state
     {
+      const targets = new TargetCollection();
+      targets.add(mode.target);
+
       const vars = new VariablesSet();
       const eqs = new EquationsSystem(vars);
-
-      for(const varDef of mode.vars)
-        vars.add(varDef.name, varDef.constraints);
-
-      for(const eq of mode.eqs)
-        if(!eqs.push(new Equation(eq.lhs, eq.rhs)))
-          return noSol();
-
-      const state = new EquationsSystemState(null, null, eqs);
-      if(state.solved) return getSol(state);
+      const state = new State(null, targets, eqs);
 
       queue.push(state);
     }
 
     // Main loop
     mainLoop: while(1){
-      if(queue.isEmpty) return noSol();
+      if(queue.isEmpty) return noProof();
 
       const state = queue.pop();
-      const {vars, eqs} = state;
 
       if(DEBUG) log(state.toString());
 
+      if(state.solved){
+        O.noimpl();
+      }
+
+      const {vars, eqs} = state;
       const eq = eqs.top();
       const {lhs, rhs} = eq;
       const lhsArity = lhs.arity;
@@ -111,7 +97,112 @@ class Engine{
         const eqsNew = eqs.subst(varsNew, binding);
         if(eqsNew === null) continue mode1;
 
-        const stateNew = new EquationsSystemState(state, binding, eqsNew);
+        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew);
+        if(stateNew.proved) return getProof(stateNew);
+        
+        queue.push(stateNew);
+      }
+
+      // f(x) = A(B) -> f: A(f1(0))
+      mode2: {
+        if(rhs.arity === 0 && rhs.name in constraints)
+          break mode2;
+
+        const varsNew = varsRest.copy();
+
+        const binding = new Binding(
+          varName,
+          new cs.Expression(rhs.name, O.ca(rhsArity, i => {
+            const name = getAuxVarName();
+
+            varsNew.add(name, constraints);
+
+            return new cs.Expression(name, O.ca(lhsArity, i => {
+              return cs.Expression.arg(i);
+            }));
+          })),
+        );
+
+        const eqsNew = eqs.subst(varsNew, binding);
+        if(eqsNew === null) break mode2;
+
+        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, rhsArity);
+        if(stateNew.proved) return getProof(stateNew);
+        
+        queue.push(stateNew);
+      }
+
+      if(DEBUG) debug(`\n${'='.repeat(100)}`);
+    }
+
+    assert.fail();
+  }
+
+  modeSolve(){
+    const {parsed: prog} = this;
+    const {mode} = prog;
+    const varDefs = mode.vars;
+    const queue = new O.PriorityQueue();
+
+    const getSol = state => {
+      this.output = state.getSolution(varDefs).toString();
+    };
+
+    const noSol = () => {
+      this.output = 'No solution exists';
+    };
+
+    // Init the first state
+    {
+      const vars = new VariablesSet();
+      const eqs = new EquationsSystem(vars);
+
+      for(const varDef of mode.vars)
+        vars.add(varDef.name, varDef.constraints);
+
+      for(const eq of mode.eqs)
+        if(!eqs.push(new Equation(eq.lhs, eq.rhs)))
+          return noSol();
+
+      const state = new State(null, null, eqs);
+      if(state.solved) return getSol(state);
+
+      queue.push(state);
+    }
+
+    // Main loop
+    mainLoop: while(1){
+      if(queue.isEmpty) return noSol();
+
+      const state = queue.pop();
+
+      if(DEBUG) log(state.toString());
+
+      const {vars, eqs} = state;
+      const eq = eqs.top();
+      const {lhs, rhs} = eq;
+      const lhsArity = lhs.arity;
+      const rhsArity = rhs.arity;
+
+      const varName = lhs.name;
+      const constraints = vars.get(varName);
+
+      const varsRest = vars.copy();
+      varsRest.remove(varName);
+
+      // f(x) -> x
+      mode1: for(let i = 0; i !== lhsArity; i++){
+        const varsNew = varsRest;
+
+        const binding = new Binding(
+          varName,
+          cs.Expression.arg(i),
+        );
+
+        const eqsNew = eqs.subst(varsNew, binding);
+        if(eqsNew === null) continue mode1;
+
+        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, 0, state.auxVarsNum);
         if(stateNew.solved) return getSol(stateNew);
         
         queue.push(stateNew);
@@ -127,7 +218,7 @@ class Engine{
         const binding = new Binding(
           varName,
           new cs.Expression(rhs.name, O.ca(rhsArity, i => {
-            const name = getAuxName();
+            const name = state.getAuxVarName();
 
             varsNew.add(name, constraints);
 
@@ -140,7 +231,7 @@ class Engine{
         const eqsNew = eqs.subst(varsNew, binding);
         if(eqsNew === null) break mode2;
 
-        const stateNew = new EquationsSystemState(state, binding, eqsNew, rhsArity);
+        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, rhsArity, state.auxVarsNum);
         if(stateNew.solved) return getSol(stateNew);
         
         queue.push(stateNew);
@@ -157,14 +248,18 @@ class Engine{
   }
 }
 
-class EquationsSystemState extends O.Comparable{
-  constructor(prev, binding, eqs, newVarsNum=0){
+class State extends O.Comparable{
+  constructor(transition, targets, eqs, newVarsNum=0, auxVarsNum=0){
     super();
 
-    this.prev = prev;
-    this.binding = binding;
-    this.vars = eqs.vars;
+    this.transition = transition;
+
+    const prev = transition !== null ?
+      transition.prev : null;
+
+    this.targets = targets;
     this.eqs = eqs;
+    this.vars = eqs.vars;
 
     this.depth = prev !== null ?
       prev.depth + 1 : 0;
@@ -172,9 +267,16 @@ class EquationsSystemState extends O.Comparable{
     this.varsTotal = prev !== null ?
       prev.varsTotal + newVarsNum :
       this.vars.size;
+
+    this.auxVarsNum = auxVarsNum;
   }
 
+  get proved(){ return this.targets.length === 0 && this.solved; }
   get solved(){ return this.eqs.solved; }
+
+  getAuxVarName(){
+    return `_${this.auxVarsNum++}`;
+  }
 
   getSolution(varDefs){
     const sol = new Solution();
@@ -183,13 +285,13 @@ class EquationsSystemState extends O.Comparable{
     for(const name in this.vars.constraints)
       vars[name] = anyExpr;
 
-    let system = this;
+    let state = this;
 
-    while(system.prev !== null){
-      const {binding, prev} = system;
+    while(state.transition !== null){
+      const {binding, prev} = state.transition;
 
       vars[binding.name] = binding.expr.substVars(vars);
-      system = prev;
+      state = prev;
     }
 
     for(const varDef of varDefs){
@@ -219,7 +321,103 @@ class EquationsSystemState extends O.Comparable{
   }
 
   toString(){
-    return `${this.vars}\n\n${this.eqs}`;
+    let str = '';
+
+    if(this.targets !== null)
+      str += `${this.targets}\n${'-'.repeat(10)}\n`;
+
+    if(this.vars.size !== 0)
+      str += `${this.vars}\n\n`;
+
+    if(this.eqs.len !== 0)
+      str += this.eqs;
+
+    return str.trim();
+  }
+}
+
+class Transition{
+  constructor(prev){
+    this.prev = prev;
+  }
+
+  get isInference(){ return 0; }
+  get isBinding(){ return 0; }
+}
+
+class InferenceTransition extends Transition{
+  constructor(prev, rule){
+    super(prev);
+    this.rule = rule;
+  }
+
+  get isInference(){ return 1; }
+}
+
+class BindingTransition extends Transition{
+  constructor(prev, binding){
+    super(prev);
+    this.binding = binding;
+  }
+
+  get isBinding(){ return 1; }
+}
+
+class TargetCollection{
+  valid = 1;
+
+  constructor(stack=[], found=O.obj(), expanded=O.obj()){
+    this.stack = stack;
+    this.found = found;
+    this.expanded = expanded;
+  }
+
+  copy(){
+    return new TargetCollection(
+      this.stack.slice(),
+      O.assign(O.obj(), this.found),
+      O.assign(O.obj(), this.expanded),
+    );
+  }
+
+  add(expr){
+    const {stack, found, expanded} = this;
+    const {id} = expr;
+
+    if(id in expanded){
+      this.valid = 0;
+      return 0;
+    }
+
+    stack.push(expr);
+    return 1;
+  }
+
+  addArr(arr){
+    for(let i = arr.length - 1; i !== -1; i--)
+      if(!this.add(arr[i]))
+        return 0;
+
+    return 1;
+  }
+
+  toString(){
+    const {stack, found, expanded} = this;
+    const ids = [];
+
+    for(const expr in found)
+      exprs.push(expr.id);
+
+    for(let i = stack.length - 1; i !== -1; i--){
+      const expr = stack[i];
+
+      let {id} = expr;
+      if(id in expanded) id = `~${id}`;
+
+      ids.push(id);
+    }
+
+    return ids.join('\n');
   }
 }
 
