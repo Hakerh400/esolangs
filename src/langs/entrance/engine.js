@@ -38,7 +38,7 @@ class Engine{
   modeProve(){
     const {parsed: prog} = this;
     const {mode} = prog;
-    const varDefs = mode.vars;
+    const {rules} = mode;
     const queue = new O.PriorityQueue();
 
     const getProof = state => {
@@ -51,8 +51,8 @@ class Engine{
 
     // Init the first state
     {
-      const targets = new TargetCollection();
-      targets.add(mode.target);
+      const targets = new TargetsCollection();
+      targets.push(mode.target);
 
       const vars = new VariablesSet();
       const eqs = new EquationsSystem(vars);
@@ -67,10 +67,22 @@ class Engine{
 
       const state = queue.pop();
 
-      if(DEBUG) log(state.toString());
+      if(DEBUG) debug(state.toString());
 
       if(state.solved){
-        O.noimpl();
+        for(const rule of rules){
+          const {premises, conclusion} = rule;
+
+          const transition = new InferenceTransition(state, rule);
+          const targetsNew = state.targets.copy();
+
+          const stateNew = new State(transition, targetsNew, eqsNew);
+          if(stateNew.proved) return getProof(stateNew);
+          
+          queue.push(stateNew);
+        }
+
+        continue;
       }
 
       const {vars, eqs} = state;
@@ -97,7 +109,7 @@ class Engine{
         const eqsNew = eqs.subst(varsNew, binding);
         if(eqsNew === null) continue mode1;
 
-        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew);
+        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, state.varsTotal, state.auxVarsNum);
         if(stateNew.proved) return getProof(stateNew);
         
         queue.push(stateNew);
@@ -126,7 +138,7 @@ class Engine{
         const eqsNew = eqs.subst(varsNew, binding);
         if(eqsNew === null) break mode2;
 
-        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, rhsArity);
+        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, state.varsTotal + rhsArity, state.auxVarsNum);
         if(stateNew.proved) return getProof(stateNew);
         
         queue.push(stateNew);
@@ -176,7 +188,7 @@ class Engine{
 
       const state = queue.pop();
 
-      if(DEBUG) log(state.toString());
+      if(DEBUG) debug(state.toString());
 
       const {vars, eqs} = state;
       const eq = eqs.top();
@@ -202,7 +214,7 @@ class Engine{
         const eqsNew = eqs.subst(varsNew, binding);
         if(eqsNew === null) continue mode1;
 
-        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, 0, state.auxVarsNum);
+        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, state.varsTotal, state.auxVarsNum);
         if(stateNew.solved) return getSol(stateNew);
         
         queue.push(stateNew);
@@ -231,7 +243,7 @@ class Engine{
         const eqsNew = eqs.subst(varsNew, binding);
         if(eqsNew === null) break mode2;
 
-        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, rhsArity, state.auxVarsNum);
+        const stateNew = new State(new BindingTransition(state, binding), null, eqsNew, state.varsTotal + rhsArity, state.auxVarsNum);
         if(stateNew.solved) return getSol(stateNew);
         
         queue.push(stateNew);
@@ -249,7 +261,7 @@ class Engine{
 }
 
 class State extends O.Comparable{
-  constructor(transition, targets, eqs, newVarsNum=0, auxVarsNum=0){
+  constructor(transition, targets, eqs, varsTotal=0, auxVarsNum=0){
     super();
 
     this.transition = transition;
@@ -264,14 +276,11 @@ class State extends O.Comparable{
     this.depth = prev !== null ?
       prev.depth + 1 : 0;
 
-    this.varsTotal = prev !== null ?
-      prev.varsTotal + newVarsNum :
-      this.vars.size;
-
+    this.varsTotal = varsTotal
     this.auxVarsNum = auxVarsNum;
   }
 
-  get proved(){ return this.targets.length === 0 && this.solved; }
+  get proved(){ return this.targets.len === 0 && this.solved; }
   get solved(){ return this.eqs.solved; }
 
   getAuxVarName(){
@@ -314,6 +323,7 @@ class State extends O.Comparable{
 
   cmp(state){
     return (
+      this.targets !== null && this.targets.len - state.targets.len ||
       this.varsTotal - state.varsTotal ||
       this.eqs.len - state.eqs.len ||
       this.vars.size - state.vars.size
@@ -363,25 +373,33 @@ class BindingTransition extends Transition{
   get isBinding(){ return 1; }
 }
 
-class TargetCollection{
+class TargetsCollection{
   valid = 1;
 
-  constructor(stack=[], found=O.obj(), expanded=O.obj()){
+  constructor(stack=[], pending=O.obj(), expanded=O.obj(), found=O.obj()){
     this.stack = stack;
-    this.found = found;
+    this.pending = pending;
     this.expanded = expanded;
+    this.found = found;
   }
 
+  get len(){ return this.arr.length; }
+
   copy(){
-    return new TargetCollection(
+    return new TargetsCollection(
       this.stack.slice(),
-      O.assign(O.obj(), this.found),
+      O.assign(O.obj(), this.pending),
       O.assign(O.obj(), this.expanded),
+      O.assign(O.obj(), this.found),
     );
   }
 
-  add(expr){
-    const {stack, found, expanded} = this;
+  top(){
+    return O.last(this.stack);
+  }
+
+  push(expr){
+    const {stack, expanded, found} = this;
     const {id} = expr;
 
     if(id in expanded){
@@ -390,19 +408,45 @@ class TargetCollection{
     }
 
     stack.push(expr);
+    this.simplify();
+
     return 1;
   }
 
-  addArr(arr){
+  pushArr(arr){
     for(let i = arr.length - 1; i !== -1; i--)
-      if(!this.add(arr[i]))
+      if(!this.push(arr[i]))
         return 0;
 
     return 1;
   }
 
+  pop(){
+    const expr = this.stack.pop();
+    this.simplify();
+    return expr;
+  }
+
+  simplify(){
+    const {stack, expanded, found} = this;
+
+    while(stack.lenth !== 0){
+      const expr = O.last(stack);
+      const {id} = expr;
+
+      if(id in found){
+        stack.pop();
+        continue;
+      }
+
+      break;
+    }
+
+    return this;
+  }
+
   toString(){
-    const {stack, found, expanded} = this;
+    const {stack, expanded, found} = this;
     const ids = [];
 
     for(const expr in found)

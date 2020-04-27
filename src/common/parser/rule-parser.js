@@ -13,11 +13,9 @@ const Range = require('./range');
 // TODO: linter: require latest node version
 // TODO: linter: no semicolon after class
 
-module.exports = {
-  parse,
-};
+const MAX_INT = Number.MAX_SAFE_INTEGER;
 
-function parse(syntax, str){
+const parse = (syntax, str) => {
   str = str.replace(/\r\n|\r|\n/g, '\n');
 
   const len = str.length; // String length
@@ -81,8 +79,19 @@ function parse(syntax, str){
     lastChar = c;
   };
 
-  const s = () => { while(neof() && /\s/.test(c(0))) c(); }; // Read zero or more spaces
-  const ss = () => { if(eof() || /\S/.test(c(0))) err('Missing space'); }; // Read one or more spaces
+  // Read zero or more spaces
+  const s = () => {
+    while(neof() && /\s/.test(c(0)))
+      c();
+  };
+
+  // Read one or more spaces
+  const ss = () => {
+    if(eof() || /\S/.test(c(0)))
+      err('Missing space');
+
+    s();
+  };
 
   // Match char and surrounding spaces
   const sc = (char, modify) => {
@@ -102,7 +111,7 @@ function parse(syntax, str){
 
   // Ensure that parsed integer is not too large
   const checkNum = num => {
-    if(num >= 2 ** 24) err('Too large number');
+    if(num > MAX_INT) err('Too large number');
     return num;
   };
 
@@ -556,3 +565,7 @@ function parse(syntax, str){
 
   return rules;
 }
+
+module.exports = {
+  parse,
+};
