@@ -4,7 +4,7 @@
 
 This is a collection of interpreters for [esoteric programming languages](https://esolangs.org/wiki/Main_Page).
 
-**Number of languages:** 44
+**Number of languages:** 45
 
 ## How to install
 

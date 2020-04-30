@@ -187,5 +187,9 @@
     "name": "Happy Fantasy",
     "id": "happy-fantasy",
     "details": "https://esolangs.org/wiki/Happy_Fantasy"
+  }, {
+    "name": "Double Helix",
+    "id": "double-helix",
+    "details": "https://esolangs.org/wiki/Double_Helix"
   }
 ]
