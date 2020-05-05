@@ -1,0 +1,25 @@
+script{ s0 sections s0 }
+
+sections{ firstSection section*s0 }
+firstSection{ start? s0 insts }
+section{ start s0 insts }
+start{ num s0 ":" }
+
+insts{ inst*s0 }
+inst{ num | rept }
+
+rept{ num s0 "{" s0 insts s0 "}" }
+
+num{ "-"? numAbs }
+numAbs{ numDec | numHex }
+numDec{ "0" | [1-9] [0-9]* }
+numHex{ "0x"i [0-9]+ }
+
+whitespace{ [ \r\n\t,|] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }
