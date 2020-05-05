@@ -23,11 +23,13 @@ class Engine{
     const {parsed: prog, input} = this;
     const mem = new Memory();
 
-    const getMemStr = (start=0n, len=48n, pad=3) => {
+    const getMemStr = (start=0n, len=50n) => {
       let str = '';
 
-      for(let i = 0n; i !== len; i++)
-        str += String(mem.get(i)).padStart(pad);
+      for(let i = 0n; i !== len; i++){
+        if(i !== 0n) str += ' ';
+        str += mem.get(i);
+      }
 
       return str;
     };
@@ -83,7 +85,7 @@ class Engine{
 
     mainLoop: while(1){
       if(DEBUG){
-        debug(getMemStr());
+        log(getMemStr());
       }
 
       const regsAddr = mem.get(0n);
@@ -121,17 +123,32 @@ class Engine{
       };
 
       if(inst > 0n){
+        if(DEBUG){
+          log(`---> ${inst - 1n}`);
+          debug();
+        }
+
         push(inst - 1n);
         tr.commit();
         continue;
       }
 
       if(inst < 0n){
-        const opCode = ~inst & 0x31n;
+        const opCode = Number(~inst & 0x1Fn);
         const arity = opArity[opCode];
         const ops = getElems(arity);
 
-        switch(opCode + 1n){
+        if(DEBUG){
+          log(`${[
+            'neg', 'inc', 'dec', 'and', 'or', 'xor', 'shl', 'shr',
+            'add', 'sub', 'mul', 'div', 'eq', 'neq', 'lt', 'lte',
+            'push', 'pop', 'get', 'set', 'geta', 'seta', 'getv', 'setv',
+            'gets', 'sets', 'copy', 'if', 'jmp', 'call', 'enter', 'leave',
+          ][opCode]} ${ops.join(' ')}`);
+          debug();
+        }
+
+        switch(opCode + 1){
           case 0x01: // neg num
             push(-ops[0]);
             break;
