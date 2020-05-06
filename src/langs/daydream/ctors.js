@@ -16,9 +16,9 @@ class Program extends Base{
 }
 
 class Section extends Base{
-  constructor(start, insts){
+  constructor(offset, insts){
     super();
-    this.start = start;
+    this.offset = offset;
     this.insts = insts;
   }
 }

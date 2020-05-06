@@ -281,11 +281,18 @@ class ParseElem extends Parse{
     let {node} = this;
 
     const done = () => {
-      th.ret(
-        node.getLen() >= lenMin ?
-        node.update() :
-        node.reset()
-      );
+      const hasLookahead = elem.lookahead !== null;
+      let success = node.getLen() >= lenMin;
+
+      if(hasLookahead){
+        if(!elem.lookahead) success = !success;
+        if(success) node.setLookahead(1);
+      }else{
+        if(success) node.update();
+        else node.reset();
+      }
+
+      th.ret(node);
     };
 
     if(node.arr.length === lenMax) return done();

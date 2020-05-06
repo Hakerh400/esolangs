@@ -23,6 +23,8 @@ class AST extends SG.Node{
 class ASTNode extends SG.Node{
   static ptrsNum = this.keys(['ast', 'ref']);
 
+  lookahead = 0;
+
   constructor(graph, ast=null, index=0, ref=null){
     super(graph);
     if(graph.dsr) return;
@@ -60,6 +62,12 @@ class ASTNode extends SG.Node{
 
   reset(){ O.virtual('reset'); }
   update(){ O.virtual('update'); }
+
+  setLookahead(){
+    this.lookahead = 1;
+    this.len = 0;
+    this.done = 1;
+  }
 
   err(msg){
     const {g} = this;
@@ -107,6 +115,7 @@ class ASTDef extends ASTNode{
     this.pats.length = 0;
     this.pat = null;
     this.patIndex = 0;
+
     return this;
   }
 
@@ -201,6 +210,7 @@ class ASTElem extends ASTNode{
   reset(){
     this.arr.length = 0;
     this.seps.length = 0;
+
     return this;
   }
 }

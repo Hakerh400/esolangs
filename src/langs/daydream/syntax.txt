@@ -1,21 +1,85 @@
-script{ s0 sections s0 }
+script{ s0 globalStat*s0 s0 }
 
-sections{ firstSection section*s0 }
-firstSection{ start? s0 insts }
-section{ start s0 insts }
-start{ num s0 ":" }
+globalStat{
+  asm
+}
 
-insts{ inst*s0 }
-inst{ num | rept }
+asm{ "asm" s0 "{" s0 asmElem* s0 "}" }
 
-rept{ num s0 "{" s0 insts s0 "}" }
+asmElem{
+  asmInt |
+  asmInst |
+  asmIO |
+  asmReg |
+  asmGroup |
+  bytecode
+}
 
-num{ "-"? numAbs }
-numAbs{ numDec | numHex }
-numDec{ "0" | [1-9] [0-9]* }
-numHex{ "0x"i [0-9]+ }
+asmInt{ int }
+asmIO{ "io"i !letter s0 asmElem }
+asmReg{ asmRegName !letter }
+asmGroup{ "(" s0 asmElem*s0 s0 ")" }
 
-whitespace{ [ \r\n\t,|] }
+asmRegName{
+  "ip"i |
+  "bp"i |
+  "sp"i
+}
+
+asmInst{
+  "neg"i   !letter s0 asmElem{1}
+  "inc"i   !letter s0 asmElem{1}
+  "dec"i   !letter s0 asmElem{1}
+  "and"i   !letter s0 asmElem{2}
+  "or"i    !letter s0 asmElem{2}
+  "xor"i   !letter s0 asmElem{2}
+  "shl"i   !letter s0 asmElem{2}
+  "shr"i   !letter s0 asmElem{2}
+  "add"i   !letter s0 asmElem{2}
+  "sub"i   !letter s0 asmElem{2}
+  "mul"i   !letter s0 asmElem{2}
+  "div"i   !letter s0 asmElem{2}
+  "eq"i    !letter s0 asmElem{2}
+  "neq"i   !letter s0 asmElem{2}
+  "lt"i    !letter s0 asmElem{2}
+  "lte"i   !letter s0 asmElem{2}
+  "push"i  !letter s0 asmElem{1}
+  "pop"i   !letter s0 asmElem{1}
+  "get"i   !letter s0 asmElem{1}
+  "set"i   !letter s0 asmElem{2}
+  "geta"i  !letter s0 asmElem{1}
+  "seta"i  !letter s0 asmElem{2}
+  "getv"i  !letter s0 asmElem{1}
+  "setv"i  !letter s0 asmElem{2}
+  "gets"i  !letter s0 asmElem{1}
+  "sets"i  !letter s0 asmElem{2}
+  "copy"i  !letter s0 asmElem{3}
+  "if"i    !letter s0 asmElem{1}
+  "jmp"i   !letter s0 asmElem{1}
+  "call"i  !letter s0 asmElem{1}
+  "enter"i !letter s0 asmElem{1}
+  "leave"i !letter s0 asmElem{2}
+}
+
+bytecode{ "#" s0 "{" s0 bytecodeSection* s0 "}" }
+
+bytecodeSection{ bytecodeOffset s0 bytecodeInsts }
+bytecodeOffset{ "[" s0 int s0 "]" }
+
+bytecodeInsts{ bytecodeInst*s0 }
+bytecodeInst{ bytecodeInt | bytecodeRept }
+
+bytecodeInt{ int }
+bytecodeRept{ int s0 "{" s0 bytecodeInsts s0 "}" }
+
+int{ "-"? intAbs }
+intAbs{ intDec | intHex }
+intDec{ "0" | [1-9] [0-9]* }
+intHex{ "0x"i [0-9]+ }
+
+letter{ [a-zA-Z] }
+
+whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }
 inlineComment{ "//" [^\r\n]* }
 multilineComment{ "/*" .*? "*/"}

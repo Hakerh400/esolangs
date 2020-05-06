@@ -9,6 +9,7 @@ const debug = require('../../common/debug');
 const cs = require('./ctors');
 const Memory = require('./memory');
 const opArity = require('./arity');
+const opMnemonics = require('./mnemonics');
 
 const DEBUG = 0;
 
@@ -48,7 +49,7 @@ class Engine{
 
       for(const sect of prog.sects){
         const stack = [[sect.insts, 1n, 0n]];
-        let addr = sect.start;
+        let addr = sect.offset;
 
         while(stack.length !== 0){
           const info = O.last(stack);
@@ -139,12 +140,7 @@ class Engine{
         const ops = getElems(arity);
 
         if(DEBUG){
-          log(`${[
-            'neg', 'inc', 'dec', 'and', 'or', 'xor', 'shl', 'shr',
-            'add', 'sub', 'mul', 'div', 'eq', 'neq', 'lt', 'lte',
-            'push', 'pop', 'get', 'set', 'geta', 'seta', 'getv', 'setv',
-            'gets', 'sets', 'copy', 'if', 'jmp', 'call', 'enter', 'leave',
-          ][opCode]} ${ops.join(' ')}`);
+          log(`${opMnemonics[opCode]} ${ops.join(' ')}`);
           debug();
         }
 
@@ -241,32 +237,32 @@ class Engine{
             push(mem.get(ops[0]));
             break;
 
-          case 0x14: // set val addr
-            tr.set(ops[1], ops[0]);
+          case 0x14: // set addr val
+            tr.set(ops[0], ops[1]);
             break;
 
           case 0x15: // geta addr
             push(mem.get(bp - ops[0] - 3n));
             break;
 
-          case 0x16: // seta val addr
-            tr.set(bp - ops[1] - 3n, ops[0]);
+          case 0x16: // seta addr val
+            tr.set(bp - ops[0] - 3n, ops[1]);
             break;
 
           case 0x17: // getv addr
             push(mem.get(bp + ops[0]));
             break;
 
-          case 0x18: // setv val addr
-            tr.set(bp + ops[1], ops[0]);
+          case 0x18: // setv addr val
+            tr.set(bp + ops[0], ops[1]);
             break;
 
           case 0x19: // gets addr
             push(mem.get(sp - ops[0] - 1n));
             break;
 
-          case 0x1A: // sets val addr
-            tr.set(sp - ops[1] - 1n, ops[0]);
+          case 0x1A: // sets addr val
+            tr.set(sp - ops[0] - 1n, ops[1]);
             break;
 
           case 0x1B: // copy src size dest

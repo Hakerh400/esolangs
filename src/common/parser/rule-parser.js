@@ -195,8 +195,16 @@ const parse = (syntax, str) => {
      * with `extra` set to 0 unconditionally
      */
 
-    const char = sc(0);
+    let char = sc(0);
+    let lookahead = null;
     let elem;
+
+    // Positive and negative lookahead
+    if(/[:!]/.test(char)){
+      lookahead = char === ':';
+      sc(1);
+      char = sc(0);
+    }
 
     if(char === '"'){ // Literal string
       elem = newElem(Element.String);
@@ -302,6 +310,9 @@ const parse = (syntax, str) => {
     }else{
       err('Unexpected token in pattern');
     }
+
+    // Set the lookahead
+    elem.lookahead = lookahead;
 
     // Try to parse extra data (range, greediness and separator)
     ext: if(extra){

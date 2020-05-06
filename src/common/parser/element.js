@@ -7,6 +7,8 @@ const Range = require('./range');
 const RangeSet = require('./range-set');
 
 class Element{
+  lookahead = null;
+
   constructor(){
     this.range = new Range(1, 1);
     this.greediness = 1;
@@ -62,9 +64,9 @@ class CharsRange extends Terminal{
   }
 }
 
-Element.Terminal = Terminal;
-Element.NonTerminal = NonTerminal;
-Element.String = String;
-Element.CharsRange = CharsRange;
-
-module.exports = Element;
+module.exports = Object.assign(Element, {
+  Terminal,
+  NonTerminal,
+  String,
+  CharsRange,
+});
