@@ -1,0 +1,32 @@
+script{ s0 cmd*s1 s0 }
+
+cmd{ passive | active }
+
+passive{
+  closedBracket |
+  plus |
+  asterisk
+}
+
+active{
+  openBracket |
+  equalsSign |
+  exclamationMark
+}
+
+closedBracket{ "]" }
+plus{ ident "+" }
+asterisk{ ident "*" cmd }
+
+openBracket{ ident "[" }
+equalsSign{ ident "=" }
+exclamationMark{ ident "!" }
+
+ident{ [a-zA-Z0-9_]+ }
+
+whitespace{ [ \r\n\t] }
+comment{ ";" [^\r\n]* }
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }
