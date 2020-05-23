@@ -49,8 +49,10 @@ class Engine{
           for(let j = i + 1; j !== cmds.length; j++){
             const cmd = cmds[j];
 
-            if(cmd instanceof cs.OpenBracket)
+            if(cmd instanceof cs.OpenBracket){
               depth++;
+              continue
+            }
 
             if(cmds[j] instanceof cs.ClosedBracket){
               if(depth !== 0){
@@ -62,6 +64,7 @@ class Engine{
               break;
             }
           }
+
           if(index === -1)
             esolangs.err(`Missing closed bracket\n\n${cmds.join(' ')}`);
 
@@ -132,7 +135,7 @@ class Engine{
       O.exit();
     }
 
-    this.output = Buffer.from(String(cmds.length)/*.join(' ')*/);
+    this.output = Buffer.from(cmds.join(' '));
   }
   
   getOutput(){

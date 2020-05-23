@@ -11,7 +11,6 @@ class Base extends O.Stringifiable{}
 class Prgram extends Base{
   constructor(cmds){
     super();
-
     this.cmds = cmds;
   }
 
@@ -95,7 +94,6 @@ class ExclamationMark extends ActiveCommand{
     return `${this.name}!`;
   }
 }
-
 
 module.exports = {
   Base,
