@@ -21,7 +21,6 @@ class Engine{
 
     // The main loop
     mainLoop: while(1){
-      log(cmds.length);
       if(DEBUG){
         log(cmds.join(' '));
       }
