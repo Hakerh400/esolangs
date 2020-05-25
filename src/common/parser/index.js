@@ -11,11 +11,15 @@ const PL = require('./programming-language');
 const ParserBase = require('./parser-base');
 const CompilerBase = require('./compiler-base');
 const InterpreterBase = require('./interpreter-base');
+const ruleParser = require('./rule-parser');
+const ParsedRules = require('./parsed-rules');
 
 const MAIN_DEF = 'script';
 
 const parse = (syntax, script, rules, defName=MAIN_DEF) => {
-  const syntaxObj = Syntax.fromStr(String(syntax));
+  const syntaxObj = syntax instanceof ParsedRules ?
+    Syntax.fromParsedRules(syntax) :
+    Syntax.fromStr(String(syntax));
 
   class Parser extends ParserBase{}
   class Compiler extends CompilerBase{}
@@ -45,4 +49,5 @@ const parse = (syntax, script, rules, defName=MAIN_DEF) => {
 
 module.exports = {
   parse,
+  parseRules: ruleParser.parse,
 };

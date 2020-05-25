@@ -8,7 +8,7 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const cs = require('./ctors');
 
-const DEBUG = 0;
+const DEBUG = 1;
 
 class Engine{
   constructor(parsed){
@@ -91,6 +91,7 @@ class Engine{
             if(cmd.isPassive && cmd.name === name)
               cmds.splice(j, 1);
           }
+          
           continue mainLoop;
         }
 

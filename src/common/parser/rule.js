@@ -7,8 +7,7 @@ const Section = require('./section');
 const Range = require('./range');
 
 class Rule{
-  constructor(syntax, pack, name, greediness=1, range=null){
-    this.syntax = syntax;
+  constructor(pack, name, greediness=1, range=null){
     this.pack = pack;
     this.name = name;
     this.greediness = greediness;

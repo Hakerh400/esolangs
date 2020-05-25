@@ -8,15 +8,12 @@ const Section = require('./section');
 const Pattern = require('./pattern');
 const Element = require('./element');
 const Range = require('./range');
-
-// TODO: be consistent: use "definition" instead of "rule" everywhere
-// TODO: linter: require latest node version
-// TODO: linter: no semicolon after class
+const ParsedRules = require('./parsed-rules');
 
 const MAX_INT = Number.MAX_SAFE_INTEGER;
 
-const parse = (syntax, str) => {
-  str = str.replace(/\r\n|\r|\n/g, '\n');
+const parse = str => {
+  str = String(str).replace(/\r\n|\r|\n/g, '\n');
 
   const len = str.length; // String length
 
@@ -100,7 +97,8 @@ const parse = (syntax, str) => {
     return !modify && typeof char === 'string' ? result === char : result;
   }
 
-  const is = char => sc(char, 0); // Check for the given char
+  // Check for the given char
+  const is = char => sc(char, 0);
 
   // Read char if possible
   const scm = char => {
@@ -132,7 +130,10 @@ const parse = (syntax, str) => {
 
   // Several parsing functions
   const p = {
-    ident: (s=1) => reg(/[a-z\$_][a-z0-9\$_]*/iy, s, 'identifier'),
+    ident: (s=1, raw=1) => {
+      const ident = reg(/[a-z\$#\-_][a-z0-9\$#\-_]*/iy, s, 'identifier');
+      return raw ? ident : ident.split('#')[0];
+    },
     num: (s=1) => checkNum(reg(/[0-9]+/y, s, 'number')),
     rdots: (s=1) => reg(/\.{2}/y, s, 'range dots'),
     code: (s=1) => reg(/[^#]*/y, s, 'code'),
@@ -433,6 +434,12 @@ const parse = (syntax, str) => {
   const rules = O.obj(); // Rules will be stored here after parsing
   const nterms = new Set(); // Keep track of non-terminals to add rules after parsing
 
+  // Highlighter information
+  const hlInfo = {
+    scopesInfo: O.obj(),
+    rules: O.obj(),
+  };
+
   /**
    * New elements should not be constructed directly
    * Use this wrapper function instead
@@ -457,30 +464,61 @@ const parse = (syntax, str) => {
       if(eof()) break;
 
       // Meta directive
-      if(scm('#')){
-        const type = p.ident();
-        sc('{');
-
-        switch(type){
-          case 'package':
-            const idents = [];
-            while(!is('}')){
-              idents.push(p.ident());
-              scm('.');
-            }
-            pack = idents.join('.');
-            break;
-
-          default: err(`Unrecognized meta directive ${O.sf(type)}`);
-        }
-
-        sc('}');
-        continue;
-      }
+      // if(scm('#')){
+      //   const type = p.ident();
+      //   sc('{');
+      //
+      //   switch(type){
+      //     case 'package':
+      //       const idents = [];
+      //       while(!is('}')){
+      //         idents.push(p.ident());
+      //         scm('.');
+      //       }
+      //       pack = idents.join('.');
+      //       break;
+      //
+      //     default: err(`Unrecognized meta directive ${O.sf(type)}`);
+      //   }
+      //
+      //   sc('}');
+      //
+      //   continue;
+      // }
 
       // Parse rule header
 
-      const name = p.ident();
+      const nameRaw = p.ident();
+
+      // Highlighter scopes info
+      if(nameRaw === '#'){
+        let str = '';
+
+        sc('{');
+
+        while(1){
+          if(eof()) err(`Missing closed brace`);
+
+          const char = c();
+          if(char === '}') break;
+
+          str += char;
+        }
+
+        hlInfo.scopesInfo = str;
+
+        continue;
+      }
+
+      const nameParts = nameRaw.split('#');
+
+      if(nameParts.length > 2)
+        err(`Invalid rule name ${O.sf(nameRaw)}`);
+
+      if(nameParts.length === 2)
+        hlInfo.scopes[nameParts[0]] = nameParts[1];
+
+      const name = nameParts[0];
       let range = null;
 
       if(scm('[')){
@@ -491,7 +529,7 @@ const parse = (syntax, str) => {
       }
 
       const greediness = scm('?') ? 0 : scm('*') ? 2 : 1;
-      const rule = new Rule(syntax, pack, name, greediness, range);
+      const rule = new Rule(pack, name, greediness, range);
 
       if(!(name in rules)){
         const obj = O.obj();
@@ -553,7 +591,7 @@ const parse = (syntax, str) => {
           .map(a => a | 0)
       );
 
-      const newRule = new Rule(syntax, pack, rule.name, rule.greediness, new Range());
+      const newRule = new Rule(pack, rule.name, rule.greediness, new Range());
       const sect = new Section.Include();
 
       for(const index of indices){
@@ -574,7 +612,7 @@ const parse = (syntax, str) => {
     nterm.rule = rule;
   }
 
-  return rules;
+  return new ParsedRules(rules, hlInfo);
 }
 
 module.exports = {

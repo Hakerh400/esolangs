@@ -195,5 +195,10 @@
     "name": "User:Zzo38/Untitled 4",
     "id": "untitled-4",
     "details": "https://esolangs.org/wiki/User:Zzo38/Untitled_4"
+  }, {
+    "name": "Highlighter",
+    "id": "highlighter",
+    "details": null,
+    "wip": true
   }
 ]
