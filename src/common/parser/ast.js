@@ -2,10 +2,19 @@
 
 const fs = require('fs');
 const path = require('path');
+const assert = require('assert');
 const O = require('../omikron');
 const SG = require('../serializable-graph');
 const Element = require('./element');
 const cgs = require('./common-graph-nodes');
+
+const sstr = (node, func=null) => {
+  const isStr = typeof node === 'string';
+  const str = isStr ? node : node.sstr;
+
+  if(func === null) return str;
+  return func(str, !isStr);
+};
 
 class AST extends SG.Node{
   static ptrsNum = this.keys(['syntax', 'str', 'node']);
@@ -60,6 +69,8 @@ class ASTNode extends SG.Node{
     return arr[0];
   }
 
+  sstr(func){ return [...this].map(a => sstr(a, func)).join(''); }
+
   reset(){ O.virtual('reset'); }
   update(){ O.virtual('update'); }
 
@@ -78,6 +89,8 @@ class ASTNode extends SG.Node{
     this.done = 1;
     return this;
   }
+
+  *[Symbol.iterator](){ O.virtual('Symbol.iterator'); }
 
   toString(){
     return this.ast.str.slice(this.index, this.end);
@@ -145,6 +158,11 @@ class ASTDef extends ASTNode{
 
     return this;
   }
+
+  *[Symbol.iterator](){
+    for(const elem of this.elems)
+      yield* elem.arr;
+  }
 }
 
 class ASTPat extends ASTNode{
@@ -181,7 +199,7 @@ class ASTPat extends ASTNode{
     for(let i = 0; i !== elems.length; i++){
       const elem = elems[i];
       if(!elem.done) done = 0;
-      if(elem.len === -1) throw new TypeError('This should not happen');
+      assert(elem.len !== -1);
 
       len += elem.len;
     }
@@ -190,6 +208,11 @@ class ASTPat extends ASTNode{
     this.done = done;
 
     return this;
+  }
+
+  *[Symbol.iterator](){
+    for(const elem of this.elems)
+      yield* elem.arr;
   }
 }
 
@@ -205,6 +228,7 @@ class ASTElem extends ASTNode{
   }
 
   get fst(){ return this.arr[0]; }
+
   getLen(){ O.virtual('getLen'); }
 
   reset(){
@@ -212,6 +236,15 @@ class ASTElem extends ASTNode{
     this.seps.length = 0;
 
     return this;
+  }
+
+  *[Symbol.iterator](){
+    const {arr, seps} = this;
+
+    for(let i = 0; i !== arr.length; i++){
+      yield arr[i];
+      if(i < seps.length) yield seps[i];
+    };
   }
 }
 

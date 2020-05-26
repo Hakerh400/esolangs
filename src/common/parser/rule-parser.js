@@ -437,7 +437,7 @@ const parse = str => {
   // Highlighter information
   const hlInfo = {
     scopesInfo: O.obj(),
-    rules: O.obj(),
+    scopes: O.obj(),
   };
 
   /**
