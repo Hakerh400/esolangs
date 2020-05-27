@@ -10,7 +10,7 @@ const cgs = require('./common-graph-nodes');
 
 const sstr = (node, func=null) => {
   const isStr = typeof node === 'string';
-  const str = isStr ? node : node.sstr;
+  const str = isStr ? node : node.sstr(func)
 
   if(func === null) return str;
   return func(str, !isStr);

@@ -116,7 +116,12 @@ const run = (src, input) => {
     }
   }
 
-  assert(charCols.length === str.length);
+  // assert(charCols.length === str.length);
+  log(str.length);
+  log(charCols.length);
+
+  while(charCols.length !== str.length)
+    charCols.push(O.last(charCols));
 
   let output = `<div style="padding:12px;background:#272822;color:#f8f8f2;font-family:monospace;white-space:pre">`;
   let inSpan = 0;
@@ -157,7 +162,7 @@ const run = (src, input) => {
 
   output += `</div>`;
 
-  O.wfs('C:/users/thomas/downloads/1.htm', output);
+  O.wfs('C:/users/thomas/downloads/2.htm', output);
   O.exit();
 
   return Buffer.from(output);
