@@ -159,7 +159,6 @@
     "name": "Entrance",
     "id": "entrance",
     "details": null,
-    "outputOnly": true,
     "wip": true
   }, {
     "name": "Minimal operation language",

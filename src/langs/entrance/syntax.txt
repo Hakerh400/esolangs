@@ -1,42 +1,20 @@
-script{ s0 "#" s0 mode s0 }
+script{ s0 funcDef*s0 s0 }
 
-mode{
-  "solve" s1 modeSolve |
-  "prove" s1 modeProve
+funcDef{ call s0 "=" s0 expr s0 ";" }
+
+expr{
+  const |
+  pair |
+  param |
+  call
 }
 
-modeSolve{
-  vars? s0
-  equation*s0
-}
+const{ "0" ![0-9] | [1-9] [0-9]* }
+pair{ "(" s0 expr s0 "," s0 expr s0 ")" }
+param{ ident }
+call{ ident s0 expr }
 
-modeProve{
-  rule*?s0 s0
-  expr
-}
-
-equation{ expr s0 "=" s0 expr }
-
-rule{
-  label? s0
-  vars? s0
-  premises? s0
-  expr
-}
-
-label{ identAny s0 ":" }
-vars{ "[" s0 var*commaSep s0 "]" }
-var{ ident s0 constraints? }
-constraints{ "\\" s0 "{" s0 ident*commaSep s0 "}" }
-premises{ expr*commaSep s0 "|-" s0 }
-
-expr{ ident args? }
-args{ "(" s0 expr*commaSep s0 ")" }
-
-ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
-identAny{ [a-zA-Z0-9_]+ }
-
-commaSep{ s0 "," s0 }
+ident{ [a-zA-Z] [a-zA-Z0-9]* }
 
 whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }
