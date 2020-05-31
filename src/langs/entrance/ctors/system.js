@@ -200,6 +200,7 @@ class Expression extends Base{
   }
 
   get type(){ O.virtual('type'); }
+  get pri(){ O.virtual('pri'); }
 }
 
 class Constant extends Expression{
@@ -209,7 +210,8 @@ class Constant extends Expression{
     this.symbol = symbol;
   }
 
-  get type(){ return 'const'; }
+  get type(){ return 0; }
+  get pri(){ return 0; }
 
   toStr(){
     return this.symbol;
@@ -228,7 +230,8 @@ class Pair extends Expression{
     this.snd = snd;
   }
 
-  get type(){ return 'pair'; }
+  get type(){ return 1; }
+  get pri(){ return 1; }
 
   toStr(){
     return ['(', this.fst, ', ', this.snd, ')'];
@@ -242,7 +245,8 @@ class Identifier extends Expression{
     this.symbol = symbol;
   }
 
-  get type(){ return 'ident'; }
+  get type(){ return 2; }
+  get pri(){ return 3; }
 
   toStr(){
     return this.symbol;
@@ -258,7 +262,8 @@ class Call extends Expression{
     this.arg = arg;
   }
 
-  get type(){ return 'call'; }
+  get type(){ return 3; }
+  get pri(){ return 5; }
 
   toStr(){
     return [this.func, ' ', this.arg];

@@ -10,5 +10,6 @@ const cs = {};
 module.exports = cs;
 
 require('./base');
+require('./queue');
 require('./system');
 require('./solver');

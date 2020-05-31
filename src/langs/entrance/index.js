@@ -14,12 +14,9 @@ const syntax = O.rfs(path.join(cwd, 'syntax.txt'), 1);
 const run = (src, input) => {
   const system = parser.parse(syntax, src, ast, 'system');
   const target = system.constructExpr(parser.parse(syntax, input, ast, 'target'));
+  const solver = new cs.Solver(system, target);
 
-  const targets = new cs.TargetQueue([target]);
-  const equations = new cs.EquationQueue([]);
-  const state = new cs.State(null, targets, equations);
-
-  log(String(state));
+  log(String(solver));
 
   O.exit();
 };
