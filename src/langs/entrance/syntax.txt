@@ -1,4 +1,4 @@
-script{ s0 funcDef*s0 s0 }
+system{ s0 funcDef*s0 s0 }
 
 funcDef{ call s0 "=" s0 expr s0 ";" }
 
@@ -13,6 +13,17 @@ const{ "0" ![0-9] | [1-9] [0-9]* }
 pair{ "(" s0 expr s0 "," s0 expr s0 ")" }
 param{ ident }
 call{ ident s0 expr }
+
+target{ s0 targetExpr s0 ";"? s0 }
+
+targetExpr{
+  const |
+  targetPair |
+  targetCall
+}
+
+targetPair{ "(" s0 targetExpr s0 "," s0 targetExpr s0 ")" }
+targetCall{ ident s0 targetExpr }
 
 ident{ [a-zA-Z] [a-zA-Z0-9]* }
 

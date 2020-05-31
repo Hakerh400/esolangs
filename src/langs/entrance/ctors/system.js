@@ -4,10 +4,12 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
-const esolangs = require('../..');
-const arrOrder = require('../../common/arr-order');
+const esolangs = require('../../..');
+const arrOrder = require('../../../common/arr-order');
+const cs = require('.');
 
 const {min, max} = Math;
+const {Base} = cs;
 
 const GENERATED_IDENTS_PREFIX = '';
 
@@ -15,19 +17,24 @@ const identChars = O.chars('A', 26);
 
 const emptySet = new Set();
 
-class Base extends O.Stringifiable{}
+const genSymName = index => {
+  return `${
+    GENERATED_IDENTS_PREFIX}${
+    arrOrder.str(identChars, index + 1n)}`;
+};
 
 class System extends Base{
   #constsScope = new Scope();
   #funcsScope = new Scope();
+  #generatedSymbolsScope = new Scope();
 
   constructor(funcDefs){
     super();
 
     for(const funcDef of funcDefs){
       const {scope} = funcDef;
-      const lhs = this.constructExpr(scope, funcDef.lhs);
-      const rhs = this.constructExpr(scope, funcDef.rhs);
+      const lhs = this.constructExpr(funcDef.lhs, scope);
+      const rhs = this.constructExpr(funcDef.rhs, scope);
 
       funcDef.lhs = lhs;
       funcDef.rhs = rhs;
@@ -38,10 +45,9 @@ class System extends Base{
     this.funcDefs = funcDefs;
   }
 
-  constructExpr(identsScope, tempStruct){
+  constructExpr(tempStruct, identsScope=null){
     const constsScope = this.#constsScope;
     const funcsScope = this.#funcsScope;
-
     const map = new Map();
 
     tempStruct.bottomUp(tempStruct => {
@@ -57,6 +63,7 @@ class System extends Base{
           break;
 
         case 'ident':
+          assert(identsScope !== null);
           map.set(tempStruct, new Identifier(identsScope.nameToSymbol(data)));
           break;
 
@@ -71,44 +78,38 @@ class System extends Base{
     return map.get(tempStruct);
   }
 
+  generateSymbol(){
+    return this.#generatedSymbolsScope.generateSymbol();
+  }
+
   toStr(){
     return this.join([], this.funcDefs, '\n');
   }
 }
 
 class Scope extends Base{
-  #names = O.obj();
-  #symbols = new Set();
-  #unnamedSymbols = new Set();
-  #nameIndex = 0;
+  #symbols = O.obj();
+  #nameIndex = 0n;
 
   nameToSymbol(name){
-    if(name in this.#names)
-      return this.#names[name];
+    if(name in this.#symbols)
+      return this.#symbols[name];
 
     const sym = new UniqueSymbol(this, name);
-    this.#names[name] = sym;
-    this.#symbols.add(sym);
+    this.#symbols[name] = sym;
 
     return sym;
   }
 
-  createSymbol(){
-    const sym = new UniqueSymbol(this);
-    this.#unnamedSymbols.add(sym);
-    return sym;
+  generateSymbol(){
+    return new UniqueSymbol(this);
   }
 
   generateName(sym){
-    assert(this.#unnamedSymbols.has(sym));
-    this.#unnamedSymbols.delete(sym);
+    const name = sym.name = genSymName(this.#nameIndex++);
+    assert(!(name in this.#symbols));
 
-    const name = sym.name = `${
-      GENERATED_IDENTS_PREFIX}${
-      arrOrder.str(identChars, ++this.#nameIndex)}`;
-
-    this.#names[name] = sym;
-    this.#symbols.add(sym);
+    this.#symbols[name] = sym;
 
     return name;
   }
@@ -236,7 +237,7 @@ class Pair extends Expression{
 
 class Identifier extends Expression{
   constructor(symbol){
-    super(emptySet, new Set([symbol]), 0, 0);
+    super(new Set([symbol]), emptySet, 0, 0);
 
     this.symbol = symbol;
   }
@@ -264,15 +265,18 @@ class Call extends Expression{
   }
 }
 
-module.exports = {
-  Base,
+const ctors = {
   System,
+  Scope,
+  UniqueSymbol,
   FunctionDefinition,
   TemporaryStructure,
-  Function,
   Expression,
   Constant,
   Pair,
   Identifier,
   Call,
 };
+
+Object.assign(cs, ctors);
+module.exports = cs;

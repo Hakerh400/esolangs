@@ -6,19 +6,22 @@ const O = require('omikron');
 const esolangs = require('../..');
 const parser = require('../../common/parser');
 const ast = require('./ast');
-const Engine = require('./engine');
 const cs = require('./ctors');
 
 const cwd = __dirname;
 const syntax = O.rfs(path.join(cwd, 'syntax.txt'), 1);
 
 const run = (src, input) => {
-  const parsed = parser.parse(syntax, src, ast);
-  const eng = new Engine(parsed, Buffer.from(input));
-  
-  eng.run();
+  const system = parser.parse(syntax, src, ast, 'system');
+  const target = system.constructExpr(parser.parse(syntax, input, ast, 'target'));
 
-  return eng.getOutput();
+  const targets = new cs.TargetQueue([target]);
+  const equations = new cs.EquationQueue([]);
+  const state = new cs.State(null, targets, equations);
+
+  log(String(state));
+
+  O.exit();
 };
 
 module.exports = run;
