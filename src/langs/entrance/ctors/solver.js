@@ -40,6 +40,8 @@ class Solver extends Queue{
         debug(`\n${'='.repeat(100)}`);
       }
 
+      const depthNew = state.depth + 1;
+
       // If there are no equations
       if(equations.len === 0){
         // If there are no targets
@@ -98,7 +100,6 @@ class Solver extends Queue{
             const arg = funcInfoInstance.fst;
             const ret = funcInfoInstance.snd;
 
-            const depthNew = state.depth + 1;
             const bindingNew = new cs.Binding(binding, expr.symbol, ret);
 
             const equationsNew = new cs.EquationsQueue();
@@ -124,7 +125,34 @@ class Solver extends Queue{
         assert.fail(type);
       }
 
-      O.noimpl();
+      // There is at least one equation
+
+      const equation = equations.top();
+      const {lhs, rhs} = equation;
+      const type1 = lhs.type;
+      const type2 = rhs.type;
+
+      // If there is an identifier on the LHS
+      if(type1 === 2){
+        // If there is a constant or an identifier on the RHS
+        if(type2 === 0 || type2 === 2){
+          continue;
+        }
+
+        // If there is a pair on the RHS
+        if(type2 === 1){
+          continue;
+        }
+
+        assert.fail(type2);
+      }
+
+      // If there is a call on the LHS
+      if(type1 === 3){
+        continue;
+      }
+
+      assert.fail(type1);
     }
 
     return null;
@@ -168,6 +196,7 @@ class State extends Comparable{
     return [
       'State ', this.symbol, ':', this.inc, '\n',
       'previous: ', this.prevSym !== null ? this.prevSym : '/', '\n',
+      'depth: ', String(this.depth), '\n',
       ...cs.DISPLAY_PRIORITY ?
         ['priority: ', String(this.pri), '\n'] : [],
       'binding: ', this.binding !== null ? this.binding : '/', '\n',

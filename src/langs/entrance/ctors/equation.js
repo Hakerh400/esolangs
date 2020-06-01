@@ -25,6 +25,18 @@ class EquationsQueue extends Queue{
       const eq = stack.pop();
 
       if(eq.pri >= 3){
+        const {lhs, rhs} = eq;
+
+        if(lhs.type === 1){
+          if(rhs.type === 1 && rhs.identsOutsideCall.has(lhs.symbol)){
+            this.invalidate();
+            return;
+          }
+
+          if(rhs.type === 2 && rhs.symbol === lhs.symbol)
+            continue;
+        }
+
         super.push(eq);
         this.pri += eq.pri + 1;
         continue;
@@ -34,13 +46,13 @@ class EquationsQueue extends Queue{
 
       if(lhs.type !== rhs.type){
         this.invalidate();
-        break;
+        return;
       }
 
       if(lhs.type === 0){
         if(rhs.symbol !== lhs.symbol){
           this.invalidate();
-          break;
+          return;
         }
         continue;
       }
@@ -81,6 +93,12 @@ class EquationsQueue extends Queue{
 class Equation extends Comparable{
   constructor(lhs, rhs){
     super();
+
+    if(lhs.type < rhs.type){
+      const t = lhs;
+      lhs = rhs;
+      rhs = t;
+    }
 
     this.lhs = lhs;
     this.rhs = rhs;
