@@ -8,14 +8,11 @@ const esolangs = require('../../..');
 const arrOrder = require('../../../common/arr-order');
 const cs = require('.');
 
-const {min, max} = Math;
 const {Base} = cs;
 
 const GENERATED_IDENTS_PREFIX = '';
 
 const identChars = O.chars('A', 26);
-
-const emptySet = new Set();
 
 const genSymName = index => {
   return `${
@@ -27,9 +24,12 @@ class System extends Base{
   #constsScope = new Scope();
   #funcsScope = new Scope();
   #generatedSymbolsScope = new Scope();
+  #funcsInfo = new Map();
 
   constructor(funcDefs){
     super();
+
+    const funcsInfo = this.#funcsInfo;
 
     for(const funcDef of funcDefs){
       const {scope} = funcDef;
@@ -40,35 +40,41 @@ class System extends Base{
       funcDef.rhs = rhs;
       funcDef.func = lhs.func;
       funcDef.arg = lhs.arg;
+
+      const funcSym = lhs.func;
+
+      if(!funcsInfo.has(funcSym))
+        funcsInfo.set(funcSym, []);
+
+      const funcInfo = funcsInfo.get(funcSym);
+      funcInfo.push(new cs.Pair(this, lhs.arg, rhs));
     }
 
     this.funcDefs = funcDefs;
   }
 
   constructExpr(tempStruct, identsScope=null){
-    const constsScope = this.#constsScope;
-    const funcsScope = this.#funcsScope;
     const map = new Map();
 
     tempStruct.bottomUp(tempStruct => {
       const {type, data} = tempStruct;
 
       switch(type){
-        case 'const':
-          map.set(tempStruct, new Constant(constsScope.nameToSymbol(data)));
+        case 0:
+          map.set(tempStruct, new cs.Constant(this, this.getConst(data)));
           break;
 
-        case 'pair':
-          map.set(tempStruct, new Pair(map.get(data[0]), map.get(data[1])));
+        case 1:
+          map.set(tempStruct, new cs.Pair(this, map.get(data[0]), map.get(data[1])));
           break;
 
-        case 'ident':
+        case 2:
           assert(identsScope !== null);
-          map.set(tempStruct, new Identifier(identsScope.nameToSymbol(data)));
+          map.set(tempStruct, new cs.Identifier(this, identsScope.nameToSymbol(data)));
           break;
 
-        case 'call':
-          map.set(tempStruct, new Call(funcsScope.nameToSymbol(data[0]), map.get(data[1])));
+        case 3:
+          map.set(tempStruct, new cs.Call(this, this.createSymbol(), this.getFunc(data[0]), map.get(data[1])));
           break;
 
         default: assert.fail(type); break;
@@ -78,8 +84,25 @@ class System extends Base{
     return map.get(tempStruct);
   }
 
-  generateSymbol(){
-    return this.#generatedSymbolsScope.generateSymbol();
+  getConst(name){
+    return this.#constsScope.nameToSymbol(name);
+  }
+
+  getFunc(name){
+    return this.#funcsScope.nameToSymbol(name);
+  }
+
+  createSymbol(){
+    return this.#generatedSymbolsScope.createSymbol();
+  }
+
+  getFuncInfo(funcSym){
+    const funcsInfo = this.#funcsInfo;
+
+    if(!funcsInfo.has(funcSym))
+      return [];
+
+    return funcsInfo.get(funcSym);
   }
 
   toStr(){
@@ -101,7 +124,7 @@ class Scope extends Base{
     return sym;
   }
 
-  generateSymbol(){
+  createSymbol(){
     return new UniqueSymbol(this);
   }
 
@@ -169,13 +192,13 @@ class TemporaryStructure extends Base{
     const arr = [];
 
     switch(type){
-      case 'const': case 'ident': break;
+      case 0: case 2: break;
 
-      case 'pair':
+      case 1:
         arr.push(data[0], data[1]);
         break;
 
-      case 'call':
+      case 3:
         arr.push(data[1]);
         break;
 
@@ -189,98 +212,12 @@ class TemporaryStructure extends Base{
   getCh(i){ return this.arr[i]; }
 }
 
-class Expression extends Base{
-  constructor(idents, funcs, pairDepth, callDepth){
-    super();
-
-    this.idents = idents;
-    this.funcs = funcs;
-    this.pairDepth = pairDepth;
-    this.callDepth = callDepth;
-  }
-
-  get type(){ O.virtual('type'); }
-  get pri(){ O.virtual('pri'); }
-}
-
-class Constant extends Expression{
-  constructor(symbol){
-    super(emptySet, emptySet, 0, 0);
-
-    this.symbol = symbol;
-  }
-
-  get type(){ return 0; }
-  get pri(){ return 0; }
-
-  toStr(){
-    return this.symbol;
-  }
-}
-
-class Pair extends Expression{
-  constructor(fst, snd){
-    const idents = new Set([...fst.idents, ...snd.idents]);
-    const funcs = new Set([...fst.funcs, ...snd.funcs]);
-    const pairDepth = max(fst.pairDepth, snd.pairDepth) + 1;
-    const callDepth = max(fst.callDepth, snd.callDepth);
-    super(idents, funcs, pairDepth, callDepth);
-
-    this.fst = fst;
-    this.snd = snd;
-  }
-
-  get type(){ return 1; }
-  get pri(){ return 1; }
-
-  toStr(){
-    return ['(', this.fst, ', ', this.snd, ')'];
-  }
-}
-
-class Identifier extends Expression{
-  constructor(symbol){
-    super(new Set([symbol]), emptySet, 0, 0);
-
-    this.symbol = symbol;
-  }
-
-  get type(){ return 2; }
-  get pri(){ return 3; }
-
-  toStr(){
-    return this.symbol;
-  }
-}
-
-class Call extends Expression{
-  constructor(func, arg){
-    const funcs = arg.funcs.has(func) ? arg.funcs : new Set([...arg.funcs, func]);
-    super(arg.idents, funcs, arg.pairDepth, arg.callDepth + 1);
-
-    this.func = func;
-    this.arg = arg;
-  }
-
-  get type(){ return 3; }
-  get pri(){ return 5; }
-
-  toStr(){
-    return [this.func, ' ', this.arg];
-  }
-}
-
 const ctors = {
   System,
   Scope,
   UniqueSymbol,
   FunctionDefinition,
   TemporaryStructure,
-  Expression,
-  Constant,
-  Pair,
-  Identifier,
-  Call,
 };
 
 Object.assign(cs, ctors);

@@ -16,9 +16,12 @@ const run = (src, input) => {
   const target = system.constructExpr(parser.parse(syntax, input, ast, 'target'));
   const solver = new cs.Solver(system, target);
 
-  log(String(solver));
+  const solution = solver.solve();
 
-  O.exit();
+  if(solution === null)
+    return Buffer.from('No solution exists');
+
+  return Buffer.from(solution.toString());
 };
 
 module.exports = run;

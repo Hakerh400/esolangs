@@ -6,10 +6,19 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../../..');
 
-const cs = {};
+const DISPLAY_PRIORITY = 0;
+
+const cs = {
+  DISPLAY_PRIORITY,
+};
+
 module.exports = cs;
 
 require('./base');
 require('./queue');
+require('./expression');
 require('./system');
+require('./target');
+require('./equation');
+require('./binding');
 require('./solver');
