@@ -50,7 +50,7 @@ class System extends Base{
 
       switch(type){
         case 0:
-          map.set(tempStruct, new cs.Constant(this, this.getConst(data)));
+          map.set(tempStruct, new cs.Constant(this, this.getConstSym(data)));
           break;
 
         case 1:
@@ -63,7 +63,7 @@ class System extends Base{
           break;
 
         case 3:
-          map.set(tempStruct, new cs.Call(this, this.getFunc(data[0]), map.get(data[1])));
+          map.set(tempStruct, new cs.Call(this, this.getFuncSym(data[0]), map.get(data[1])));
           break;
 
         default: assert.fail(type); break;
@@ -73,16 +73,24 @@ class System extends Base{
     return map.get(tempStruct);
   }
 
-  getConst(name){
+  getConstSym(name){
     return this.#constsScope.nameToSymbol(name);
   }
 
-  getFunc(name){
+  getFuncSym(name){
     return this.#funcsScope.nameToSymbol(name);
   }
 
   createSymbol(){
     return this.#generatedSymbolsScope.createSymbol();
+  }
+
+  getConst(name){
+    return new cs.Constant(this, this.getConstSym(name));
+  }
+
+  createIdent(){
+    return new cs.Identifier(this, this.createSymbol());
   }
 
   getFuncInfo(funcSym){

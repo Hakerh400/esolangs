@@ -10,15 +10,9 @@ const cs = require('.');
 const {Base, Comparable, Queue} = cs;
 
 class EquationsQueue extends Queue{
-  #invalid = 0;
-
   pri = 0;
 
-  get invalid(){ return this.#invalid; }
-
   push(eq){
-    if(this.#invalid) return;
-
     const stack = [eq];
 
     while(stack.length !== 0){
@@ -29,8 +23,7 @@ class EquationsQueue extends Queue{
 
         if(lhs.type === 1){
           if(rhs.type === 1 && rhs.identsOutsideCall.has(lhs.symbol)){
-            this.invalidate();
-            return;
+            return 0;
           }
 
           if(rhs.type === 2 && rhs.symbol === lhs.symbol)
@@ -42,17 +35,15 @@ class EquationsQueue extends Queue{
         continue;
       }
 
-      const {lhs, rhs} = stack;
+      const {lhs, rhs} = eq;
 
       if(lhs.type !== rhs.type){
-        this.invalidate();
-        return;
+        return 0;
       }
 
       if(lhs.type === 0){
         if(rhs.symbol !== lhs.symbol){
-          this.invalidate();
-          return;
+          return 0;
         }
         continue;
       }
@@ -67,16 +58,8 @@ class EquationsQueue extends Queue{
 
       assert.fail(lhs.type);
     }
-  }
 
-  pop(){
-    assert(!this.#invalid);
-    return super.pop();
-  }
-
-  top(){
-    assert(!this.#invalid);
-    return super.top();
+    return 1;
   }
 
   toStr(){

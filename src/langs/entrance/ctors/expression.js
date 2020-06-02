@@ -38,12 +38,17 @@ class Expression extends Base{
 
     this.bottomUp(expr => {
       switch(expr.type){
+        case 0: break;
+
         case 1:
           const {fst, snd} = expr;
 
           const hasFst = fst.idents.size !== 0;
           const hasSnd = snd.idents.size !== 0;
           if(!(hasFst || hasSnd)) break;
+
+          if(hasFst) assert(exprs.has(fst));
+          if(hasSnd) assert(exprs.has(snd));
 
           exprs.set(expr, new Pair(
             system,
@@ -67,7 +72,7 @@ class Expression extends Base{
           const {func, arg} = expr;
           if(arg.idents.size === 0) break;
 
-          exprs.set(exprs, new Call(
+          exprs.set(expr, new Call(
             system,
             func,
             exprs.get(arg),
@@ -89,10 +94,13 @@ class Expression extends Base{
     if(!this.idents.has(identSym))
       return this;
 
+    const {system} = this;
     const map = new Map();
 
     this.bottomUp(expr => {
       switch(expr.type){
+        case 0: break;
+
         case 1:
           const {fst, snd} = expr;
 
@@ -120,7 +128,7 @@ class Expression extends Base{
           const {func, arg} = expr;
           if(!arg.idents.has(identSym)) break;
 
-          map.set(map, new Call(
+          map.set(expr, new Call(
             system,
             func,
             map.get(arg),

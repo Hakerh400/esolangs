@@ -10,7 +10,7 @@ const cs = require('.');
 
 const {Base, Comparable, Queue} = cs;
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 class Solver extends Queue{
   constructor(system, targetExpr){
@@ -58,7 +58,7 @@ class Solver extends Queue{
         if(type === 2){
           // Assign 0 to every identifier and reconstruct the solution
 
-          const zero = system.getConstant('0');
+          const zero = system.getConst('0');
           const symbols = new Set();
           let b = binding;
 
@@ -68,11 +68,11 @@ class Solver extends Queue{
             const sym = target.expr.symbol;
             if(symbols.has(sym)) continue;
 
-            b = new Binding(b, sym, zero);
+            b = new cs.Binding(b, sym, zero);
             symbols.add(sym);
           }
 
-          return this.reconstructSolution(binding);
+          return this.reconstructSolution(b);
         }
 
         // If there is at least one call target
@@ -103,8 +103,9 @@ class Solver extends Queue{
             const bindingNew = new cs.Binding(binding, expr.symbol, ret);
 
             const equationsNew = new cs.EquationsQueue();
-            equationsNew.push(new cs.Equation(arg, expr.arg));
-            if(equationsNew.invalid) continue funcInfoLoop;
+
+            if(!equationsNew.push(new cs.Equation(arg, expr.arg)))
+              continue funcInfoLoop;
 
             for(const equation of equations)
               equationsNew.push(equation);
@@ -143,10 +144,9 @@ class Solver extends Queue{
           const bindingNew = new cs.Binding(binding, sym, rhs);
 
           const equationsNew = new cs.EquationsQueue();
-          for(const equation of equations){
-            equationsNew.push(equation.subst(sym, rhs));
-            if(equationsNew.invalid) continue mainLoop;
-          }
+          for(const equation of equations)
+            if(!equationsNew.push(equation.subst(sym, rhs)))
+              continue mainLoop;
 
           const targetsNew = new cs.TargetsQueue();
           for(const target of targets)
@@ -160,14 +160,18 @@ class Solver extends Queue{
 
         // If there is a pair on the RHS
         if(type2 === 1){
-          const exprNew = new cs.Pair(system, system.createSymbol(), system.createSymbol());
+          const exprNew = new cs.Pair(
+            system,
+            system.createIdent(),
+            system.createIdent(),
+          );
+
           const bindingNew = new cs.Binding(binding, sym, exprNew);
 
           const equationsNew = new cs.EquationsQueue();
-          for(const equation of equations){
-            equationsNew.push(equation.subst(sym, exprNew));
-            if(equationsNew.invalid) continue mainLoop;
-          }
+          for(const equation of equations)
+            if(!equationsNew.push(equation.subst(sym, exprNew)))
+              continue mainLoop;
 
           const targetsNew = new cs.TargetsQueue();
           for(const target of targets)
@@ -184,7 +188,30 @@ class Solver extends Queue{
 
       // If there is a call on the LHS
       if(type1 === 3){
-        O.noimpl();
+        equations.pop();
+
+        funcInfoLoop: for(const funcInfo of system.getFuncInfo(lhs.func)){
+          const funcInfoInstance = funcInfo.instantiate();
+          const arg = funcInfoInstance.fst;
+          const ret = funcInfoInstance.snd;
+
+          const equationsNew = new cs.EquationsQueue();
+          if(!equationsNew.push(new cs.Equation(arg, lhs.arg)))
+            continue funcInfoLoop;
+          if(!equationsNew.push(new cs.Equation(ret, rhs)))
+            continue funcInfoLoop;
+
+          for(const equation of equations)
+            equationsNew.push(equation);
+
+          const targetsNew = new cs.TargetsQueue();
+          for(const target of targets)
+            targetsNew.push(target);
+
+          const stateNew = new State(system, state.symbol, binding, depthNew, targetsNew, equationsNew);
+          this.push(stateNew);
+        }
+
         continue;
       }
 
