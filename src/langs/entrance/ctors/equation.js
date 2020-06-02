@@ -31,7 +31,7 @@ class EquationsQueue extends Queue{
         }
 
         super.push(eq);
-        this.pri += eq.pri + 1;
+        this.pri += lhs.pri + rhs.pri;
         continue;
       }
 
@@ -51,7 +51,7 @@ class EquationsQueue extends Queue{
           new cs.Equation(lhs.fst, rhs.fst),
           new cs.Equation(lhs.snd, rhs.snd),
         );
-        
+
         continue;
       }
 

@@ -34,17 +34,17 @@ class Solver extends Queue{
 
     const t = O.now;
 
-    // let cnt = 0;
+    let cnt = 0;
 
     mainLoop: while(this.len !== 0){
       const state = this.pop();
       const {binding, targets, equations} = state;
 
-      // if(++cnt === 1e4){
-      //   cnt = 0;
-      //   log(state.toString());
-      //   log(`\n${'='.repeat(100)}\n`);
-      // }
+      if(++cnt === 5e4){
+        cnt = 0;
+        log(state.toString());
+        log(`\n${'='.repeat(100)}\n`);
+      }
 
       if(DEBUG){
         log(state.toString());
@@ -308,18 +308,14 @@ class State extends Comparable{
     this.equations = equations;
 
     this.pri = (
-      depth * 3 +
+      depth +
       targets.pri +
-      equations.pri
+      equations.pri * 2
     );
   }
 
   cmp(state){
-    return (
-      this.depth - state.depth ||
-      this.targets.pri - state.targets.pri ||
-      this.equations.pri - state.equations.pri
-    );
+    return this.pri - state.pri;
   }
 
   toStr(){
