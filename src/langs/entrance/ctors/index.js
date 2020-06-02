@@ -7,7 +7,7 @@ const O = require('omikron');
 const esolangs = require('../../..');
 
 const cs = {
-  DISPLAY_PRIORITY: 0,
+  DISPLAY_PRIORITY: 1,
   GENERATED_IDENTS_PREFIX: '',
 };
 

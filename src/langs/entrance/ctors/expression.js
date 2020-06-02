@@ -13,22 +13,20 @@ const {Base} = cs;
 const emptySet = new Set();
 
 class Expression extends Base{
-  constructor(system, symbol, idents, identsOutsideCall, funcs, pairDepth, callDepth){
+  constructor(system, symbol, idents, identsOutsideCall, pairDepth, callDepth){
     super();
 
     this.system = system;
     this.symbol = symbol;
     this.idents = idents;
     this.identsOutsideCall = identsOutsideCall;
-    this.funcs = funcs;
     this.pairDepth = pairDepth;
     this.callDepth = callDepth;
 
     this.pri = (
       idents.size +
-      funcs.size +
-      pairDepth * 2 +
-      callDepth * 4
+      pairDepth / 5 +
+      callDepth * 5
     );
   }
 
@@ -151,11 +149,47 @@ class Expression extends Base{
 
     return map.get(this);
   }
+
+  replaceCallsWithIdents(){
+    const {system} = this;
+    const map = new Map();
+
+    this.bottomUp(expr => {
+      switch(expr.type){
+        case 0: case 2: break;
+
+        case 1:
+          const {fst, snd} = expr;
+
+          const hasFst = map.has(fst);
+          const hasSnd = map.has(snd);
+          if(!(hasFst || hasSnd)) break;
+
+          map.set(expr, new Pair(
+            system,
+            hasFst ? map.get(fst) : fst,
+            hasSnd ? map.get(snd) : snd,
+          ));
+
+          break;
+
+        case 3:
+          map.set(expr, system.createIdent());
+          break;
+
+        default:
+          assert.fail(expr.type);
+          break;
+      }
+    });
+
+    return map.get(this);
+  }
 }
 
 class Constant extends Expression{
   constructor(system, symbol){
-    super(system, symbol, emptySet, emptySet, emptySet, 0, 0);
+    super(system, symbol, emptySet, emptySet, 0, 0);
   }
 
   get type(){ return 0; }
@@ -172,10 +206,9 @@ class Pair extends Expression{
   constructor(system, fst, snd){
     const idents = new Set([...fst.idents, ...snd.idents]);
     const identsOutsideCall = new Set([...fst.identsOutsideCall, ...snd.identsOutsideCall]);
-    const funcs = new Set([...fst.funcs, ...snd.funcs]);
     const pairDepth = max(fst.pairDepth, snd.pairDepth) + 1;
     const callDepth = max(fst.callDepth, snd.callDepth);
-    super(system, null, idents, identsOutsideCall, funcs, pairDepth, callDepth);
+    super(system, null, idents, identsOutsideCall, pairDepth, callDepth);
 
     this.fst = fst;
     this.snd = snd;
@@ -195,7 +228,7 @@ class Pair extends Expression{
 class Identifier extends Expression{
   constructor(system, symbol){
     const identsOutsideCall = new Set([symbol]);
-    super(system, symbol, identsOutsideCall, identsOutsideCall, emptySet, 0, 0);
+    super(system, symbol, identsOutsideCall, identsOutsideCall, 0, 0);
   }
 
   get type(){ return 2; }
@@ -211,8 +244,7 @@ class Identifier extends Expression{
 class Call extends Expression{
   constructor(system, func, arg){
     const symbol = system.createSymbol();
-    const funcs = arg.funcs.has(func) ? arg.funcs : new Set([...arg.funcs, func]);
-    super(system, symbol, arg.idents, emptySet, funcs, arg.pairDepth, arg.callDepth + 1);
+    super(system, symbol, arg.idents, emptySet, arg.pairDepth, arg.callDepth + 1);
 
     this.func = func;
     this.arg = arg;

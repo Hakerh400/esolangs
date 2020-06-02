@@ -88,8 +88,8 @@ class Equation extends Comparable{
     this.pri = lhs.pri + rhs.pri;
   }
 
-  cmp(target){
-    return this.pri - target.pri;
+  cmp(equation){
+    return this.pri - equation.pri;
   }
 
   subst(identSym, exprNew){
@@ -102,8 +102,8 @@ class Equation extends Comparable{
   toStr(){
     const arr = [];
 
-    if(cs.DISPLAY_PRIORITY)
-      arr.push('[', this.pri, '] ');
+    // if(cs.DISPLAY_PRIORITY)
+    //   arr.push('[', this.pri, '] ');
 
     arr.push(this.lhs, ' = ', this.rhs);
     return arr;
