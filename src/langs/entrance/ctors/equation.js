@@ -17,16 +17,16 @@ class EquationsQueue extends Queue{
 
     while(stack.length !== 0){
       const eq = stack.pop();
+      const {lhs, rhs} = eq;
+      const type1 = lhs.type;
+      const type2 = rhs.type;
 
-      if(eq.pri >= 3){
-        const {lhs, rhs} = eq;
-
-        if(lhs.type === 1){
-          if(rhs.type === 1 && rhs.identsOutsideCall.has(lhs.symbol)){
+      if(type1 === 2 || type1 === 3){
+        if(type1 === 2){
+          if(type2 === 1 && rhs.identsOutsideCall.has(lhs.symbol))
             return 0;
-          }
 
-          if(rhs.type === 2 && rhs.symbol === lhs.symbol)
+          if(type2 === 2 && lhs.symbol === rhs.symbol)
             continue;
         }
 
@@ -35,28 +35,27 @@ class EquationsQueue extends Queue{
         continue;
       }
 
-      const {lhs, rhs} = eq;
-
-      if(lhs.type !== rhs.type){
+      if(type1 !== type2){
         return 0;
       }
 
-      if(lhs.type === 0){
-        if(rhs.symbol !== lhs.symbol){
+      if(type1 === 0){
+        if(rhs.symbol !== lhs.symbol)
           return 0;
-        }
+
         continue;
       }
 
-      if(lhs.type === 1){
+      if(type1 === 1){
         stack.push(
           new cs.Equation(lhs.fst, rhs.fst),
           new cs.Equation(lhs.snd, rhs.snd),
         );
+        
         continue;
       }
 
-      assert.fail(lhs.type);
+      assert.fail(type1);
     }
 
     return 1;

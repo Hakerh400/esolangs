@@ -23,10 +23,17 @@ class Expression extends Base{
     this.funcs = funcs;
     this.pairDepth = pairDepth;
     this.callDepth = callDepth;
+
+    this.pri = (
+      idents.size +
+      funcs.size +
+      pairDepth * 2 +
+      callDepth * 4
+    );
   }
 
   get type(){ O.virtual('type'); }
-  get pri(){ O.virtual('pri'); }
+  get tpri(){ O.virtual('tpri'); }
 
   instantiate(){
     if(this.idents.size === 0)
@@ -152,7 +159,7 @@ class Constant extends Expression{
   }
 
   get type(){ return 0; }
-  get pri(){ return 0; }
+  get tpri(){ return 0; }
 
   get chNum(){ return 0; }
 
@@ -175,7 +182,7 @@ class Pair extends Expression{
   }
 
   get type(){ return 1; }
-  get pri(){ return 1; }
+  get tpri(){ return 1; }
 
   get chNum(){ return 2; }
   getCh(i){ return i === 0 ? this.fst : this.snd; }
@@ -192,7 +199,7 @@ class Identifier extends Expression{
   }
 
   get type(){ return 2; }
-  get pri(){ return 3; }
+  get tpri(){ return 3; }
 
   get chNum(){ return 0; }
 
@@ -212,7 +219,7 @@ class Call extends Expression{
   }
 
   get type(){ return 3; }
-  get pri(){ return 5; }
+  get tpri(){ return 5; }
 
   get chNum(){ return 1; }
   getCh(){ return this.arg; }

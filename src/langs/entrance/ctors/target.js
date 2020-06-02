@@ -10,9 +10,11 @@ const cs = require('.');
 const {Base, Comparable, Queue} = cs;
 
 class TargetsQueue extends Queue{
+  symbols = new Set();
   pri = 0;
 
   push(target){
+    const {symbols} = this;
     const stack = [target];
 
     while(stack.length !== 0){
@@ -30,9 +32,19 @@ class TargetsQueue extends Queue{
           );
           break;
 
-        case 2: case 3:
+        case 2:
+          const sym = expr.symbol;
+          if(symbols.has(sym)) break;
+
           super.push(target);
-          this.pri++;
+          this.pri += expr.pri;
+          symbols.add(sym);
+
+          break;
+
+        case 3:
+          super.push(target);
+          this.pri += expr.pri;
           break;
 
         default:

@@ -30,10 +30,21 @@ class Solver extends Queue{
 
   solve(){
     const {system} = this;
+    let solution = null;
+
+    const t = O.now;
+
+    // let cnt = 0;
 
     mainLoop: while(this.len !== 0){
       const state = this.pop();
       const {binding, targets, equations} = state;
+
+      // if(++cnt === 1e4){
+      //   cnt = 0;
+      //   log(state.toString());
+      //   log(`\n${'='.repeat(100)}\n`);
+      // }
 
       if(DEBUG){
         log(state.toString());
@@ -47,10 +58,11 @@ class Solver extends Queue{
         // If there are no targets
         if(targets.len === 0){
           // Reconstruct the solution
-          return this.reconstructSolution(binding);
+          solution = this.reconstructSolution(binding);
+          break mainLoop;
         }
 
-        const target = targets.pop();
+        const target = targets.top();
         const {expr} = target;
         const {type} = expr;
 
@@ -62,8 +74,6 @@ class Solver extends Queue{
           const symbols = new Set();
           let b = binding;
 
-          targets.push(target);
-
           for(const target of targets){
             const sym = target.expr.symbol;
             if(symbols.has(sym)) continue;
@@ -72,7 +82,17 @@ class Solver extends Queue{
             symbols.add(sym);
           }
 
-          return this.reconstructSolution(b);
+          // const arr = [];
+          // for(let s = state; s; s = s.prev)
+          //   arr.push(s);
+          // while(arr.length !== 0){
+          //   const state = arr.pop();
+          //   log(state.toString());
+          //   debug(`\n${'='.repeat(100)}`);
+          // }
+
+          solution = this.reconstructSolution(b);
+          break mainLoop;
         }
 
         // If there is at least one call target
@@ -107,14 +127,15 @@ class Solver extends Queue{
             if(!equationsNew.push(new cs.Equation(arg, expr.arg)))
               continue funcInfoLoop;
 
-            for(const equation of equations)
-              equationsNew.push(equation);
+            for(const e of equations)
+              equationsNew.push(e);
 
             const targetsNew = new cs.TargetsQueue();
             targetsNew.push(new cs.Target(ret));
 
-            for(const target of targets)
-              targetsNew.push(target);
+            for(const t of targets)
+              if(t !== target)
+                targetsNew.push(t);
 
             const stateNew = new State(system, state.symbol, bindingNew, depthNew, targetsNew, equationsNew);
             this.push(stateNew);
@@ -139,18 +160,16 @@ class Solver extends Queue{
 
         // If there is a constant or an identifier on the RHS
         if(type2 === 0 || type2 === 2){
-          equations.pop();
-
           const bindingNew = new cs.Binding(binding, sym, rhs);
 
           const equationsNew = new cs.EquationsQueue();
-          for(const equation of equations)
-            if(!equationsNew.push(equation.subst(sym, rhs)))
+          for(const e of equations)
+            if(e !== equation && !equationsNew.push(e.subst(sym, rhs)))
               continue mainLoop;
 
           const targetsNew = new cs.TargetsQueue();
-          for(const target of targets)
-            targetsNew.push(target.subst(sym, rhs));
+          for(const t of targets)
+            targetsNew.push(t.subst(sym, rhs));
 
           const stateNew = new State(system, state.symbol, bindingNew, depthNew, targetsNew, equationsNew);
           this.push(stateNew);
@@ -169,13 +188,13 @@ class Solver extends Queue{
           const bindingNew = new cs.Binding(binding, sym, exprNew);
 
           const equationsNew = new cs.EquationsQueue();
-          for(const equation of equations)
-            if(!equationsNew.push(equation.subst(sym, exprNew)))
+          for(const e of equations)
+            if(!equationsNew.push(e.subst(sym, exprNew)))
               continue mainLoop;
 
           const targetsNew = new cs.TargetsQueue();
-          for(const target of targets)
-            targetsNew.push(target.subst(sym, exprNew));
+          for(const t of targets)
+            targetsNew.push(t.subst(sym, exprNew));
 
           const stateNew = new State(system, state.symbol, bindingNew, depthNew, targetsNew, equationsNew);
           this.push(stateNew);
@@ -188,8 +207,6 @@ class Solver extends Queue{
 
       // If there is a call on the LHS
       if(type1 === 3){
-        equations.pop();
-
         funcInfoLoop: for(const funcInfo of system.getFuncInfo(lhs.func)){
           const funcInfoInstance = funcInfo.instantiate();
           const arg = funcInfoInstance.fst;
@@ -201,12 +218,13 @@ class Solver extends Queue{
           if(!equationsNew.push(new cs.Equation(ret, rhs)))
             continue funcInfoLoop;
 
-          for(const equation of equations)
-            equationsNew.push(equation);
+          for(const e of equations)
+            if(e !== equation)
+              equationsNew.push(e);
 
           const targetsNew = new cs.TargetsQueue();
-          for(const target of targets)
-            targetsNew.push(target);
+          for(const t of targets)
+            targetsNew.push(t);
 
           const stateNew = new State(system, state.symbol, binding, depthNew, targetsNew, equationsNew);
           this.push(stateNew);
@@ -218,7 +236,11 @@ class Solver extends Queue{
       assert.fail(type1);
     }
 
-    return null;
+    const dt = O.now - t;
+    log((dt / 1e3).toFixed(3));
+    log();
+
+    return solution;
   }
 
   reconstructSolution(binding){
@@ -286,8 +308,8 @@ class State extends Comparable{
     this.equations = equations;
 
     this.pri = (
-      depth * 2 +
-      targets.pri * 5 +
+      depth * 3 +
+      targets.pri +
       equations.pri
     );
   }
