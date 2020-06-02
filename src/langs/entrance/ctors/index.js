@@ -6,10 +6,9 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../../..');
 
-const DISPLAY_PRIORITY = 0;
-
 const cs = {
-  DISPLAY_PRIORITY,
+  DISPLAY_PRIORITY: 0,
+  GENERATED_IDENTS_PREFIX: '',
 };
 
 module.exports = cs;
@@ -18,6 +17,11 @@ require('./base');
 require('./queue');
 require('./expression');
 require('./system');
+require('./scope');
+require('./unique-symbol');
+require('./func-def');
+require('./temp-struct');
+require('./sol-struct');
 require('./target');
 require('./equation');
 require('./binding');

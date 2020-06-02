@@ -41,11 +41,12 @@ class Expression extends Base{
         case 1:
           const {fst, snd} = expr;
 
-          const hasFst = exprs.has(fst);
-          const hasSnd = exprs.has(snd);
+          const hasFst = fst.idents.size !== 0;
+          const hasSnd = snd.idents.size !== 0;
           if(!(hasFst || hasSnd)) break;
 
-          exprs.set(expr, new Pair(system,
+          exprs.set(expr, new Pair(
+            system,
             hasFst ? exprs.get(fst) : fst,
             hasSnd ? exprs.get(snd) : snd,
           ));
@@ -64,16 +65,76 @@ class Expression extends Base{
 
         case 3:
           const {func, arg} = expr;
-          if(!exprs.has(arg)) break;
+          if(arg.idents.size === 0) break;
 
-          expr.set(expr, new Call(system, system.createSymbol(), func, exprs.get(arg)));
+          exprs.set(exprs, new Call(
+            system,
+            func,
+            exprs.get(arg),
+          ));
 
+          break;
+
+        default:
+          assert.fail(expr.type);
           break;
       }
     });
 
 
     return exprs.get(this);
+  }
+
+  subst(identSym, exprNew){
+    if(!this.idents.has(identSym))
+      return this;
+
+    const map = new Map();
+
+    this.bottomUp(expr => {
+      switch(expr.type){
+        case 1:
+          const {fst, snd} = expr;
+
+          const hasFst = fst.idents.has(identSym);
+          const hasSnd = snd.idents.has(identSym);
+          if(!(hasFst || hasSnd)) break;
+
+          map.set(expr, new Pair(
+            system,
+            hasFst ? map.get(fst) : fst,
+            hasSnd ? map.get(snd) : snd,
+          ));
+
+          break;
+
+        case 2:
+          const sym = expr.symbol;
+          if(sym !== identSym) break;
+
+          map.set(expr, exprNew);
+
+          break;
+
+        case 3:
+          const {func, arg} = expr;
+          if(!arg.idents.has(identSym)) break;
+
+          map.set(map, new Call(
+            system,
+            func,
+            map.get(arg),
+          ));
+
+          break;
+
+        default:
+          assert.fail(expr.type);
+          break;
+      }
+    });
+
+    return map.get(this);
   }
 }
 
@@ -133,7 +194,8 @@ class Identifier extends Expression{
 }
 
 class Call extends Expression{
-  constructor(system, symbol, func, arg){
+  constructor(system, func, arg){
+    const symbol = system.createSymbol();
     const funcs = arg.funcs.has(func) ? arg.funcs : new Set([...arg.funcs, func]);
     super(system, symbol, arg.idents, emptySet, funcs, arg.pairDepth, arg.callDepth + 1);
 

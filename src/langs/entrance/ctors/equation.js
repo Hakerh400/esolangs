@@ -110,6 +110,13 @@ class Equation extends Comparable{
     return this.pri - target.pri;
   }
 
+  subst(identSym, exprNew){
+    return new Equation(
+      this.lhs.subst(identSym, exprNew),
+      this.rhs.subst(identSym, exprNew),
+    );
+  }
+
   toStr(){
     const arr = [];
 

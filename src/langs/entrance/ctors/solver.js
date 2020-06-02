@@ -50,7 +50,7 @@ class Solver extends Queue{
           return this.reconstructSolution(binding);
         }
 
-        const target = targets.top();
+        const target = targets.pop();
         const {expr} = target;
         const {type} = expr;
 
@@ -61,6 +61,8 @@ class Solver extends Queue{
           const zero = system.getConstant('0');
           const symbols = new Set();
           let b = binding;
+
+          targets.push(target);
 
           for(const target of targets){
             const sym = target.expr.symbol;
@@ -76,8 +78,6 @@ class Solver extends Queue{
         // If there is at least one call target
         if(type === 3){
           // Expand the target into new states
-
-          targets.pop();
 
           // Iterate through all definitions for that function
           funcInfoLoop: for(const funcInfo of system.getFuncInfo(expr.func)){
@@ -134,13 +134,48 @@ class Solver extends Queue{
 
       // If there is an identifier on the LHS
       if(type1 === 2){
+        const sym = lhs.symbol;
+
         // If there is a constant or an identifier on the RHS
         if(type2 === 0 || type2 === 2){
+          equations.pop();
+
+          const bindingNew = new cs.Binding(binding, sym, rhs);
+
+          const equationsNew = new cs.EquationsQueue();
+          for(const equation of equations){
+            equationsNew.push(equation.subst(sym, rhs));
+            if(equationsNew.invalid) continue mainLoop;
+          }
+
+          const targetsNew = new cs.TargetsQueue();
+          for(const target of targets)
+            targetsNew.push(target.subst(sym, rhs));
+
+          const stateNew = new State(system, state.symbol, bindingNew, depthNew, targetsNew, equationsNew);
+          this.push(stateNew);
+
           continue;
         }
 
         // If there is a pair on the RHS
         if(type2 === 1){
+          const exprNew = new cs.Pair(system, system.createSymbol(), system.createSymbol());
+          const bindingNew = new cs.Binding(binding, sym, exprNew);
+
+          const equationsNew = new cs.EquationsQueue();
+          for(const equation of equations){
+            equationsNew.push(equation.subst(sym, exprNew));
+            if(equationsNew.invalid) continue mainLoop;
+          }
+
+          const targetsNew = new cs.TargetsQueue();
+          for(const target of targets)
+            targetsNew.push(target.subst(sym, exprNew));
+
+          const stateNew = new State(system, state.symbol, bindingNew, depthNew, targetsNew, equationsNew);
+          this.push(stateNew);
+
           continue;
         }
 
@@ -149,6 +184,7 @@ class Solver extends Queue{
 
       // If there is a call on the LHS
       if(type1 === 3){
+        O.noimpl();
         continue;
       }
 
@@ -156,6 +192,51 @@ class Solver extends Queue{
     }
 
     return null;
+  }
+
+  reconstructSolution(binding){
+    const {system, targetExpr} = this;
+    const map = new Map();
+
+    for(let b = binding; b !== null; b = b.prev)
+      map.set(b.symbol, b.expr);
+
+    const sStruct = new cs.SolutionStructure(system, targetExpr);
+    const stack = [sStruct];
+
+    while(stack.length !== 0){
+      const sStruct = stack.pop();
+      assert(sStruct.type === 2);
+
+      loop: while(1){
+        const expr = sStruct.data;
+
+        switch(expr.type){
+          case 0:
+            sStruct.finalize(0, []);
+            break loop;
+
+          case 1:
+            const fst = new cs.SolutionStructure(system, expr.fst);
+            const snd = new cs.SolutionStructure(system, expr.snd);
+            sStruct.finalize(1, [fst, snd]);
+            stack.push(fst, snd);
+            break loop;
+
+          case 2: case 3:
+            const exprSym = expr.symbol;
+            assert(map.has(exprSym));
+            sStruct.data = map.get(exprSym);
+            break;
+
+          default:
+            assert.fail(expr.type);
+            break;
+        }
+      }
+    }
+
+    return sStruct.toExpr();
   }
 
   toStr(){

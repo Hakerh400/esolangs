@@ -67,8 +67,20 @@ class Target extends Comparable{
     return this.pri - target.pri;
   }
 
+  subst(identSym, exprNew){
+    return new Target(
+      this.expr.subst(identSym, exprNew),
+    );
+  }
+
   toStr(){
-    return [this.expr.symbol, ': ', this.expr];
+    const {expr} = this;
+    const arr = [expr.symbol];
+
+    if(expr.type === 3)
+      arr.push(': ', expr);
+
+    return arr;
   }
 }
 
