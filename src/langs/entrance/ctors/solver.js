@@ -11,7 +11,7 @@ const cs = require('.');
 
 const {Base, Comparable, Queue} = cs;
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 class Solver extends Queue{
   constructor(system, targetExpr){
