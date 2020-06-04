@@ -199,5 +199,9 @@
     "id": "highlighter",
     "details": null,
     "wip": true
+  }, {
+    "name": "Jumplang",
+    "id": "jumplang",
+    "details": "https://esolangs.org/wiki/Jumplang"
   }
 ]
