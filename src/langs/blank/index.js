@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 const parser = require('../../common/parser');

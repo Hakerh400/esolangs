@@ -203,5 +203,9 @@
     "name": "Jumplang",
     "id": "jumplang",
     "details": "https://esolangs.org/wiki/Jumplang"
+  }, {
+    "name": "1.1",
+    "id": "1-1",
+    "details": "https://esolangs.org/wiki/1.1"
   }
 ]

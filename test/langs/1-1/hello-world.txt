@@ -1,0 +1,4 @@
+1|Good morning, you!
+2|Good morning|Hello|3|4
+3|you|World|4|4
+4|halt
