@@ -6,6 +6,7 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 const parser = require('../../common/parser');
+const debug = require('../../common/debug');
 const ast = require('./ast');
 const Engine = require('./engine');
 const cs = require('./ctors');

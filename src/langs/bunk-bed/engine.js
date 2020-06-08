@@ -12,11 +12,6 @@ const DEBUG = 0;
 
 class Engine{
   constructor(parsed, input){
-    input = input.toString().trim();
-
-    if(!/^[01]*$/.test(input))
-      esolangs.err(`Input string can only contain bits`);
-
     this.parsed = parsed;
     this.input = input.split('').map(a => a | 0);
     this.output = null;

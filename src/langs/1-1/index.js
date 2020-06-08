@@ -5,7 +5,6 @@ const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
-const parser = require('../../common/parser');
 
 const run = (src, input) => {
   const lines = O.sanl(src.toString());

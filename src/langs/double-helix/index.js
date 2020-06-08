@@ -52,11 +52,6 @@ const run = (src, input) => {
     helices[1].push(charToInst(line[x2]));
   }
 
-  input = input.toString().trim();
-
-  if(!/^[01]*$/.test(input))
-    esolangs.err(`Input string can only contain bits`);
-
   const states = O.obj();
 
   let str = input;

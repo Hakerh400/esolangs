@@ -120,11 +120,6 @@ const run = (src, input) => {
     return `${lhs} - ${rhsArr[index]}`;
   }).join('\n');
 
-  input = input.toString().trim();
-
-  if(!/^[01]*$/.test(input))
-    esolangs.err(`Input string can only contain bits`);
-
   return esolangs.run('Golden sunrise', src, input, {
     useBitIO: 1,
   });

@@ -154,6 +154,8 @@
   }, {
     "name": "Liberation",
     "id": "liberation",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Liberation"
   }, {
     "name": "Entrance",
@@ -172,6 +174,8 @@
   }, {
     "name": "Bunk bed",
     "id": "bunk-bed",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Bunk_bed"
   }, {
     "name": "Stopwatch",
@@ -181,14 +185,20 @@
   }, {
     "name": "Gummy Bear",
     "id": "gummy-bear",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Gummy_Bear"
   }, {
     "name": "Happy Fantasy",
     "id": "happy-fantasy",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Happy_Fantasy"
   }, {
     "name": "Double Helix",
     "id": "double-helix",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Double_Helix"
   }, {
     "name": "User:Zzo38/Untitled 4",
@@ -207,5 +217,11 @@
     "name": "1.1",
     "id": "1-1",
     "details": "https://esolangs.org/wiki/1.1"
+  }, {
+    "name": "Fading Rainbow",
+    "id": "fading-rainbow",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
+    "details": "https://esolangs.org/wiki/Fading_Rainbow"
   }
 ]

@@ -59,10 +59,19 @@ const esolangs = {
       esolangs.err(`Language ${O.sf(name)} is not an output-only language and must take input ` +
         `(parameter \`input\` cannot be null)`);
 
+    if('inputFormat' in info && info.inputFormat === 'bitArray'){
+      input = input.toString().replace(/[\s+]/g, '');
+
+      if(!/^[01]*$/.test(input))
+        esolangs.err(`Input string can only contain bits`);
+    }else{
+      input = Buffer.from(input);
+    }
+
     const func = require(path.join(langsDir, info.id));
 
     if(hasInput){
-      const result = func(Buffer.from(src), Buffer.from(input), opts);
+      const result = func(Buffer.from(src), input, opts);
       return result;
     }
 
