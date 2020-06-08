@@ -50,7 +50,7 @@ const run = (src, input) => {
 
         while(1){
           const index = mainStr.indexOf(str1, start);
-          if(index === -1) break;
+          if(index < start) break;
 
           matches.push(new Match(ruleIndex, index, len, str2));
           start = index + 1;
@@ -71,11 +71,11 @@ const run = (src, input) => {
     const len = mainStr.length;
     const marked = O.ca(len, () => 0);
 
-    if(mainStr.startsWith(blocks[blocksNum - 4]));
+    if(mainStr.startsWith(blocks[blocksNum - 4]))
       for(let i = blocks[blocksNum - 4].length - 1; i !== -1; i--)
         marked[i] = 1;
 
-    if(mainStr.startsWith(blocks[blocksNum - 1]));
+    if(mainStr.endsWith(blocks[blocksNum - 1]))
       for(let i = blocks[blocksNum - 1].length - 1; i !== -1; i--)
         marked[len - i - 1] = 1;
 
@@ -86,7 +86,7 @@ const run = (src, input) => {
 
       while(1){
         const index = mainStr.indexOf(str, start);
-        if(index === -1) break;
+        if(index < start) break;
 
         for(let i = 0; i !== str.length; i++)
           marked[index + i] = 1;
