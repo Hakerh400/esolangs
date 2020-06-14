@@ -223,5 +223,9 @@
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Fading_Rainbow"
+  }, {
+    "name": "DJ Qarkegs - Above The Sky",
+    "id": "qarkegs",
+    "details": "https://esolangs.org/wiki/DJ_Qarkegs_-_Above_The_Sky"
   }
 ]
