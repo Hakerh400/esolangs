@@ -160,8 +160,7 @@
   }, {
     "name": "Entrance",
     "id": "entrance",
-    "details": null,
-    "wip": true
+    "details": "https://esolangs.org/wiki/Entrance"
   }, {
     "name": "Minimal operation language",
     "id": "minimal-operation-language",

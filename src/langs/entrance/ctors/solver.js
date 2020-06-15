@@ -12,6 +12,7 @@ const cs = require('.');
 const {Base, Comparable, Queue} = cs;
 
 const DEBUG = 0;
+const DISPLAY_TIME = 0;
 
 class Solver extends Queue{
   constructor(system, targetExpr){
@@ -163,7 +164,7 @@ class Solver extends Queue{
 
           // If there is no call on the RHS
           if(rhs.callDepth === 0){
-            const bindingNew = new cs.Binding(binding, sym, rhs);
+            let bindingNew = new cs.Binding(binding, sym, rhs);
 
             const equationsNew = new cs.EquationsQueue();
             for(const e of equations)
@@ -171,8 +172,14 @@ class Solver extends Queue{
                 continue mainLoop;
 
             const targetsNew = new cs.TargetsQueue();
-            for(const t of targets)
-              targetsNew.push(t.subst(sym, rhs));
+
+            for(const target of targets){
+              const targetNew = target.subst(sym, rhs);
+              targetsNew.push(targetNew);
+
+              if(target.expr.type === 3)
+                bindingNew = new cs.Binding(bindingNew, target.expr.symbol, targetNew.expr);
+            }
 
             state = new State(system, stateSym, bindingNew, depth, targetsNew, equationsNew);
             continue innerLoop;
@@ -183,7 +190,7 @@ class Solver extends Queue{
           assert(type2 === 1);
 
           const exprNew = rhs.replaceCallsWithIdents();
-          const bindingNew = new cs.Binding(binding, sym, exprNew);
+          let bindingNew = new cs.Binding(binding, sym, exprNew);
 
           const equationsNew = new cs.EquationsQueue();
           for(const e of equations)
@@ -191,8 +198,14 @@ class Solver extends Queue{
               continue mainLoop;
 
           const targetsNew = new cs.TargetsQueue();
-          for(const t of targets)
-            targetsNew.push(t.subst(sym, exprNew));
+
+          for(const target of targets){
+            const targetNew = target.subst(sym, exprNew);
+            targetsNew.push(targetNew);
+
+            if(target.expr.type === 3)
+              bindingNew = new cs.Binding(bindingNew, target.expr.symbol, targetNew.expr);
+          }
 
           state = new State(system, stateSym, bindingNew, depth, targetsNew, equationsNew);
           continue innerLoop;
@@ -230,8 +243,11 @@ class Solver extends Queue{
     }
 
     const dt = O.now - t;
-    log((dt / 1e3).toFixed(3));
-    log();
+
+    if(DISPLAY_TIME){
+      log((dt / 1e3).toFixed(3));
+      log();
+    }
 
     return solution;
   }
