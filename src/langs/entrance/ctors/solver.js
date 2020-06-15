@@ -35,8 +35,7 @@ class Solver extends Queue{
     let solution = null;
 
     const t = O.now;
-
-    let cnt = 0;
+    // let cnt = 0;
 
     mainLoop: while(this.len !== 0){
       let state = this.pop();
@@ -46,12 +45,12 @@ class Solver extends Queue{
         const stateSym = state.symbol;
         const depthNew = depth + 1;
 
-        if(++cnt === 5e4){
-          cnt = 0;
-          log('States: ' + format.num(this.len) + '\n');
-          log(state.toString());
-          log(`\n${'='.repeat(100)}\n`);
-        }
+        // if(++cnt === 5e4){
+        //   cnt = 0;
+        //   log('States: ' + format.num(this.len) + '\n');
+        //   log(state.toString());
+        //   log(`\n${'='.repeat(100)}\n`);
+        // }
 
         if(DEBUG){
           log(state.toString());
