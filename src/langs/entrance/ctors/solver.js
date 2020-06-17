@@ -241,9 +241,8 @@ class Solver extends Queue{
       }
     }
 
-    const dt = O.now - t;
-
     if(DISPLAY_TIME){
+      const dt = O.now - t;
       log((dt / 1e3).toFixed(3));
       log();
     }

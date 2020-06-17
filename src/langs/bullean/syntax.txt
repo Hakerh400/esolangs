@@ -1,0 +1,32 @@
+script{ s0 elem*s0 s0 }
+
+elem{
+  num |
+  bind |
+  call |
+  bindAndCall |
+  clean |
+  in |
+  out |
+  group
+}
+
+num{ [0-9]+ }
+bind{ "." }
+call{ "~" }
+bindAndCall{ "*" }
+clean{ "-" }
+in{ "in" b }
+out{ "out" b }
+group{ "(" s0 elem*s0 s0 ")" }
+
+b{ ![a-zA-Z0-9_] }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

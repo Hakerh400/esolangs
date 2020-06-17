@@ -226,5 +226,12 @@
     "name": "DJ Qarkegs - Above The Sky",
     "id": "qarkegs",
     "details": "https://esolangs.org/wiki/DJ_Qarkegs_-_Above_The_Sky"
+  }, {
+    "name": "Bullean",
+    "id": "bullean",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
+    "details": null,
+    "wip": true
   }
 ]
