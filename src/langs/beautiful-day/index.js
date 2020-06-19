@@ -16,8 +16,12 @@ const run = (src, input, opts={}) => {
   opts = {...defaultOpts, ...opts};
 
   const system = parse(src.toString());
+  const gen = system.createGenerator();
 
-  O.exit(system + '');
+  for(const a of gen)
+    log(a);
+
+  O.exit();
 };
 
 const parse = src => {
