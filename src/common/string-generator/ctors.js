@@ -36,53 +36,55 @@ class System extends Base{
 
       while(1){
         const {es} = group;
-        const len = es.length;
-        const hasStr = len !== 0 && es[0] instanceof String;
-        const str = hasStr ? es[0].str : '';
-        const end = len === (hasStr ? 1 : 0);
-
-        for(const rule of rules){
-          const {lhs, rhs} = rule;
-          const lhsStr = lhs.str.str;
-
-          if(!end && lhs.end) continue;
-          if(lhs.end ? str !== lhsStr : !str.startsWith(lhsStr)) continue;
-
-          const rest = new ElementsArray();
-          rest.add(new String(str.slice(lhsStr.length)));
-
-          for(let i = hasStr ? 1 : 0; i !== len; i++)
-            rest.add(es[i]);
-
-          const groupNew = stateGroup.replace(group, rhs.parametrize(rest));
-
-          const esNew = groupNew.es;
-          let strNew = stateStr;
-
-          if(esNew.length !== 0 && esNew[0] instanceof String){
-            strNew += esNew[0].str;
-            esNew.shift();
-          }
-
-          if(esNew.length === 0){
-            if(seen.has(strNew)) continue;
-
-            seen.add(strNew);
-            yield strNew;
-
-            continue;
-          }
-
-          if(func && !func(strNew)) continue;
-
-          queue.push([strNew, groupNew]);
-          queueLen++;
-        }
-
         const groupIndex = es.findIndex(a => a instanceof Group);
         if(groupIndex === -1) break;
 
         group = es[groupIndex];
+      }
+
+      const {es} = group;
+      const len = es.length;
+      const hasStr = len !== 0 && es[0] instanceof String;
+      const str = hasStr ? es[0].str : '';
+      const end = len === (hasStr ? 1 : 0);
+
+      for(const rule of rules){
+        const {lhs, rhs} = rule;
+        const lhsStr = lhs.str.str;
+
+        if(!end && lhs.end) continue;
+        if(lhs.end ? str !== lhsStr : !str.startsWith(lhsStr)) continue;
+
+        const rest = new ElementsArray();
+        rest.add(new String(str.slice(lhsStr.length)));
+
+        for(let i = hasStr ? 1 : 0; i !== len; i++)
+          rest.add(es[i]);
+
+        const groupNew = stateGroup.replace(group, rhs.parametrize(rest));
+        const esNew = groupNew.es;
+        let strNew = stateStr;
+
+        if(esNew.length !== 0 && esNew[0] instanceof String){
+          strNew += esNew[0].str;
+          esNew.shift();
+        }
+
+        if(esNew.length === 0){
+          if(seen.has(strNew)) continue;
+
+          seen.add(strNew);
+          yield strNew;
+
+          continue;
+        }
+
+        if(func && !func(strNew)){
+          continue;
+        }
+
+        queue.push([strNew, groupNew]);
+        queueLen++;
       }
     }
   }
@@ -189,6 +191,14 @@ class ElementsArray extends Base{
 
     elems.push(elem);
   }
+
+  copy(){
+    return new ElementsArray(this.elems.map(a => a.copy()));
+  }
+
+  toStr(){
+    return this.join([], this.elems, '');
+  }
 }
 
 class Element extends Base{
@@ -243,7 +253,7 @@ class Element extends Base{
           break;
 
         case Match:
-          map.set(elem, elemsArr);
+          map.set(elem, elemsArr.copy());
           break;
 
         case Group:
@@ -277,7 +287,7 @@ class Element extends Base{
       const ctor = elem.constructor;
 
       if(elem === needle){
-        map.set(elem, elemsArr);
+        map.set(elem, elemsArr.copy());
         return;
       }
 
