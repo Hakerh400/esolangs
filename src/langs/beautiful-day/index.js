@@ -6,78 +6,112 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 const debug = require('../../common/debug');
+const cs = require('./ctors');
 
-const noSolMsg = 'No solution exists.';
+const defaultOpts = {
+  gen: 0,
+};
 
-const run = (src, input) => {
-  const inputStrs = O.sanl(String(input).trim());
+const run = (src, input, opts={}) => {
+  opts = {...defaultOpts, ...opts};
 
-  if(inputStrs.length !== 2)
-    esolangs.err(`Input must consist of two strings separated by a new line`);
+  const system = parse(src.toString());
 
-  inputs.forEach((str, index) => {
-    if(!/^[!-~]*$/.test(str))
-      esolangs.err(`The ${
-        index === 0 ? 'first' : 'second'} input string ${
-        O.sf(str)} contains invalid characters`);
-  });
+  O.exit(system + '');
+};
 
-  const noSol = () => {
-    const msg = inputStrs.every(a => a === noSolMsg) ?
-      `${noSolMsg.slice(0, noSolMsg.length - 1)}!` : noSolMsg;
+const parse = src => {
+  const tokens = O.match(src, /[^\\]|\\./gs);
+  const rules = [];
 
-    return Buffer.from(msg);
-  };
+  while(tokens.length !== 0){
+    const semicolonIndex = tokens.indexOf(';');
 
-  const srcCode = String(src).trim();
+    if(semicolonIndex === -1)
+      esolangs.err(`Missing semicolon at the end of the last rule`);
 
-  if(srcCode.length === 0)
-    esolangs.err(`Source code must contain at least one function definition`);
+    const ruleTokens = tokens.splice(0, semicolonIndex + 1);
+    ruleTokens.pop();
 
-  const funcArgsNum = O.obj();
-  const funcDefStrs = srcCode.split(/\s*;\s*/);
+    const ruleStr = ruleTokens.join('').trim();
+    const ruleTokensFiltered = ruleTokens.filter(a => a.length === 2 || /^\S$/.test(a));
+    const hyphenIndex = ruleTokensFiltered.indexOf('-');
+    const lastHyphenIndex = ruleTokensFiltered.lastIndexOf('-');
 
-  funcDefStrs.pop();
+    if(hyphenIndex === -1)
+      esolangs.err(`Missing "-" in rule ${O.sf(ruleStr)}`);
 
-  funcDefStrs.forEach((funcDefStr, index) => {
-    const parts = funcDefStr.split(/\s*=\s*/);
+    if(lastHyphenIndex !== hyphenIndex)
+      esolangs.err(`Multiple "-" found in rule ${O.sf(rule)}`);
 
-    if(parts.length !== 2)
-      esolangs.err(`Function definition ${O.sf(funcDefStr)} must contain exactly one colon`);
+    const lhsTokens = ruleTokensFiltered.slice(0, hyphenIndex);
+    const rhsTokens = ruleTokensFiltered.slice(hyphenIndex + 1);
 
-    const [lhs, rhs] = parts.map(str => {
-      const tokens = O.match(/[a-zA-Z0-9_]+|"(?:(?![\\"])[!-~]|\\.)"|[\.\?#]/gs);
+    const lhsHashSignIndex = lhsTokens.indexOf('#');
+    const hasHashSign = lhsHashSignIndex !== -1;
 
-      if(tokens.join('').replace(/\s+/g, '') !== str.replace(/\s+/g, ''))
-        esolangs.err(`Invalid function definition ${O.sf(funcDefStr)}`);
-    });
+    if(hasHashSign && lhsHashSignIndex !== lhsTokens.length - 1)
+      esolangs.err(`Character "#" can appear only at the end of the left-hand-side, ${
+        ''}but it appears before the end in rule ${O.sf(ruleStr)}`);
 
-    if(lhs.length === 0)
-      esolangs.err(`Missing function name in function definition ${O.sf(funcDefStr)}`);
+    if(hasHashSign) lhsTokens.pop();
 
-    const name = lhs.shift();
-    const argsNum = lhs.length;
+    const lhs = new cs.Lhs(
+      lhsTokens.map(a => O.last(a)).join(''),
+      hasHashSign,
+    );
 
-    if(!(name in funcArgsNum)){
-      funcArgsNum[name] = argsNum;
-    }else{
-      if(funcArgsNum[name] !== argsNum)
-        esolangs.err(`Two definitions of function ${O.sf(name)} have different number of arguments`);
+    const rhs = new cs.Rhs();
+    const stack = [rhs];
+
+    const addChar = char => {
+      const group = O.last(stack);
+
+      if(group.len === 0 || !(group.last instanceof cs.String)){
+        group.add(new cs.String(char));
+        return;
+      }
+
+      group.last.add(char);
+    };
+
+    for(const tk of rhsTokens){
+      if(tk.length === 2){
+        addChar(tk[1]);
+        continue;
+      }
+
+      if(tk === '('){
+        const group = new cs.Group();
+        O.last(stack).add(group);
+        stack.push(group);
+        continue;
+      }
+
+      if(tk === ')'){
+        if(stack.length === 1)
+          esolangs.err(`Unmatched closed parenthese in rule ${O.sf(ruleStr)}`);
+
+        stack.pop();
+        continue;
+      }
+
+      if(tk === '.'){
+        O.last(stack).add(new cs.Match());
+        continue;
+      }
+
+      addChar(tk);
     }
 
-    const argNames = new Set();
+    if(stack.length !== 1)
+      esolangs.err(`Unmatched open parenthese in rule ${O.sf(ruleStr)}`);
 
-    for(const argName of lhs){
-      if(argNames.has(argName))
-        esolangs.err(`Function ${O.sf(name)} has duplicate argument names ${O.sf(argName)}`);
+    const rule = new cs.Rule(lhs, rhs);
+    rules.push(rule);
+  }
 
-      argNames.add(argName);
-    }
-
-    funcDefStrs[index] = [lhs, rhs];
-  });
-
-
+  return new cs.System(rules);
 };
 
 module.exports = run;
