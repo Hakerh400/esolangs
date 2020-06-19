@@ -233,5 +233,10 @@
     "outputFormat": "bitArray",
     "details": null,
     "wip": true
+  }, {
+    "name": "Beautiful day",
+    "id": "beautiful-day",
+    "details": null,
+    "wip": true
   }
 ]
