@@ -6,7 +6,7 @@ const assert = require('assert');
 const O = require('omikron');
 const List = require('@hakerh400/list');
 const esolangs = require('../..');
-const debug = require('../../common/debug');
+const debug = require('../debug');
 
 const {ArrayList} = List;
 
@@ -18,15 +18,13 @@ class System extends Base{
     this.rules = rules;
   }
 
-  *createGenerator(){
+  *createGenerator(func=null){
     const {rules} = this;
     const seen = new Set();
     const queue = new ArrayList([['', new Group([new Group()])]]);
     let queueLen = 1;
 
     while(queueLen !== 0){
-      // debug([...queue].map(a => O.sf(a.val[0]) + ' ' + a.val[1].es.join('')).join('\n') + '\n\n' + '='.repeat(100));
-
       const state = queue.shift();
       const [stateStr, stateGroup] = state;
 
@@ -75,13 +73,7 @@ class System extends Base{
             continue;
           }
 
-          // log('\n###');
-          // log(O.sf(str));
-          // log('RULE: ' + rule);
-          // log(rest.elems.join(''));
-          // log(stateGroup.es.join('') + ', ' + group + ', ' + rhs.parametrize(rest).elems.join('') + ' -> ' + groupNew.es.join(''));
-          // log(O.sf(strNew));
-          // log('###\n');
+          if(func && !func(strNew)) continue;
 
           queue.push([strNew, groupNew]);
           queueLen++;
@@ -336,7 +328,7 @@ class String extends Element{
   }
 
   toStr(){
-    return this.str.replace(/[\\\#\-\.\(\)]/g, a => `\\${a}`);
+    return this.str.replace(/[\\\/\#\-\.\(\)\;]|\s/g, a => `\\${a}`);
   }
 }
 

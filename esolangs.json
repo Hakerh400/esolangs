@@ -236,7 +236,7 @@
   }, {
     "name": "Beautiful day",
     "id": "beautiful-day",
-    "details": null,
-    "wip": true
+    "outputFormat": "bit",
+    "details": "https://esolangs.org/wiki/Beautiful_day"
   }
 ]
