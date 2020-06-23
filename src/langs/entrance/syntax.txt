@@ -9,7 +9,12 @@ expr{
   call
 }
 
-const{ "0" ![0-9] | [1-9] [0-9]* }
+const{
+  "0" ![0-9] |
+  [1-9] [0-9]* |
+  "\"" [^"]* "\""
+}
+
 pair{ "(" s0 expr s0 "," s0 expr s0 ")" }
 param{ ident }
 call{ ident s0 expr }

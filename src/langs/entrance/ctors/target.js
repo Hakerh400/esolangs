@@ -80,9 +80,11 @@ class Target extends Comparable{
   }
 
   subst(identSym, exprNew){
-    return new Target(
-      this.expr.subst(identSym, exprNew),
-    );
+    const {expr} = this;
+    const expr1 = this.expr.subst(identSym, exprNew);
+    
+    if(expr1 === expr) return this;
+    return new Target(expr1);
   }
 
   toStr(){

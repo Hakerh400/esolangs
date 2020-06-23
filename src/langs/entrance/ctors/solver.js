@@ -13,6 +13,7 @@ const {Base, Comparable, Queue} = cs;
 
 const DEBUG = 0;
 const DISPLAY_TIME = 0;
+const DISPLAY_STEPS_NUM = 0;
 
 class Solver extends Queue{
   constructor(system, targetExpr){
@@ -35,10 +36,18 @@ class Solver extends Queue{
     let solution = null;
 
     const t = O.now;
+    let stepsNum = 0;
     // let cnt = 0;
 
     mainLoop: while(this.len !== 0){
       let state = this.pop();
+
+      stepsNum++;
+
+      // if(stepsNum >= global.MAX){
+      //   global.STEPS = null;
+      //   return null;
+      // }
 
       innerLoop: while(1){
         const {depth, binding, targets, equations} = state;
@@ -161,7 +170,7 @@ class Solver extends Queue{
         if(type1 === 2){
           const sym = lhs.symbol;
 
-          // If there is no call on the RHS
+          // If there is no call anywhere on the RHS
           if(rhs.callDepth === 0){
             let bindingNew = new cs.Binding(binding, sym, rhs);
 
@@ -174,7 +183,9 @@ class Solver extends Queue{
 
             for(const target of targets){
               const targetNew = target.subst(sym, rhs);
+
               targetsNew.push(targetNew);
+              if(targetNew === target) continue;
 
               if(target.expr.type === 3)
                 bindingNew = new cs.Binding(bindingNew, target.expr.symbol, targetNew.expr);
@@ -200,7 +211,9 @@ class Solver extends Queue{
 
           for(const target of targets){
             const targetNew = target.subst(sym, exprNew);
+
             targetsNew.push(targetNew);
+            if(targetNew === target) continue;
 
             if(target.expr.type === 3)
               bindingNew = new cs.Binding(bindingNew, target.expr.symbol, targetNew.expr);
@@ -241,10 +254,22 @@ class Solver extends Queue{
       }
     }
 
-    if(DISPLAY_TIME){
-      const dt = O.now - t;
-      log((dt / 1e3).toFixed(3));
-      log();
+    {
+      let newLine = 0;
+
+      if(DISPLAY_TIME){
+        newLine = 1;
+        const dt = O.now - t;
+        log(`Time: ${(dt / 1e3).toFixed(3)}`);
+      }
+
+      if(DISPLAY_STEPS_NUM){
+        newLine = 1;
+        log(`Steps: ${format.num(stepsNum)}`);
+      }
+      // global.STEPS = stepsNum;
+
+      if(newLine) log();
     }
 
     return solution;
@@ -281,7 +306,10 @@ class Solver extends Queue{
 
           case 2: case 3:
             const exprSym = expr.symbol;
+
             assert(map.has(exprSym));
+            assert(map.get(exprSym) !== expr);
+
             sStruct.data = map.get(exprSym);
             break;
 
@@ -316,8 +344,8 @@ class State extends Comparable{
 
     this.pri = (
       depth +
-      targets.pri +
-      equations.pri * 2
+      targets.pri * 0.2/*global.A*/ +
+      equations.pri * 1.1/*global.B*/
     );
   }
 
