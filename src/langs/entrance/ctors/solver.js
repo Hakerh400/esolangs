@@ -306,11 +306,12 @@ class Solver extends Queue{
 
           case 2: case 3:
             const exprSym = expr.symbol;
-
             assert(map.has(exprSym));
-            assert(map.get(exprSym) !== expr);
 
-            sStruct.data = map.get(exprSym);
+            const expr1 = map.get(exprSym);
+            assert(expr1 !== expr);
+
+            sStruct.data = expr1;
             break;
 
           default:

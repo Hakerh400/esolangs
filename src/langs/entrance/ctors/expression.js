@@ -13,8 +13,8 @@ const {Base} = cs;
 const emptySet = new Set();
 
 class Expression extends Base{
-  static id = 0;
-  id = Expression.id++;
+  // static id = 0;
+  // id = Expression.id++;
 
   constructor(system, symbol, idents, identsOutsideCall, pairDepth, callDepth){
     super();
@@ -260,7 +260,7 @@ class Call extends Expression{
   getCh(){ return this.arg; }
 
   toStr(){
-    return ['['+this.id+'] ',this.func, ' ', this.arg];
+    return [/*'[', this.id, '] ',*/ this.func, ' ', this.arg];
   }
 }
 
