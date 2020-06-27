@@ -27,6 +27,8 @@ const run = (src, input) => {
     nodes[tokens.shift()] = root;
 
     for(const token of tokens){
+      if(stack.length === 0) break;
+
       const last = O.last(stack);
       const isNew = !(token in nodes);
       const node = isNew ? [] : nodes[token];
