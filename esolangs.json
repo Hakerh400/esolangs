@@ -238,5 +238,11 @@
     "id": "beautiful-day",
     "outputFormat": "bit",
     "details": "https://esolangs.org/wiki/Beautiful_day"
+  }, {
+    "name": "Integer",
+    "id": "integer",
+    "inputFormat": "non-negative integer",
+    "outputFormat": "non-negative integer",
+    "details": "https://esolangs.org/wiki/Integer"
   }
 ]

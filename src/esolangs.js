@@ -59,11 +59,24 @@ const esolangs = {
       esolangs.err(`Language ${O.sf(name)} is not an output-only language and must take input ` +
         `(parameter \`input\` cannot be null)`);
 
-    if('inputFormat' in info && info.inputFormat === 'bitArray'){
-      input = input.toString().replace(/[\s+]/g, '');
+    if('inputFormat' in info){
+      const str = input.toString();
 
-      if(!/^[01]*$/.test(input))
-        esolangs.err(`Input string can only contain bits`);
+      switch(info.inputFormat){
+        case 'bitArray': {
+          input = str.replace(/[\s+]/g, '');
+
+          if(!/^[01]*$/.test(input))
+            esolangs.err(`Input string can only contain bits`);
+        } break;
+
+        case 'non-negative integer': {
+          if(!/^(?:0|[1-9][0-9]*)$/.test(str))
+            esolangs.err(`Input must be a non-negative integer`);
+
+          input = BigInt(str);
+        } break;
+      }
     }else{
       input = Buffer.from(input);
     }
