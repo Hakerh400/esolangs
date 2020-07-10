@@ -205,7 +205,7 @@ class Engine{
             push(ops[0] < ops[1] ? 1n : 0n);
             break;
 
-          case 0x10: // lte num1 num2
+          case 0x10: // le num1 num2
             push(ops[0] <= ops[1] ? 1n : 0n);
             break;
 

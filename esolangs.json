@@ -244,5 +244,10 @@
     "inputFormat": "non-negative integer",
     "outputFormat": "non-negative integer",
     "details": "https://esolangs.org/wiki/Integer"
+  }, {
+    "name": "Serenity",
+    "id": "serenity",
+    "details": null,
+    "wip": true
   }
 ]
