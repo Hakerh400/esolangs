@@ -1,4 +1,26 @@
-script{ s0 }
+script{ s0 elem s0 }
+
+elem{
+  symbol |
+  object |
+  array |
+  char |
+  string
+}
+
+symbol{ [0-9a-z\-]+ }
+object{ "{" s0 keyVal*csep s0 ctrail "}" }
+array{ "[" s0 elem*csep s0 ctrail "]" }
+char{ "'" charChar "'" }
+string{ "\"" strChar* "\"" }
+
+keyVal{ elem s0 ":" s0 elem }
+
+charChar{ "\\" . | [^\\'] }
+strChar{ "\\" . | [^\\"] }
+
+csep{ s0 "," s0 }
+ctrail{ ","? s0 }
 
 whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }

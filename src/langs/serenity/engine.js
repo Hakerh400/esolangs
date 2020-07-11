@@ -16,10 +16,9 @@ class Engine{
   }
 
   run(){
-    const {parsed, input} = this;
-    const output = [];
+    const {parsed: prog, input} = this;
 
-    this.output = Buffer.from(output);
+    O.exit(String(prog));
   }
   
   getOutput(){
