@@ -55,7 +55,7 @@ class Program{
 
     objs.root = this.createObj([
       ['stack', this.createArr()],
-    ]);
+    ]).setInfo('root');
   }
 
   get root(){ return this.objs.root; }
@@ -120,11 +120,11 @@ class Program{
     return new Array(this, elems);
   }
 
-  createStackFrame(func){
+  createStackFrame(func, scope=null){
     const frame = this.createObj([
       ['func', func],
       ['inst', this.zero],
-      ['scope', this.createRaw(func.get('scope'))],
+      ['scope', scope || this.root],
       ['stack', this.createArr()],
     ]);
 
@@ -163,12 +163,12 @@ class Object{
   get intVal(){ return 0n; }
   get charCode(){ return 0n; }
 
-  call(){
+  call(scope=null){
     const {prog} = this;
     const {root} = prog;
 
     const stack = root.get(prog.getSym('stack'));
-    stack.push(prog.createStackFrame(this));
+    stack.push(prog.createStackFrame(this, scope));
 
     return this;
   }
