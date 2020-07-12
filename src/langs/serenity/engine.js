@@ -17,10 +17,7 @@ class Engine{
 
   run(){
     const {parsed: prog, input} = this;
-
-    log([...prog.root.get('stack').get(prog.zero).kvMap.entries()].map(a => a.map(a => a.info || 'obj').join(': ')).join('\n'));
-
-    O.exit();
+    this.output = prog.run(input);
   }
   
   getOutput(){

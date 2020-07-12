@@ -10,13 +10,14 @@ const cs = require('./ctors');
 const prog = e => cs.Program.fromAst(e.ast);
 
 const rules = {
-  script: e => e.es[1].fst.call().prog,
+  script: e => e.es[1].fst.makeEntry(),
   expr: e => e.fst.fst,
   ident: e => prog(e).getIdent(e.str),
   object: e => prog(e).createObj(O.last(e.es[2].arr)),
-  array: e => prog(e).createArr(e.es[2].arr),
+  array: e => prog(e).createArr(O.last(e.es[2].arr)),
   char: e => prog(e).getChar(e.fst.fst),
-  string: e => prog(e).getStr(e.es[1].arr.join('')),
+  string: e => prog(e).getStr(Buffer.from(e.es[1].arr.join(''))),
+  arrContent: e => e.fst.arr,
   objContent: e => e.fst.arr,
   keyVal: e => [e.es[0].fst, e.es[4].fst],
   charChar: e => O.last(e.str),
