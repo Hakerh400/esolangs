@@ -9,13 +9,11 @@ expr{
 }
 
 ident{ [0-9a-z\-]+ }
-object{ "{" s0 objContent? s0 "}" }
-array{ "[" s0 arrContent? s0 "]" }
+object{ "{" s0 keyVal*s1 s0 "}" }
+array{ "[" s0 expr*s1 s0 "]" }
 char{ "'" charChar "'" }
 string{ "\"" strChar* "\"" }
 
-objContent{ keyVal+csep ctrail }
-arrContent{ expr+csep ctrail }
 keyVal{ expr s0 ":" s0 expr }
 
 charChar{ "\\" . | [^\\'] }
