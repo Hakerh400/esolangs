@@ -18,7 +18,10 @@ class Engine{
   run(){
     const {parsed: prog, input} = this;
 
-    O.exit(String(prog));
+    log([...prog.entry.kvMap.entries()].map(a => a[0].name));
+    log([...prog.entry.keys.entries()].map(a => a[0].name));
+
+    O.exit();
   }
   
   getOutput(){

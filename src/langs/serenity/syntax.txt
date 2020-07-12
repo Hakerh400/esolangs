@@ -1,26 +1,35 @@
-script{ s0 elem s0 }
+script{ s0 expr s0 }
 
-elem{
-  symbol |
+expr{
+  ident |
   object |
   array |
   char |
   string
 }
 
-symbol{ [0-9a-z\-]+ }
-object{ "{" s0 keyVal*csep s0 ctrail "}" }
-array{ "[" s0 elem*csep s0 ctrail "]" }
+ident{ [0-9a-z\-]+ }
+
+object{
+  "{" s0 "}" |
+  "{" s0 proto ctrail "}" |
+  "{" s0 kvPairs ctrail "}" |
+  "{" s0 proto csep kvPairs ctrail "}"
+}
+
+array{ "[" s0 expr*csep s0 ctrail "]" }
 char{ "'" charChar "'" }
 string{ "\"" strChar* "\"" }
 
-keyVal{ elem s0 ":" s0 elem }
+proto{ "#" s0 expr }
+kvPairs{ keyVal+csep }
+keyVal{ expr s0 ":" s0 expr }
 
 charChar{ "\\" . | [^\\'] }
 strChar{ "\\" . | [^\\"] }
 
 csep{ s0 "," s0 }
-ctrail{ ","? s0 }
+ctrail{ s0 ","? s0 }
 
 whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }
