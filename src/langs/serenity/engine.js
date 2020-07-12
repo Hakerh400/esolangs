@@ -18,8 +18,7 @@ class Engine{
   run(){
     const {parsed: prog, input} = this;
 
-    log([...prog.entry.kvMap.entries()].map(a => a[0].name));
-    log([...prog.entry.keys.entries()].map(a => a[0].name));
+    log([...prog.root.get('stack').get(prog.zero).kvMap.entries()].map(a => a.map(a => a.info || 'obj').join(': ')).join('\n'));
 
     O.exit();
   }

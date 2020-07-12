@@ -13,89 +13,122 @@ class Program{
     return Program.astProgs.get(ast) || new Program(ast);
   }
 
-  entry = null;
+  objs = O.nproto({
+    root: null,
+    null: null,
 
-  natives = O.nproto({
     protos: O.obj(),
+    symbols: O.obj(),
+    ints: O.obj(),
+    chars: O.obj(),
+    strs: O.obj(),
   });
 
-  symbols = O.obj();
-  ints = O.obj();
-  chars = O.obj();
+  protos = this.objs.protos;
+  symbols = this.objs.symbols;
+  ints = this.objs.ints;
+  chars = this.objs.chars;
+  strs = this.objs.strs;
 
   constructor(ast){
     assert(!Program.astProgs.has(ast));
     Program.astProgs.set(ast, this);
 
-    const {natives} = this;
-
     this.ast = ast;
-    this.null = new Object(this, Object.kNull);
 
-    this.createProto('base');
+    const {objs} = this;
+
+    objs.null = new Object(this, Object.kNull);
 
     const psInfo = [
-      'base', 'obj',
+      null, 'base',
+      'base', 'sym',
       'base', 'int',
       'base', 'char',
-      'base', 'arr',
+      'base', 'obj',
+      'obj', 'arr',
       'arr', 'str',
     ];
 
     for(let i = 0; i !== psInfo.length; i += 2)
       this.createProto(psInfo[i], psInfo[i + 1]);
+
+    objs.root = this.createObj([
+      ['stack', this.createArr()],
+    ]);
   }
 
-  createObj(proto=null, kvPairs=null){
-    return new Object(this, proto, kvPairs);
-  }
+  get root(){ return this.objs.root; }
+  set root(obj){ this.objs.root = obj; }
 
-  createProto(parent, name=null){
-    const ps = this.natives.protos;
+  get null(){ return this.objs.null; }
+  set null(obj){ this.objs.null = obj; }
 
-    if(name === null){
-      assert(!(parent in ps));
+  get zero(){ return this.getInt(0n); }
 
-      name = parent;
-      parent = null;
-    }else{
+  createProto(parent, name){
+    const ps = this.protos;
+    assert(!(name in ps));
+
+    if(parent !== null){
       assert(parent in ps);
-      assert(!(name in ps));
-
       parent = ps[parent];
+    }else{
+      parent = this.null;
     }
 
-    return ps[name] = this.createObj(ps[parent]).setInfo(`proto ${name}`);
+    return ps[name] = this.createRaw(ps[parent]).setInfo(`proto ${name}`);
   }
 
   getProto(name){
-    const {protos} = this.natives;
-    assert(name in protos);
-    return protos[name];
+    const ps = this.protos;
+    assert(name in ps);
+    return ps[name];
   }
 
-  getSymbol(name){
-    const {symbols} = this;
+  getNative(container, ctor, id){
+    if(id in container)
+      return container[id];
 
-    if(name in symbols)
-      return symbols[name];
+    const obj = new ctor(this, id);
+    container[id] = obj;
 
-    const sym = new Symbol(this, name);
-    symbols[name] = sym;
-
-    return sym;
+    return obj;
   }
 
-  getInt(val){
-    const {ints} = this;
+  getSym(id){ return this.getNative(this.symbols, Symbol, id); }
+  getInt(id){ return this.getNative(this.ints, Integer, id); }
+  getChar(id){ return this.getNative(this.chars, Character, id); }
+  getStr(id){ return this.getNative(this.strs, String, id); }
 
-    if(val in ints)
-      return ints[val];
+  getIdent(id){
+    if(/^[+\-]?(?:[0-9]+|0x[0-9a-f]+|0b[01]+|0o[0-7]+)$/i.test(id))
+      return this.getInt(BigInt(id));
 
-    const sym = new Integer(this, val);
-    ints[val] = sym;
+    return this.getSym(id);
+  }
 
-    return sym;
+  createRaw(proto=null, kvPairs=null){
+    return new Object(this, proto, kvPairs);
+  }
+
+  createObj(kvPairs=null){
+    return new Object(this, this.getProto('obj'), kvPairs);
+  }
+
+  createArr(elems=null){
+    return new Array(this, elems);
+  }
+
+  createStackFrame(func){
+    const frame = this.createObj([
+      ['func', func],
+      ['inst', this.zero],
+      ['scope', this.createRaw(func.get('scope'))],
+      ['stack', this.createArr()],
+    ]);
+
+    return frame;
   }
 }
 
@@ -127,10 +160,41 @@ class Object{
     return this;
   }
 
-  makeEntry(){
+  get intVal(){ return 0n; }
+  get charCode(){ return 0n; }
+
+  call(){
     const {prog} = this;
-    prog.entry = this;
-    return prog;
+    const {root} = prog;
+
+    const stack = root.get(prog.getSym('stack'));
+    stack.push(prog.createStackFrame(this));
+
+    return this;
+  }
+
+  push(obj){
+    const {prog} = this;
+
+    const len = this.get('length');
+    const lenNew = prog.getInt(len.intVal + 1n);
+
+    this.set(len, obj);
+    this.set('length', lenNew);
+  }
+
+  pop(){
+    const {prog} = this;
+    
+    const len = this.get('length');
+    const lenNew = prog.getInt(len.intVal - 1n);
+
+    this.set('length', lenNew);
+
+    const elem = this.get(lenNew);
+    this.delete(lenNew);
+
+    return elem;
   }
 
   setProto(proto){
@@ -148,53 +212,82 @@ class Object{
   }
 
   has(key){
-    const n = this.prog.null;
+    const {prog} = this;
+    const n = prog.null;
+
+    if(typeof key === 'string')
+      key = prog.getSym(key);
 
     for(let obj = this; obj !== n; obj = obj.proto)
-      if(obj.has(key))
+      if(obj.hasl(key))
         return 1;
 
     return 0;
   }
 
   get(key){
-    const n = this.prog.null;
+    const {prog} = this;
+    const n = prog.null;
+
+    if(typeof key === 'string')
+      key = prog.getSym(key);
 
     for(let obj = this; obj !== n; obj = obj.proto)
-      if(obj.has(key))
+      if(obj.hasl(key))
         return obj.getl(key);
 
     return n;
   }
 
   set(key, val){
-    const n = this.prog.null;
+    const {prog} = this;
+    const n = prog.null;
+
+    if(typeof key === 'string')
+      key = prog.getSym(key);
 
     for(let obj = this; obj !== n; obj = obj.proto)
-      if(obj.has(key))
+      if(obj.hasl(key))
         return obj.setl(key, val);
 
     this.setl(key, val);
   }
 
   delete(key){
-    const n = this.prog.null;
+    const {prog} = this;
+    const n = prog.null;
+
+    if(typeof key === 'string')
+      key = prog.getSym(key);
 
     for(let obj = this; obj !== n; obj = obj.proto)
-      if(obj.has(key))
+      if(obj.hasl(key))
         return obj.deletel(key);
   }
 
   hasl(key){
+    const {prog} = this;
+
+    if(typeof key === 'string')
+      key = prog.getSym(key);
+
     return this.kvMap.has(key);
   }
 
   getl(key){
+    const {prog} = this;
+
+    if(typeof key === 'string')
+      key = prog.getSym(key);
+
     return this.kvMap.get(key) || this.prog.null;
   }
 
   setl(key, val){
-    const {kvMap, keys} = this;
+    const {prog, kvMap, keys} = this;
+
+    if(typeof key === 'string')
+      key = prog.getSym(key);
 
     kvMap.set(key, val);
 
@@ -205,7 +298,10 @@ class Object{
   }
 
   deletel(key){
-    const {kvMap, keys} = this;
+    const {prog, kvMap, keys} = this;
+
+    if(typeof key === 'string')
+      key = prog.getSym(key);
 
     if(!kvMap.has(key)) return;
 
@@ -216,15 +312,50 @@ class Object{
 
 class Symbol extends Object{
   constructor(prog, name){
-    super(prog).setInfo(`sym ${name}`);
+    super(prog, prog.getProto('sym')).setInfo(`sym ${name}`);
     this.name = name;
   }
 }
 
 class Integer extends Object{
   constructor(prog, val){
-    super(prog).setInfo(`int ${val}`);
+    super(prog, prog.getProto('int')).setInfo(`int ${val}`);
     this.val = val;
+  }
+
+  get intVal(){ return this.val; }
+}
+
+class Character extends Object{
+  constructor(prog, code){
+    super(prog, prog.getProto('char')).setInfo(`char ${code}`);
+    this.code = code;
+  }
+
+  get charCode(){ return this.code; }
+}
+
+class Array extends Object{
+  constructor(prog, elems=null){
+    super(prog, prog.getProto('arr')).setInfo(`arr`);
+
+    this.setl('length', prog.zero);
+
+    if(elems !== null)
+      for(const elem of elems)
+        this.push(elem);
+  }
+}
+
+class String extends Object{
+  constructor(prog, str=null){
+    super(prog, prog.getProto('str')).setInfo(`str ${O.sf(code)}`);
+
+    this.setl('length', prog.zero);
+
+    if(str !== null)
+      for(const char of str)
+        this.push(prog.getChar(O.cc(char)));
   }
 }
 
@@ -233,4 +364,7 @@ module.exports = {
   Object,
   Symbol,
   Integer,
+  Character,
+  Array,
+  String,
 };

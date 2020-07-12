@@ -9,27 +9,19 @@ expr{
 }
 
 ident{ [0-9a-z\-]+ }
-
-object{
-  "{" s0 "}" |
-  "{" s0 proto ctrail "}" |
-  "{" s0 kvPairs ctrail "}" |
-  "{" s0 proto csep kvPairs ctrail "}"
-}
-
+object{ "{" s0 objContent? s0 "}" }
 array{ "[" s0 expr*csep s0 ctrail "]" }
 char{ "'" charChar "'" }
 string{ "\"" strChar* "\"" }
 
-proto{ "#" s0 expr }
-kvPairs{ keyVal+csep }
+objContent{ keyVal+csep ctrail }
 keyVal{ expr s0 ":" s0 expr }
 
 charChar{ "\\" . | [^\\'] }
 strChar{ "\\" . | [^\\"] }
 
 csep{ s0 "," s0 }
-ctrail{ s0 ","? s0 }
+ctrail{ s0 ","? }
 
 whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }
