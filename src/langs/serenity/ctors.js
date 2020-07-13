@@ -622,10 +622,37 @@ class Program{
   }
 
   mapAllObjs(func){
-    const done = new Set();
-    const stack = [[this, 'objs']];
+    const seen = new Set();
+    const stack = [];
+
+    const push = obj => {
+      if(!seen.has(obj)){
+        seen.add(obj);
+        stack.push(obj);
+      }
+
+      return obj;
+    };
+
+    push(this.objs);
 
     while(stack.length !== 0){
+      const obj = stack.pop();
+
+      if(obj instanceof Object){
+        O.noimpl('Object');
+        continue;
+      }
+
+      if(obj instanceof Map){
+        O.noimpl('Map');
+        continue;
+      }
+
+      assert(O.proto(obj) === null);
+
+      for(const key in obj)
+        obj[key] = push(func(obj[key]));
     }
   }
 
