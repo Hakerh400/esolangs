@@ -334,13 +334,22 @@ class Program{
           const stack = this.stack;
           const b = stack.pop();
           const a = stack.pop();
-          O.noimpl('assign');
+          
+          this.mapAllObjs(obj => {
+            if(obj === a) return b;
+            return obj;
+          });
         },
         replace: () => {
           const stack = this.stack;
           const b = stack.pop();
           const a = stack.pop();
-          O.noimpl('replace');
+          
+          this.mapAllObjs(obj => {
+            if(obj === a) return b;
+            if(obj === b) return a;
+            return obj;
+          });
         },
         raw: () => {
           const stack = this.stack;
@@ -517,11 +526,11 @@ class Program{
         },
         ret: () => {
           const a = this.stack.last;
-          mainStack.pop();
+          this.mainStack.pop();
           this.stack.push(a);
         },
         retv: () => {
-          mainStack.pop();
+          this.mainStack.pop();
         },
         in: () => {
           const stack = this.stack;
@@ -610,6 +619,14 @@ class Program{
     }
 
     return this.output;
+  }
+
+  mapAllObjs(func){
+    const done = new Set();
+    const stack = [[this, 'objs']];
+
+    while(stack.length !== 0){
+    }
   }
 
   get null(){ return this.objs.null; }
