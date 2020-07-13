@@ -330,6 +330,11 @@ class Program{
           const a = stack.pop();
           stack.push(this.createArr(a.kvMap.keys()));
         },
+        keysm: () => {
+          const stack = this.stack;
+          const a = stack.pop();
+          stack.push(this.createArr(a.keys()));
+        },
         assign: () => {
           const stack = this.stack;
           const b = stack.pop();
@@ -622,10 +627,19 @@ class Program{
   }
 
   mapAllObjs(func){
+    const map = new Map();
     const seen = new Set();
     const stack = [];
 
-    const push = obj => {
+    const f = obj => {
+      if(typeof obj === 'function')
+        return obj;
+
+      if(obj instanceof Object){
+        if(map.has(obj)) obj = map.get(obj);
+        else map.set(obj, obj = func(obj));
+      }
+
       if(!seen.has(obj)){
         seen.add(obj);
         stack.push(obj);
@@ -634,25 +648,42 @@ class Program{
       return obj;
     };
 
-    push(this.objs);
+    f(this.objs);
 
     while(stack.length !== 0){
       const obj = stack.pop();
 
       if(obj instanceof Object){
-        O.noimpl('Object');
+        obj.proto = f(obj.proto);
+
+        const {kvMap, keys} = obj;
+        const kvMapNew = obj.kvMap = new Map();
+        const keysNew = obj.keys = new Set();
+
+        for(const key of keys)
+          keysNew.add(f(key));
+
+        for(const [key, val] of kvMap){
+          const keyNew = f(key);
+
+          if(keysNew.has(keyNew))
+            kvMapNew.set(keyNew, f(val));
+        }
+
         continue;
       }
 
       if(obj instanceof Map){
-        O.noimpl('Map');
+        for(const [key, val] of obj)
+          obj.set(key, f(val));
+
         continue;
       }
 
       assert(O.proto(obj) === null);
 
       for(const key in obj)
-        obj[key] = push(func(obj[key]));
+        obj[key] = f(obj[key]);
     }
   }
 
