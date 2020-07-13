@@ -8,7 +8,7 @@ expr{
   string
 }
 
-ident{ [0-9a-z\-]+ }
+ident{ [0-9a-zA-Z\-]+ }
 object{ "{" s0 keyVal*s1 s0 "}" }
 array{ "[" s0 expr*s1 s0 "]" }
 char{ "'" charChar "'" }

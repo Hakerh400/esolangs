@@ -38,8 +38,6 @@ class Program{
   strs = this.objs.strs;
   insts = this.objs.insts;
 
-  gcEnabled = 0;
-
   constructor(ast){
     assert(!Program.astProgs.has(ast));
     Program.astProgs.set(ast, this);
@@ -78,81 +76,81 @@ class Program{
       const instsInfo = {
         plus: () => {
           const stack = this.stack;
-          stack.push(this.getInt(stack.pop().intVal));
+          stack.push(stack.pop().intVal);
         },
         minus: () => {
           const stack = this.stack;
-          stack.push(this.getInt(-stack.pop().intVal));
+          stack.push(-stack.pop().intVal);
         },
         not: () => {
           const stack = this.stack;
-          stack.push(this.getInt(stack.pop().intVal ? 0n : 1n));
+          stack.push(!stack.pop().intVal);
         },
         neg: () => {
           const stack = this.stack;
-          stack.push(this.getInt(~stack.pop().intVal));
+          stack.push(~stack.pop().intVal);
         },
         inc: () => {
           const stack = this.stack;
-          stack.push(this.getInt(stack.pop().intVal + 1n));
+          stack.push(stack.pop().intVal + 1n);
         },
         dec: () => {
           const stack = this.stack;
-          stack.push(this.getInt(stack.pop().intVal - 1n));
+          stack.push(stack.pop().intVal - 1n);
         },
         and: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a & b));
+          stack.push(a & b);
         },
         or: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a | b));
+          stack.push(a | b);
         },
         xor: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a ^ b));
+          stack.push(a ^ b);
         },
         shl: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a << b));
+          stack.push(a << b);
         },
         shr: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a >> b));
+          stack.push(a >> b);
         },
         add: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a + b));
+          stack.push(a + b);
         },
         sub: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a - b));
+          stack.push(a - b);
         },
         mul: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a * b));
+          stack.push(a * b);
         },
         div: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(b ? this.getInt(a / b) : this.null);
+          stack.push(b ? a / b : this.null);
         },
         exp: () => {
           const stack = this.stack;
@@ -161,32 +159,32 @@ class Program{
 
           stack.push(
             b > 0n || b === 0n && a !== 0n ?
-              this.getInt(a ** b) : this.null
+              a ** b : this.null
           );
         },
         lt: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a < b ? 1n : 0n));
+          stack.push(a < b);
         },
         gt: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a > b ? 1n : 0n));
+          stack.push(a > b);
         },
         le: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a <= b ? 1n : 0n));
+          stack.push(a <= b);
         },
         ge: () => {
           const stack = this.stack;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          stack.push(this.getInt(a >= b ? 1n : 0n));
+          stack.push(a >= b);
         },
         push: () => {
           const frame = this.frame;
@@ -196,7 +194,7 @@ class Program{
           const insts = func.get('insts');
           const val = insts.get(instPtr);
 
-          frame.set('inst', this.getInt(instPtr + 1n));
+          frame.set('inst', instPtr + 1n);
           stack.push(val);
         },
         pop: () => {
@@ -216,7 +214,7 @@ class Program{
         copy: () => {
           const stack = this.stack;
           const a = stack.pop().intVal;
-          stack.push(stack.get(this.getInt(stack.get('length').intVal - a - 1n)));
+          stack.push(stack.get(stack.get('length').intVal - a - 1n));
         },
         dupe: () => {
           const stack = this.stack;
@@ -228,8 +226,8 @@ class Program{
           const a = stack.pop().intVal;
 
           const len1 = stack.get('length').intVal - 1n;
-          const i = this.getInt(len1 - a);
-          const j = this.getInt(len1 - b);
+          const i = len1 - a;
+          const j = len1 - b;
           const c = stack.get(i);
           const d = stack.get(j);
 
@@ -240,19 +238,19 @@ class Program{
           const stack = this.stack;
           const b = stack.pop();
           const a = stack.pop();
-          stack.push(this.getInt(a === b ? 1n : 0n));
+          stack.push(a === b);
         },
         neq: () => {
           const stack = this.stack;
           const b = stack.pop();
           const a = stack.pop();
-          stack.push(this.getInt(a !== b ? 1n : 0n));
+          stack.push(a !== b);
         },
         has: () => {
           const stack = this.stack;
           const b = stack.pop();
           const a = stack.pop();
-          stack.push(this.getInt(a.has(b) ? 1n : 0n));
+          stack.push(a.has(b));
         },
         get: () => {
           const stack = this.stack;
@@ -286,7 +284,7 @@ class Program{
           const stack = this.stack;
           const b = stack.pop();
           const a = stack.pop();
-          stack.push(this.getInt(a.hasl(b) ? 1n : 0n));
+          stack.push(a.hasl(b));
         },
         getl: () => {
           const stack = this.stack;
@@ -344,15 +342,19 @@ class Program{
           const a = stack.pop();
           O.noimpl('replace');
         },
-        obj: () => {
+        raw: () => {
           const stack = this.stack;
           const a = stack.pop();
           stack.push(this.createRaw(a));
         },
+        obj: () => {
+          const stack = this.stack;
+          stack.push(this.createObj());
+        },
         int: () => {
           const stack = this.stack;
           const a = stack.pop();
-          stack.push(this.getInt(a.intVal));
+          stack.push(a.intVal);
         },
         char: () => {
           const stack = this.stack;
@@ -362,7 +364,7 @@ class Program{
         arr: () => {
           const stack = this.stack;
           const len = stack.pop().intVal;
-          if(len < 0n) return stack.push(getNative());
+          if(len < 0n) return stack.push(this.null);
 
           const elems = [];
 
@@ -374,7 +376,7 @@ class Program{
         str: () => {
           const stack = this.stack;
           const len = stack.pop().intVal;
-          if(len < 0n) return stack.push(getNative());
+          if(len < 0n) return stack.push(this.null);
 
           const elems = [];
 
@@ -387,6 +389,22 @@ class Program{
           const stack = this.stack;
           const a = stack.pop();
           stack.push(this.createRaw(a.proto, a.kvMap));
+        },
+        pusha: () => {
+          const stack = this.stack;
+          const b = stack.pop();
+          const a = stack.pop();
+          a.push(b);
+        },
+        pushk: () => {
+          const stack = this.stack;
+          const a = stack.pop();
+          stack.last.push(a);
+        },
+        popa: () => {
+          const stack = this.stack;
+          const a = stack.pop();
+          stack.push(a.pop());
         },
         null: () => {
           const stack = this.stack;
@@ -414,7 +432,7 @@ class Program{
         },
         this: () => {
           const stack = this.stack;
-          stack.push(this.scope.get('this'));
+          stack.push(this.this);
         },
         getv: () => {
           const stack = this.stack;
@@ -427,7 +445,7 @@ class Program{
           const a = stack.pop();
           this.scope.set(a, b);
 
-          // log(a.name + ': ' + b.info);
+          // log('SET ' + a.name + ': ' + b.info);
         },
         getvl: () => {
           const stack = this.stack;
@@ -444,29 +462,29 @@ class Program{
           const stack = this.stack;
           stack.last.set('scope', this.scope);
         },
-        ctx: () => {
+        arg: () => {
           const stack = this.stack;
-          stack.push(this.createRaw(this.scope));
+          stack.push(this.createRaw(stack.last.get('scope')));
         },
         jz: () => {
           const frame = this.frame;
           const stack = frame.get('stack');
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          if(a === 0n) frame.set('inst', this.getInt(b));
+          if(a === 0n) frame.set('inst', b);
         },
         jnz: () => {
           const frame = this.frame;
           const stack = frame.get('stack');
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          if(a !== 0n) frame.set('inst', this.getInt(b));
+          if(a !== 0n) frame.set('inst', b);
         },
         jmp: () => {
           const frame = this.frame;
           const stack = frame.get('stack');
           const a = stack.pop().intVal;
-          frame.set('inst', this.getInt(a));
+          frame.set('inst', a);
         },
         alt: () => {
           const frame = this.frame;
@@ -474,7 +492,7 @@ class Program{
           const c = stack.pop().intVal;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
-          frame.set('inst', this.getInt(a ? b : c));
+          frame.set('inst', a ? b : c);
         },
         call: () => {
           const stack = this.stack;
@@ -487,8 +505,8 @@ class Program{
           const c = stack.pop();
           const b = stack.pop();
           const a = stack.pop();
-          b.set('this', c);
-          a.call(b);
+          c.set('this', b);
+          a.call(c);
         },
         new: () => {
           const stack = this.stack;
@@ -518,7 +536,7 @@ class Program{
             const out = [];
 
             for(let i = 0n; i !== len; i++)
-              out.push(Number(val.get(this.getInt(i)).intVal & 0xFFn));
+              out.push(Number(val.get(i).intVal & 0xFFn));
 
             this.output = Buffer.from(out);
           }else{
@@ -532,8 +550,6 @@ class Program{
       for(const instName of O.keys(instsInfo))
         insts.set(this.getSym(instName), instsInfo[instName]);
     }
-
-    this.gcEnabled = 1;
   }
 
   run(input){
@@ -550,16 +566,16 @@ class Program{
 
       if(0){
         log(`\n${'='.repeat(100)}\n`);
-        
+
         const stack = frame.get('stack');
         const len = stack.get('length').intVal;
         log('\n---')
         log('LENGTH: ' + len);
-        log('HAS 0: ' + stack.hasl(this.getInt(BigInt(0))));
-        if(len) log('KEY 0: ' + stack.getl(this.getInt(BigInt(0))).info);
+        log('HAS 0: ' + stack.hasl(BigInt(0)));
+        if(len) log('KEY 0: ' + stack.getl(BigInt(0)).info);
         log([...stack.kvMap.keys()].map(a => a.info).join`\n`)
         log('---\n')
-        const str = O.ca(Number(len), i => stack.get(this.getInt(BigInt(i))).info).join('\n') || '/';
+        const str = O.ca(Number(len), i => stack.get(BigInt(i)).info).join('\n') || '/';
 
         log('Stack:');
         log.inc();
@@ -578,8 +594,8 @@ class Program{
         continue;
       }
 
-      const inst = finsts.get(this.getInt(instPtr));
-      frame.set('inst', this.getInt(instPtr + 1n));
+      const inst = finsts.get(instPtr);
+      frame.set('inst', instPtr + 1n);
 
       const instf = insts.get(inst);
 
@@ -610,8 +626,7 @@ class Program{
   get func(){ return this.frame.get('func'); }
   get scope(){ return this.frame.get('scope'); }
   get stack(){ return this.frame.get('stack'); }
-
-  get zero(){ return this.getInt(0n); }
+  get this(){ return this.scope.get('this'); }
 
   createProto(parent, name){
     const ps = this.protos;
@@ -670,7 +685,7 @@ class Program{
   createStackFrame(func, scope){
     const frame = this.createObj([
       ['func', func],
-      ['inst', this.zero],
+      ['inst', 0n],
       ['scope', scope],
       ['stack', this.createArr()],
     ]);
@@ -684,7 +699,7 @@ class Object{
 
   #proto = null;
 
-  info = null;
+  info = '/';
 
   kvMap = new Map();
   keys = new Set();
@@ -727,6 +742,17 @@ class Object{
 
   get intVal(){ /*return 0n;*/ assert.fail('intVal'); }
 
+  toObj(val){
+    const {prog} = this;
+
+    if(typeof val === 'object') return val;
+    if(typeof val === 'string') return prog.getSym(val);
+    if(typeof val === 'bigint') return prog.getInt(val);
+    if(typeof val === 'boolean') return prog.getInt(val ? 1n : 0n);
+
+    assert.fail(typeof val);
+  }
+
   makeEntry(){
     const {prog} = this;
     prog.entry = this;
@@ -744,18 +770,18 @@ class Object{
   }
 
   get last(){
-    return this.get(this.prog.getInt(this.get('length').intVal - 1n));
+    return this.get(this.get('length').intVal - 1n);
   }
 
   set last(val){
-    this.set(this.prog.getInt(this.get('length').intVal - 1n), val);
+    this.set(this.get('length').intVal - 1n, val);
   }
 
   push(val){
     const {prog} = this;
 
     const len = this.get('length');
-    const lenNew = prog.getInt(len.intVal + 1n);
+    const lenNew = len.intVal + 1n;
 
     this.set(len, val);
     this.set('length', lenNew);
@@ -768,7 +794,7 @@ class Object{
     const {prog} = this;
     
     const len = this.get('length');
-    const lenNew = prog.getInt(len.intVal - 1n);
+    const lenNew = len.intVal - 1n;
 
     this.set('length', lenNew);
 
@@ -781,12 +807,27 @@ class Object{
     return elem;
   }
 
+  splice(index){
+    const {prog} = this;
+    const len = this.get('length').intVal;
+    if(index >= len) return prog.null;
+
+    const val = this.get(index);
+    const len1 = len - 1n;
+
+    for(let i = index; i !== len1; i++)
+      this.set(i, this.get(i + 1n));
+
+    this.pop();
+
+    return val;
+  }
+
   has(key){
     const {prog} = this;
     const n = prog.null;
 
-    if(typeof key === 'string')
-      key = prog.getSym(key);
+    key = this.toObj(key);
 
     for(let obj = this; obj !== n; obj = obj.#proto)
       if(obj.hasl(key))
@@ -799,8 +840,7 @@ class Object{
     const {prog} = this;
     const n = prog.null;
 
-    if(typeof key === 'string')
-      key = prog.getSym(key);
+    key = this.toObj(key);
 
     for(let obj = this; obj !== n; obj = obj.#proto)
       if(obj.hasl(key))
@@ -813,8 +853,8 @@ class Object{
     const {prog} = this;
     const n = prog.null;
 
-    if(typeof key === 'string')
-      key = prog.getSym(key);
+    key = this.toObj(key);
+    val = this.toObj(val);
 
     for(let obj = this; obj !== n; obj = obj.#proto)
       if(obj.hasl(key))
@@ -827,8 +867,7 @@ class Object{
     const {prog} = this;
     const n = prog.null;
 
-    if(typeof key === 'string')
-      key = prog.getSym(key);
+    key = this.toObj(key);
 
     for(let obj = this; obj !== n; obj = obj.#proto)
       if(obj.hasl(key))
@@ -838,8 +877,7 @@ class Object{
   hasl(key){
     const {prog} = this;
 
-    if(typeof key === 'string')
-      key = prog.getSym(key);
+    key = this.toObj(key);
 
     return this.kvMap.has(key);
   }
@@ -847,17 +885,7 @@ class Object{
   getl(key){
     const {prog} = this;
 
-    if(typeof key === 'string')
-      key = prog.getSym(key);
-
-    if(!this.kvMap.get(key)){
-      assert(!this.kvMap.has(key));
-
-      log(this.get('length') === prog.getInt(4n));
-      log(this.info);
-      log(this.get('length').intVal.toString());
-      log(key.info);
-    }
+    key = this.toObj(key);
 
     return this.kvMap.get(key) || /*this.prog.null*/assert.fail('getl');
   }
@@ -865,8 +893,8 @@ class Object{
   setl(key, val){
     const {prog, kvMap, keys} = this;
 
-    if(typeof key === 'string')
-      key = prog.getSym(key);
+    key = this.toObj(key);
+    val = this.toObj(val);
 
     assert(val);
     kvMap.set(key, val);
@@ -880,8 +908,7 @@ class Object{
   deletel(key){
     const {prog, kvMap, keys} = this;
 
-    if(typeof key === 'string')
-      key = prog.getSym(key);
+    key = this.toObj(key);
 
     if(!kvMap.has(key)){
       assert.fail('deletel');
@@ -922,7 +949,7 @@ class Array extends Object{
   constructor(prog, elems=null){
     super(prog, prog.getProto('arr')).setInfo(`arr`);
 
-    this.setl('length', prog.zero);
+    this.setl('length', 0n);
 
     if(elems !== null)
       for(const elem of elems)
@@ -932,9 +959,11 @@ class Array extends Object{
 
 class String extends Object{
   constructor(prog, buf=null){
+    // log('NEW STRING: ' + O.sf(buf.toString()));
+
     super(prog, prog.getProto('str')).setInfo(`str ${O.sf(buf.toString())}`);
 
-    this.setl('length', prog.zero);
+    this.setl('length', 0n);
 
     if(buf !== null)
       for(const byte of buf)
