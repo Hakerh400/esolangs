@@ -74,120 +74,127 @@ class Program{
     // Initialize instructions
     {
       const instsInfo = {
+        nop: () => {},
         plus: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(stack.pop().intVal);
         },
         minus: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(-stack.pop().intVal);
         },
         not: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(!stack.pop().intVal);
         },
         neg: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(~stack.pop().intVal);
         },
         inc: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(stack.pop().intVal + 1n);
         },
         dec: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(stack.pop().intVal - 1n);
         },
         and: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a & b);
         },
         or: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a | b);
         },
         xor: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a ^ b);
         },
         shl: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a << b);
         },
         shr: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a >> b);
         },
         add: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a + b);
         },
         sub: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a - b);
         },
         mul: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a * b);
         },
         div: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(b ? a / b : this.null);
         },
+        mod: () => {
+          const {stack} = this;
+          const b = stack.pop().intVal;
+          const a = stack.pop().intVal;
+          stack.push(b ? a % b : this.null);
+        },
         exp: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
 
           stack.push(
-            b > 0n || b === 0n && a !== 0n ?
+            b > 0n || (b === 0n && a !== 0n) ?
               a ** b : this.null
           );
         },
         lt: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a < b);
         },
         gt: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a > b);
         },
         le: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a <= b);
         },
         ge: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           stack.push(a >= b);
         },
         push: () => {
-          const frame = this.frame;
+          const {frame} = this;
           const stack = frame.get('stack');
           const instPtr = frame.get('inst').intVal;
           const func = frame.get('func');
@@ -198,30 +205,30 @@ class Program{
           stack.push(val);
         },
         pop: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop().intVal;
           stack.splice(stack.get('length').intVal - a - 1n);
         },
         disc: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.pop();
         },
         move: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop().intVal;
           stack.push(stack.splice(stack.get('length').intVal - a - 1n));
         },
         copy: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop().intVal;
           stack.push(stack.get(stack.get('length').intVal - a - 1n));
         },
         dupe: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(stack.last);
         },
         swap: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
 
@@ -235,148 +242,137 @@ class Program{
           stack.set(j, c);
         },
         eq: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.push(a === b);
         },
         neq: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.push(a !== b);
         },
         has: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.push(a.has(b));
         },
         get: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.push(a.get(b));
         },
         set: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.pop().set(a, b);
         },
         setk: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.last.set(a, b);
         },
         delete: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.pop().delete(a);
         },
         deletek: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.last.delete(a);
         },
         hasl: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.push(a.hasl(b));
         },
         getl: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.push(a.getl(b));
         },
         setl: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.pop().setl(a, b);
         },
         setlk: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.last.setl(a, b);
         },
         deletel: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.pop().deletel(a);
         },
         deletelk: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.last.deletel(a);
         },
         getProto: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.push(a.proto);
         },
         setProto: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           a.proto = b;
         },
-        keys: () => {
-          const stack = this.stack;
+        keys1: () => {
+          const {stack} = this;
           const a = stack.pop();
           stack.push(this.createArr(a.kvMap.keys()));
         },
-        keysm: () => {
-          const stack = this.stack;
+        keys2: () => {
+          const {stack} = this;
           const a = stack.pop();
           stack.push(this.createArr(a.keys()));
         },
-        assign: () => {
-          const stack = this.stack;
+        prod: () => {
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
-          
-          this.mapAllObjs(obj => {
-            if(obj === a) return b;
-            return obj;
-          });
+          stack.push(a.clone().prod(b));
         },
-        replace: () => {
-          const stack = this.stack;
-          const b = stack.pop();
+        'prod*': () => {
+          const {stack} = this;
           const a = stack.pop();
-          
-          this.mapAllObjs(obj => {
-            if(obj === a) return b;
-            if(obj === b) return a;
-            return obj;
-          });
+          this.prodAll(new Map(a.kvMap));
         },
         raw: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.push(this.createRaw(a));
         },
         obj: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.createObj());
         },
         int: () => {
-          const stack = this.stack;
-          const a = stack.pop();
-          stack.push(a.intVal);
+          const {stack} = this;
+          stack.push(stack.pop().intVal);
         },
         char: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.push(this.getChar(a.intVal & 0xFFn));
         },
         arr: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const len = stack.pop().intVal;
           if(len < 0n) return stack.push(this.null);
 
@@ -388,7 +384,7 @@ class Program{
           stack.push(this.createArr(elems.reverse()));
         },
         str: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const len = stack.pop().intVal;
           if(len < 0n) return stack.push(this.null);
 
@@ -399,109 +395,159 @@ class Program{
 
           stack.push(new String(this, Buffer.from(elems.reverse())));
         },
-        renew: () => {
-          const stack = this.stack;
+        clone: () => {
+          const {stack} = this;
           const a = stack.pop();
-          stack.push(this.createRaw(a.proto, a.kvMap));
+          stack.push(a.clone());
         },
         pusha: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           a.push(b);
         },
         pushk: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.last.push(a);
         },
         popa: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.push(a.pop());
         },
         null: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.null);
         },
         root: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.root);
         },
         mainStack: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.mainStack);
         },
         frame: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.frame);
         },
         func: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.func);
         },
         scope: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.scope);
         },
         this: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.this);
         },
         getv: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.push(this.scope.get(a));
         },
         setv: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           this.scope.set(a, b);
 
-          // log('SET ' + a.name + ': ' + b.info);
+          b.info = a.info.split(' ').pop();
+          // log('SETV ' + a.name + ': ' + b.info);
+        },
+        setvk: () => {
+          const {stack} = this;
+          const b = stack.pop();
+          const a = stack.pop();
+          this.scope.set(a, b);
+          stack.push(b);
+
+          b.info = 'var ' + a.info.split(' ').pop();
+          // log('SETK ' + a.name + ': ' + b.info);
         },
         getvl: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const a = stack.pop();
           stack.push(this.scope.getl(a));
         },
         setvl: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           stack.push(this.scope.setl(a, b));
         },
+        setvlk: () => {
+          const {stack} = this;
+          const b = stack.pop();
+          const a = stack.pop();
+          this.scope.setl(a, b);
+          stack.push(a);
+        },
+        enter: () => {
+          const {frame} = this;
+          frame.scope = this.createRaw(frame.scope);
+        },
+        leave: () => {
+          const {frame} = this;
+          frame.scope = frame.scope.proto;
+        },
         bind: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.last.set('scope', this.scope);
         },
+        cbs: () => {
+          instsInfo.clone();
+          instsInfo.bind();
+          instsInfo.setv();
+        },
         arg: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.createRaw(stack.last.get('scope')));
         },
+        args: () => {
+          const {stack} = this;
+          const len = stack.pop().intVal;
+          if(len < 0n) return stack.push(this.null);
+
+          const elems = [];
+
+          for(let i = 0n; i !== len; i++)
+            elems.push(stack.pop());
+
+          const arr = this.createArr(elems.reverse());
+          arr.proto = stack.last.get('scope');
+
+          stack.push(arr);
+        },
+        crg: () => {
+          instsInfo.args();
+          instsInfo.call();
+        },
         jz: () => {
-          const frame = this.frame;
+          const {frame} = this;
           const stack = frame.get('stack');
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           if(a === 0n) frame.set('inst', b);
         },
         jnz: () => {
-          const frame = this.frame;
+          const {frame} = this;
           const stack = frame.get('stack');
           const b = stack.pop().intVal;
           const a = stack.pop().intVal;
           if(a !== 0n) frame.set('inst', b);
         },
         jmp: () => {
-          const frame = this.frame;
+          const {frame} = this;
           const stack = frame.get('stack');
           const a = stack.pop().intVal;
           frame.set('inst', a);
         },
         alt: () => {
-          const frame = this.frame;
+          const {frame} = this;
           const stack = frame.get('stack');
           const c = stack.pop().intVal;
           const b = stack.pop().intVal;
@@ -509,13 +555,15 @@ class Program{
           frame.set('inst', a ? b : c);
         },
         call: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           a.call(b);
+          log('CALL ' + a.info);
+          log.inc();
         },
         method: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const c = stack.pop();
           const b = stack.pop();
           const a = stack.pop();
@@ -523,26 +571,30 @@ class Program{
           a.call(c);
         },
         new: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
           b.set('this', this.createRaw(a.get('prototype')));
           a.call(b);
         },
         ret: () => {
+          log('RET ' + this.func.info);
           const a = this.stack.last;
           this.mainStack.pop();
           this.stack.push(a);
+          log.dec();
         },
         retv: () => {
+          log('RETV ' + this.func.info);
           this.mainStack.pop();
+          log.dec();
         },
         in: () => {
-          const stack = this.stack;
+          const {stack} = this;
           stack.push(this.input);
         },
         out: () => {
-          const stack = this.stack;
+          const {stack} = this;
           const val = stack.last;
           const len = val.get('length').intVal;
 
@@ -603,8 +655,8 @@ class Program{
       const finsts = func.get('insts');
 
       if(instPtr >= finsts.get('length').intVal){
-        // debug('IMPLICIT RETURN');
-        this.mainStack.pop();
+        assert.fail('=== IMPLICIT_RETURN ===');
+        insts.get(this.getSym('retv'))();
         continue;
       }
 
@@ -615,59 +667,54 @@ class Program{
 
       if(!instf){
         // debug(`CUSTOM ${inst.info || '/'}`);
+        if(inst.info.includes(' ')) log('---> ' + inst.info.split(' ').pop());
         frame.get('stack').push(inst);
         continue;
       }
 
-      // debug(inst.name);
+      log('# ' + inst.name);
       instf();
     }
 
     return this.output;
   }
 
-  mapAllObjs(func){
-    const map = new Map();
+  prodAll(pmap){
     const seen = new Set();
     const stack = [];
 
-    const f = obj => {
-      if(typeof obj === 'function')
-        return obj;
+    const push = obj => {
+      if(seen.has(obj)) return obj;
 
-      if(obj instanceof Object){
-        if(map.has(obj)) obj = map.get(obj);
-        else map.set(obj, obj = func(obj));
-      }
-
-      if(!seen.has(obj)){
-        seen.add(obj);
-        stack.push(obj);
-      }
+      seen.add(obj);
+      stack.push(obj);
 
       return obj;
     };
 
-    f(this.objs);
+    const mapAndPush = obj => {
+      if(typeof obj === 'function')
+        return obj;
+
+      if(pmap.has(obj))
+        obj = pmap.get(obj);
+
+      return push(obj);
+    };
+
+    mapAndPush(this.objs);
 
     while(stack.length !== 0){
       const obj = stack.pop();
 
       if(obj instanceof Object){
-        obj.proto = f(obj.proto);
+        obj.prod(pmap);
 
-        const {kvMap, keys} = obj;
-        const kvMapNew = obj.kvMap = new Map();
-        const keysNew = obj.keys = new Set();
+        push(obj.proto);
 
-        for(const key of keys)
-          keysNew.add(f(key));
-
-        for(const [key, val] of kvMap){
-          const keyNew = f(key);
-
-          if(keysNew.has(keyNew))
-            kvMapNew.set(keyNew, f(val));
+        for(const [key, val] of obj.kvMap){
+          push(key);
+          push(val);
         }
 
         continue;
@@ -675,7 +722,7 @@ class Program{
 
       if(obj instanceof Map){
         for(const [key, val] of obj)
-          obj.set(key, f(val));
+          obj.set(key, mapAndPush(val));
 
         continue;
       }
@@ -683,7 +730,7 @@ class Program{
       assert(O.proto(obj) === null);
 
       for(const key in obj)
-        obj[key] = f(obj[key]);
+        obj[key] = mapAndPush(obj[key]);
     }
   }
 
@@ -724,8 +771,11 @@ class Program{
   }
 
   getNative(container, ctor, id){
-    if(id in container)
-      return container[id];
+    if(id in container){
+      const obj = container[id];
+      assert(obj instanceof Object, global.String(obj));
+      return obj;
+    }
 
     const obj = new ctor(this, id);
     container[id] = obj;
@@ -757,6 +807,38 @@ class Program{
     return new Array(this, elems);
   }
 
+  createArrLab(arr){
+    const labs = O.obj();
+    let labsNum = 0;
+
+    arr = arr.filter((elem, index) => {
+      if(!(elem instanceof Label)) return 1;
+      if(elem.type !== 0) return 1;
+
+      const {name} = elem;
+
+      if(name in labs)
+        esolangs.err(`Duplicate label ${O.sf(name)}`);
+
+      labs[name] = this.getInt(BigInt(index - labsNum++));
+
+      return 0;
+    });
+
+    arr = arr.map(elem => {
+      if(!(elem instanceof Label)) return elem;
+
+      const {name} = elem;
+
+      if(!(name in labs))
+        esolangs.err(`Undefined label ${O.sf(name)}`);
+
+      return labs[name];
+    });
+
+    return this.createArr(arr);
+  }
+
   createStackFrame(func, scope){
     const frame = this.createObj([
       ['func', func],
@@ -770,8 +852,12 @@ class Program{
 }
 
 class Object{
+  static id = 0;
+  id = Object.id++;
+
   static kNull = global.Symbol('null');
 
+  #prog = null;
   #proto = null;
 
   info = '/';
@@ -780,7 +866,16 @@ class Object{
   keys = new Set();
 
   constructor(prog, proto=null, kvPairs=null){
-    this.prog = prog;
+    if(0&this.id === 167){
+      const mStack = prog.mainStack;
+      const sf = [];
+      for(let i = 0n; i !== mStack.get('length').intVal; i++)
+        sf.push(mStack.get(i).get('func').get('insts').get('length'));
+      log(sf);
+      throw new Error();
+    }
+
+    this.#prog = prog;
 
     this.#proto = (
       proto !== null ?
@@ -799,6 +894,7 @@ class Object{
     return this;
   }
 
+  get prog(){ return this.#prog; }
   get proto(){ return this.#proto; }
 
   set proto(proto){
@@ -815,17 +911,27 @@ class Object{
     }
   }
 
-  get intVal(){ /*return 0n;*/ assert.fail('intVal'); }
+  get intVal(){
+    // /*return 0n;*/ assert.fail('intVal');
+    log(this);
+    assert.fail('=== INT_VAL ===');
+  }
 
   toObj(val){
     const {prog} = this;
+    let obj = null;
 
-    if(typeof val === 'object') return val;
-    if(typeof val === 'string') return prog.getSym(val);
-    if(typeof val === 'bigint') return prog.getInt(val);
-    if(typeof val === 'boolean') return prog.getInt(val ? 1n : 0n);
+    convert: {
+      if(typeof val === 'object') { obj = val; break convert; }
+      if(typeof val === 'string') { obj = prog.getSym(val); break convert; }
+      if(typeof val === 'bigint') { obj = prog.getInt(val); break convert; }
+      if(typeof val === 'boolean') { obj = prog.getInt(val ? 1n : 0n); break convert; }
+      assert.fail(typeof val);
+    }
 
-    assert.fail(typeof val);
+    assert(obj !== undefined, val);
+
+    return obj;
   }
 
   makeEntry(){
@@ -871,6 +977,8 @@ class Object{
     const len = this.get('length');
     const lenNew = len.intVal - 1n;
 
+    assert(len.intVal > 0n, len.intVal);
+
     this.set('length', lenNew);
 
     const elem = this.get(lenNew);
@@ -899,6 +1007,7 @@ class Object{
   }
 
   has(key){
+    assert(key !== undefined);
     const {prog} = this;
     const n = prog.null;
 
@@ -912,19 +1021,25 @@ class Object{
   }
 
   get(key){
+    assert(key !== undefined);
     const {prog} = this;
     const n = prog.null;
 
+    const KEY_ORIG = key;
     key = this.toObj(key);
 
     for(let obj = this; obj !== n; obj = obj.#proto)
       if(obj.hasl(key))
         return obj.getl(key);
 
-    return /*n*/ assert.fail('get');
+    log(this);
+    if(key !== KEY_ORIG) log(KEY_ORIG);
+    log(key);
+    return /*n*/ assert.fail('=== GET ===');
   }
 
   set(key, val){
+    assert(key !== undefined);
     const {prog} = this;
     const n = prog.null;
 
@@ -939,6 +1054,7 @@ class Object{
   }
 
   delete(key){
+    assert(key !== undefined);
     const {prog} = this;
     const n = prog.null;
 
@@ -950,6 +1066,7 @@ class Object{
   }
 
   hasl(key){
+    assert(key !== undefined);
     const {prog} = this;
 
     key = this.toObj(key);
@@ -958,6 +1075,7 @@ class Object{
   }
 
   getl(key){
+    assert(key !== undefined);
     const {prog} = this;
 
     key = this.toObj(key);
@@ -966,6 +1084,7 @@ class Object{
   }
 
   setl(key, val){
+    assert(key !== undefined);
     const {prog, kvMap, keys} = this;
 
     key = this.toObj(key);
@@ -981,6 +1100,7 @@ class Object{
   }
 
   deletel(key){
+    assert(key !== undefined);
     const {prog, kvMap, keys} = this;
 
     key = this.toObj(key);
@@ -992,6 +1112,48 @@ class Object{
 
     kvMap.delete(key);
     keys.delete(key);
+  }
+
+  touch(key){
+    assert(key !== undefined);
+    const {keys} = this;
+
+    keys.delete(key);
+    keys.add(key);
+  }
+
+  clone(){
+    const obj = new Object(this.prog);
+
+    obj.proto = this.proto;
+    obj.kvMap = new Map(this.kvMap);
+    obj.keys = new Set(this.keys);
+
+    return obj;
+  }
+
+  assign(obj){
+    this.proto = obj.proto;
+    this.kvMap = new Map(obj.kvMap);
+    this.keys = new Set(obj.keys);
+
+    return this;
+  }
+
+  prod(pmap){
+    const get = obj => pmap.get(obj) || obj;
+
+    // O.exit(pmap);
+
+    const objNew = this.prog.createRaw(get(this.proto));
+
+    for(const [key, val] of this.kvMap)
+      objNew.setl(get(key), get(val));
+
+    for(const key of this.keys)
+      objNew.touch(key);
+
+    return this.assign(objNew);
   }
 }
 
@@ -1013,7 +1175,8 @@ class Integer extends Object{
 
 class Character extends Object{
   constructor(prog, code){
-    super(prog, prog.getProto('char')).setInfo(`char ${code}`);
+    code = BigInt(code);
+    super(prog, prog.getProto('char')).setInfo(`char ${code} ${O.sfcc(Number(code))}`);
     this.code = code;
   }
 
@@ -1034,8 +1197,6 @@ class Array extends Object{
 
 class String extends Object{
   constructor(prog, buf=null){
-    // log('NEW STRING: ' + O.sf(buf.toString()));
-
     super(prog, prog.getProto('str')).setInfo(`str ${O.sf(buf.toString())}`);
 
     this.setl('length', 0n);
@@ -1043,6 +1204,13 @@ class String extends Object{
     if(buf !== null)
       for(const byte of buf)
         this.push(prog.getChar(byte));
+  }
+}
+
+class Label{
+  constructor(name, type){
+    this.name = name;
+    this.type = type;
   }
 }
 
@@ -1054,4 +1222,5 @@ module.exports = {
   Character,
   Array,
   String,
+  Label,
 };

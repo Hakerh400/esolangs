@@ -8,13 +8,16 @@ expr{
   string
 }
 
-ident{ [0-9a-zA-Z\-]+ }
+ident{ [0-9a-zA-Z\-*]+ }
 object{ "{" s0 keyVal*s1 s0 "}" }
-array{ "[" s0 expr*s1 s0 "]" }
+array{ "[" s0 exprOrLab*s1 s0 "]" }
 char{ "'" charChar "'" }
 string{ "\"" strChar* "\"" }
 
 keyVal{ expr s0 ":" s0 expr }
+
+exprOrLab{ expr | lab }
+lab{ ":" ident | ident ":" }
 
 charChar{ "\\" . | [^\\'] }
 strChar{ "\\" . | [^\\"] }
