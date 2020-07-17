@@ -1,0 +1,99 @@
+{insts: [
+  rev {insts: [
+    a 0 getv clone setv
+    b 0 str setv
+
+    loop:
+      a getv length get :end jz
+      b getv a getv popa pusha
+      :loop jmp
+
+    end:
+      b getv ret
+  ]} cbs
+
+  split {insts: [
+    str1 0 getv clone setv
+    str2 0 str setv
+
+    loop:
+      str1 getv dupe length get dec get ' ' eq :end jnz
+      str2 getv str1 getv popa pusha
+      :loop jmp
+
+    end:
+      str1 getv dupe popa disc
+      rev getv str2 getv 1 crg
+      2 arr ret
+  ]} cbs
+
+  map {insts: [
+    array 0 getv setv
+    fn 1 getv setv
+
+    arrayNew 0 arr setv
+    len array getv length get setv
+    index 0 setv
+
+    loop:
+      index getv len getv eq :end jnz
+      enter
+        elem array getv index getv get setv
+        arrayNew getv fn getv elem getv index getv 2 crg pusha
+      leave
+      index dupe getv inc setv
+      :loop jmp
+
+    end:
+      arrayNew getv ret
+  ]} cbs
+
+  str2int {insts: [
+    s 0 getv clone setv
+    num 0 setv
+    mask 1 setv
+
+    loop:
+      s getv length get :end jz
+      num dupe getv s getv popa 0x30 xor mask getv mul add setv
+      mask dupe getv 10 mul setv
+      :loop jmp
+
+    end:
+      num getv ret
+  ]} cbs
+
+  int2str {insts: [
+    num 0 getv setv
+    s 0 str setv
+
+    loop:
+      num getv :end jz
+      s getv num getv 10 mod 0x30 or char pusha
+      num dupe getv 10 div setv
+      :loop jmp
+
+    end:
+      s dupe getv rev getv 1 move 1 crg setv
+      s getv dupe length get :ret jnz
+      '0' pushk
+      ret: ret
+  ]} cbs
+
+  nums {insts: [
+    f {insts: [
+      str2int getv 0 getv 1 crg ret
+    ]} cbs
+
+    map getv split getv 0 getv 1 crg f getv 2 crg ret
+  ]} cbs
+
+  x y
+  nums getv in 1 crg dupe
+  1 2 swap popa setv
+  popa setv
+
+  int2str getv
+  x getv y getv add
+  1 crg out
+]}

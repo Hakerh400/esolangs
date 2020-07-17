@@ -1,0 +1,13 @@
+{insts: [
+  s 0 str setv
+  i 0 setv
+
+  loop:
+    i getv 10 eq :end jnz
+    s getv i getv 0x30 or char pusha
+    i i getv inc setv
+    :loop jmp
+
+  end:
+    s getv out
+]}

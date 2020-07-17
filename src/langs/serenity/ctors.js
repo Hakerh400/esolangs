@@ -68,7 +68,7 @@ class Program{
     {
       objs.root = this.createObj([
         ['mainStack', this.createArr()],
-      ]).setInfo('root');
+      ]);
     }
 
     // Initialize instructions
@@ -257,7 +257,7 @@ class Program{
           const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
-          stack.push(a.has(b));
+          stack.push(Boolean(a.has(b)));
         },
         get: () => {
           const {stack} = this;
@@ -291,7 +291,7 @@ class Program{
           const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
-          stack.push(a.hasl(b));
+          stack.push(Boolean(a.hasl(b)));
         },
         getl: () => {
           const {stack} = this;
@@ -340,7 +340,7 @@ class Program{
         keys2: () => {
           const {stack} = this;
           const a = stack.pop();
-          stack.push(this.createArr(a.keys()));
+          stack.push(this.createArr(a.keys));
         },
         prod: () => {
           const {stack} = this;
@@ -454,9 +454,6 @@ class Program{
           const b = stack.pop();
           const a = stack.pop();
           this.scope.set(a, b);
-
-          b.info = a.info.split(' ').pop();
-          // log('SETV ' + a.name + ': ' + b.info);
         },
         setvk: () => {
           const {stack} = this;
@@ -464,9 +461,6 @@ class Program{
           const a = stack.pop();
           this.scope.set(a, b);
           stack.push(b);
-
-          b.info = 'var ' + a.info.split(' ').pop();
-          // log('SETK ' + a.name + ': ' + b.info);
         },
         getvl: () => {
           const {stack} = this;
@@ -477,7 +471,7 @@ class Program{
           const {stack} = this;
           const b = stack.pop();
           const a = stack.pop();
-          stack.push(this.scope.setl(a, b));
+          this.scope.setl(a, b);
         },
         setvlk: () => {
           const {stack} = this;
@@ -559,8 +553,6 @@ class Program{
           const b = stack.pop();
           const a = stack.pop();
           a.call(b);
-          log('CALL ' + a.info);
-          log.inc();
         },
         method: () => {
           const {stack} = this;
@@ -578,16 +570,12 @@ class Program{
           a.call(b);
         },
         ret: () => {
-          log('RET ' + this.func.info);
           const a = this.stack.last;
           this.mainStack.pop();
           this.stack.push(a);
-          log.dec();
         },
         retv: () => {
-          log('RETV ' + this.func.info);
           this.mainStack.pop();
-          log.dec();
         },
         in: () => {
           const {stack} = this;
@@ -630,32 +618,11 @@ class Program{
     while(this.output === null){
       const {frame} = this;
 
-      if(0){
-        log(`\n${'='.repeat(100)}\n`);
-
-        const stack = frame.get('stack');
-        const len = stack.get('length').intVal;
-        log('\n---')
-        log('LENGTH: ' + len);
-        log('HAS 0: ' + stack.hasl(BigInt(0)));
-        if(len) log('KEY 0: ' + stack.getl(BigInt(0)).info);
-        log([...stack.kvMap.keys()].map(a => a.info).join`\n`)
-        log('---\n')
-        const str = O.ca(Number(len), i => stack.get(BigInt(i)).info).join('\n') || '/';
-
-        log('Stack:');
-        log.inc();
-        log(str);
-        log.dec();
-        log();
-      }
-
       const func = frame.get('func');
       const instPtr = frame.get('inst').intVal;
       const finsts = func.get('insts');
 
       if(instPtr >= finsts.get('length').intVal){
-        assert.fail('=== IMPLICIT_RETURN ===');
         insts.get(this.getSym('retv'))();
         continue;
       }
@@ -666,13 +633,10 @@ class Program{
       const instf = insts.get(inst);
 
       if(!instf){
-        // debug(`CUSTOM ${inst.info || '/'}`);
-        if(inst.info.includes(' ')) log('---> ' + inst.info.split(' ').pop());
         frame.get('stack').push(inst);
         continue;
       }
 
-      log('# ' + inst.name);
       instf();
     }
 
@@ -761,7 +725,7 @@ class Program{
       parent = this.null;
     }
 
-    return ps[name] = this.createRaw(ps[parent]).setInfo(`proto ${name}`);
+    return ps[name] = this.createRaw(ps[parent]);
   }
 
   getProto(name){
@@ -860,38 +824,21 @@ class Object{
   #prog = null;
   #proto = null;
 
-  info = '/';
-
   kvMap = new Map();
   keys = new Set();
 
   constructor(prog, proto=null, kvPairs=null){
-    if(0&this.id === 167){
-      const mStack = prog.mainStack;
-      const sf = [];
-      for(let i = 0n; i !== mStack.get('length').intVal; i++)
-        sf.push(mStack.get(i).get('func').get('insts').get('length'));
-      log(sf);
-      throw new Error();
-    }
-
     this.#prog = prog;
 
     this.#proto = (
       proto !== null ?
-        proto === Object.kNull ?
-          this.setInfo('null') : proto :
+        proto === Object.kNull ? this : proto :
         prog.null
     );
 
     if(kvPairs !== null)
       for(const [key, val] of kvPairs)
         this.setl(key, val);
-  }
-
-  setInfo(info){
-    this.info = info;
-    return this;
   }
 
   get prog(){ return this.#prog; }
@@ -911,11 +858,7 @@ class Object{
     }
   }
 
-  get intVal(){
-    // /*return 0n;*/ assert.fail('intVal');
-    log(this);
-    assert.fail('=== INT_VAL ===');
-  }
+  get intVal(){ return 0n; }
 
   toObj(val){
     const {prog} = this;
@@ -969,23 +912,15 @@ class Object{
   }
 
   pop(){
-    assert.strictEqual(Number(this.get('length').intVal) + 1, this.kvMap.size);
-    assert.strictEqual(this.kvMap.size, this.keys.size);
-
     const {prog} = this;
     
     const len = this.get('length');
     const lenNew = len.intVal - 1n;
 
-    assert(len.intVal > 0n, len.intVal);
-
     this.set('length', lenNew);
 
     const elem = this.get(lenNew);
     this.delete(lenNew);
-
-    assert.strictEqual(Number(this.get('length').intVal) + 1, this.kvMap.size);
-    assert.strictEqual(this.kvMap.size, this.keys.size);
 
     return elem;
   }
@@ -1032,10 +967,7 @@ class Object{
       if(obj.hasl(key))
         return obj.getl(key);
 
-    log(this);
-    if(key !== KEY_ORIG) log(KEY_ORIG);
-    log(key);
-    return /*n*/ assert.fail('=== GET ===');
+    return n;
   }
 
   set(key, val){
@@ -1080,7 +1012,7 @@ class Object{
 
     key = this.toObj(key);
 
-    return this.kvMap.get(key) || /*this.prog.null*/assert.fail('getl');
+    return this.kvMap.get(key) || this.prog.null;
   }
 
   setl(key, val){
@@ -1090,7 +1022,6 @@ class Object{
     key = this.toObj(key);
     val = this.toObj(val);
 
-    assert(val);
     kvMap.set(key, val);
 
     if(keys.has(key))
@@ -1104,11 +1035,6 @@ class Object{
     const {prog, kvMap, keys} = this;
 
     key = this.toObj(key);
-
-    if(!kvMap.has(key)){
-      assert.fail('deletel');
-      return;
-    }
 
     kvMap.delete(key);
     keys.delete(key);
@@ -1143,8 +1069,6 @@ class Object{
   prod(pmap){
     const get = obj => pmap.get(obj) || obj;
 
-    // O.exit(pmap);
-
     const objNew = this.prog.createRaw(get(this.proto));
 
     for(const [key, val] of this.kvMap)
@@ -1159,14 +1083,14 @@ class Object{
 
 class Symbol extends Object{
   constructor(prog, name){
-    super(prog, prog.getProto('sym')).setInfo(`sym ${name}`);
+    super(prog, prog.getProto('sym'));
     this.name = name;
   }
 }
 
 class Integer extends Object{
   constructor(prog, val){
-    super(prog, prog.getProto('int')).setInfo(`int ${val}`);
+    super(prog, prog.getProto('int'));
     this.val = val;
   }
 
@@ -1176,7 +1100,7 @@ class Integer extends Object{
 class Character extends Object{
   constructor(prog, code){
     code = BigInt(code);
-    super(prog, prog.getProto('char')).setInfo(`char ${code} ${O.sfcc(Number(code))}`);
+    super(prog, prog.getProto('char'));
     this.code = code;
   }
 
@@ -1185,7 +1109,7 @@ class Character extends Object{
 
 class Array extends Object{
   constructor(prog, elems=null){
-    super(prog, prog.getProto('arr')).setInfo(`arr`);
+    super(prog, prog.getProto('arr'));
 
     this.setl('length', 0n);
 
@@ -1197,7 +1121,7 @@ class Array extends Object{
 
 class String extends Object{
   constructor(prog, buf=null){
-    super(prog, prog.getProto('str')).setInfo(`str ${O.sf(buf.toString())}`);
+    super(prog, prog.getProto('str'));
 
     this.setl('length', 0n);
 

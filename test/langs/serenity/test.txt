@@ -1,0 +1,6 @@
+{insts: [rev {insts: [output 0x50 char dupe inc char 2 str setv i 1 2 3 j k 0 5 swap 1 move disc j
+input getv length get 1 pop setv i i getv dec setv i getv 0 lt 75 jnz c input getv i getv get setv
+output getv 5 output getv 1 pop length get c getv setk length output getv length get inc set output
+getv dupe popa inc char pusha 29 jmp push this null setv null root mainStack frame func scope this
+obj null output getv setk prod* this clone ret]} bind setv rev getv arg input rev getv arg input
+"abcde" setk call setk call 2 3 exp 0x30 or char pushk out]}

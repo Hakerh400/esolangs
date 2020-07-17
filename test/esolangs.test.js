@@ -47,7 +47,11 @@ for(const name of langs){
   if(slowTest !== null && '*' in slowTest) continue;
 
   const info = esolangs.getInfo(name);
-  if(O.has(info, 'wip') && info.wip) continue;
+
+  if(O.has(info, 'wip') && info.wip){
+    if(!SINGLE_LANG) continue;
+    esolangs.debugMode = 1;
+  }
 
   part(`Language ${O.sf(name)}`, () => {
     const dir = path.join(langsDir, info.id);

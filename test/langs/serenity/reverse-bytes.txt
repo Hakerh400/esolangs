@@ -1,0 +1,12 @@
+{insts: [
+  a in setv
+  b 0 str setv
+
+  loop:
+    a getv length get :end jz
+    b getv a getv popa pusha
+    :loop jmp
+
+  end:
+    b getv out
+]}

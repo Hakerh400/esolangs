@@ -1,0 +1,3 @@
+{insts: [
+  "Hello, World!" out
+]}

@@ -247,7 +247,6 @@
   }, {
     "name": "Serenity",
     "id": "serenity",
-    "details": null,
-    "wip": true
+    "details": "https://esolangs.org/wiki/Serenity"
   }
 ]
