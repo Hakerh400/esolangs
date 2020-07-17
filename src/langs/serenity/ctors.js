@@ -1133,6 +1133,9 @@ class String extends Object{
 
 class Label{
   constructor(name, type){
+    if(name.includes('*'))
+      esolangs.err(`Invalid label name ${O.sf(name)}`);
+
     this.name = name;
     this.type = type;
   }
