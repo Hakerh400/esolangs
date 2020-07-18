@@ -8,10 +8,15 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const cs = require('./ctors');
 
+const EXECUTE = 1;
+const SHOW_INFO = 0;
+const RETURN_OUTPUT = !SHOW_INFO;
+
+const SHOW_SRC_AFTER_IDENT_SUBST = SHOW_INFO;
+const SHOW_SRC_AFTER_INST_PARSE = SHOW_INFO;
+const SHOW_ROOT_AFTER_END = SHOW_INFO;
+
 const SHOW_SRC_MIN = 0;
-const SHOW_SRC_AFTER_IDENT_SUBST = 0;
-const SHOW_SRC_AFTER_INST_PARSE = 0;
-const SHOW_ROOT_AFTER_END = 0;
 
 const run = (src, input) => {
   let main = null;
@@ -160,8 +165,15 @@ const run = (src, input) => {
       }
     }
 
-    if(SHOW_SRC_MIN)
-      log(`${O.match(main.elems.slice(3).join(''), /.{100}|.+/gs).join('\n')}\n`);
+    if(SHOW_SRC_MIN){
+      const elems = main.elems;
+      let index = 0;
+
+      while(index <= elems.length - 3 && elems[index].len === 0 && elems[index + 1].len === 0)
+        index += 3;
+
+      log(`${O.match(elems.slice(index).join(''), /.{100}|.+/gs).join('\n')}\n`);
+    }
 
     if(SHOW_SRC_AFTER_IDENT_SUBST)
       log(`${main}\n`);
@@ -228,6 +240,9 @@ const run = (src, input) => {
     if(SHOW_SRC_AFTER_INST_PARSE)
       log(`${main}\n`);
   }
+
+  if(!EXECUTE)
+    O.exit();
 
   // Program execution
   {
@@ -370,6 +385,9 @@ const run = (src, input) => {
     if(SHOW_ROOT_AFTER_END)
       log(`${getRoot()}\n`);
   }
+
+  if(!RETURN_OUTPUT)
+    O.exit();
 
   return Buffer.from(output);
 };

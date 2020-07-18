@@ -44,10 +44,23 @@ class List extends Element{
     return this.elems[Symbol.iterator]();
   }
 
-  toStr(){
-    const arr = ['('];
-    this.join(arr, this.elems, '');
-    arr.push(')');
+  toStr(asAddr=0){
+    const {elems} = this;
+
+    if(!asAddr){
+      const arr = ['('];
+
+      this.join(arr, this.elems, '');
+      arr.push(')');
+
+      return arr;
+    }
+
+    const arr = ['R'];
+
+    for(const elem of elems)
+      arr.push('[', elem, ']');
+
     return arr;
   }
 }
@@ -76,6 +89,10 @@ class CodeBlock extends Base{
   toStr(){
     return this.join([], this.insts, '\n');
   }
+
+  toString(){
+    return super.toString(1);
+  }
 }
 
 class Instruction extends Base{
@@ -84,6 +101,10 @@ class Instruction extends Base{
 
     this.addr1 = addr1;
     this.addr2 = addr2;
+  }
+
+  toString(){
+    return super.toString(1);
   }
 }
 
