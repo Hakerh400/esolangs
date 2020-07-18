@@ -5,7 +5,13 @@ const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
+const debug = require('../../common/debug');
 const cs = require('./ctors');
+
+const SHOW_SRC_MIN = 0;
+const SHOW_SRC_AFTER_IDENT_SUBST = 0;
+const SHOW_SRC_AFTER_INST_PARSE = 0;
+const SHOW_ROOT_AFTER_END = 0;
 
 const run = (src, input) => {
   let main = null;
@@ -154,7 +160,13 @@ const run = (src, input) => {
       }
     }
 
-    // Obtain instructions
+    if(SHOW_SRC_MIN)
+      log(`${O.match(main.elems.slice(3).join(''), /.{100}|.+/gs).join('\n')}\n`);
+
+    if(SHOW_SRC_AFTER_IDENT_SUBST)
+      log(`${main}\n`);
+
+    // Parse instructions
     {
       const mainBlock = new cs.CodeBlock();
       const stack = [[mainBlock, main.elems]];
@@ -212,6 +224,9 @@ const run = (src, input) => {
 
       main = mainBlock;
     }
+
+    if(SHOW_SRC_AFTER_INST_PARSE)
+      log(`${main}\n`);
   }
 
   // Program execution
@@ -351,6 +366,9 @@ const run = (src, input) => {
 
       assert.fail(inst);
     }
+
+    if(SHOW_ROOT_AFTER_END)
+      log(`${getRoot()}\n`);
   }
 
   return Buffer.from(output);
