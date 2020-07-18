@@ -250,7 +250,7 @@
     "details": "https://esolangs.org/wiki/Serenity"
   }, {
     "name": "Transortogonal Polymorphism",
-    "id": "transortogonal-polymorphism",
+    "id": "topm",
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
     "details": null,

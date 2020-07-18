@@ -23,7 +23,7 @@ const run = (src, input) => {
         if(ident in seen)
           errCycl(ident);
 
-        assert(ident in identsInfo);
+        assert(ident in identsInfo, O.sf(ident));
 
         const info = identsInfo[ident];
         if(info instanceof List) return info;
@@ -141,7 +141,7 @@ const run = (src, input) => {
           if(name in seen)
             errCycl(name);
 
-          const elemNew = getIdentInfo(elem);
+          const elemNew = getIdentInfo(name).slice();
           const seenNew = O.nproto(seen);
           seenNew[name] = 1;
 
@@ -157,7 +157,10 @@ const run = (src, input) => {
   O.exit();
 };
 
-class Element extends O.Stringifiable{}
+class Element extends O.Stringifiable{
+  parent = null;
+  next = null;
+}
 
 class List extends Element{
   elems = [];
@@ -182,7 +185,7 @@ class List extends Element{
   }
 
   [Symbol.iterator](){
-    return this.elems[Symbol.iterator];
+    return this.elems[Symbol.iterator]();
   }
 
   toStr(){
