@@ -67,6 +67,7 @@ class Identifier extends Element{
 
 class CodeBlock extends Base{
   insts = [];
+  ip = 0;
 
   push(inst){
     this.insts.push(inst);
@@ -116,6 +117,53 @@ class Loop extends Instruction{
   }
 }
 
+class Object extends Base{
+  #map = new Map();
+
+  get(obj){
+    const map = this.#map;
+
+    if(!map.has(obj)){
+      const objNew = new Object();
+      map.set(obj, objNew);
+      return objNew;
+    }
+
+    return map.get(obj);
+  }
+
+  set(obj1, obj2){
+    const map = this.#map;
+    map.set(obj1, obj2);
+  }
+
+  toStr(seen){
+    if(seen.has(this))
+      return seen.get(this);
+
+    const id = String(seen.size + 1);
+    seen.set(this, id);
+
+    const map = this.#map;
+
+    if(map.size === 0)
+      return `${id}{}`;
+
+    const arr = [this.inc, id, '{'];
+
+    for(const [key, val] of map)
+      arr.push('\n', key, ': ', val);
+
+    arr.push(this.dec, '\n}');
+
+    return arr;
+  }
+
+  toString(){
+    return super.toString(new Map());
+  }
+}
+
 module.exports = {
   Base,
   Element,
@@ -127,4 +175,5 @@ module.exports = {
   Input,
   Output,
   Loop,
+  Object,
 };

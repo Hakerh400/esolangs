@@ -8,10 +8,12 @@ const esolangs = require('../..');
 const cs = require('./ctors');
 
 const run = (src, input) => {
+  let main = null;
+  let output = '';
+
   // Parse the source code
   {
     const identsInfo = O.obj();
-    let main = null;
 
     const errCycl = ident => {
       esolangs.err(`Identifier ${O.sf(ident)} has cyclic definition`);
@@ -101,7 +103,7 @@ const run = (src, input) => {
         }
 
         if(char === '\\'){
-          ident = '';
+          ident = '\\';
           continue;
         }
 
@@ -210,11 +212,148 @@ const run = (src, input) => {
 
       main = mainBlock;
     }
-
-    log(main.toString());
   }
 
-  O.exit();
+  // Program execution
+  {
+    let inputPtr = 0;
+    let inputOdd = 1;
+
+    const read = () => {
+      if(inputPtr === input.length)
+        return 0;
+
+      if(inputOdd){
+        inputOdd = 0;
+        return 1;
+      }
+
+      inputOdd = 1;
+      return input[inputPtr++] | 0;
+    };
+
+    const write = bit => {
+      output += bit | 0;
+    };
+
+    const stack = [main];
+    const rootContainer = new cs.Object();
+
+    const getRoot = () => {
+      return rootContainer.get(rootContainer);
+    };
+
+    const getRef = (addr, asRef=1) => {
+      const {elems} = addr;
+      const root = getRoot();
+
+      if(elems.length === 0){
+        if(asRef)
+          return [rootContainer, rootContainer];
+
+        return root;
+      }
+
+      const stack = [[root, elems, 0]];
+      let target = null;
+
+      while(1){
+        const frame = O.last(stack);
+        const [obj, elems, ptr] = frame;
+        const len = elems.length;
+
+        if(asRef && stack.length === 1 && ptr === len - 1){
+          target = obj;
+          asRef = 0;
+
+          stack.pop();
+          stack.push([root, elems[ptr].elems, 0]);
+
+          continue;
+        }
+
+        if(ptr === len){
+          if(stack.length === 1){
+            if(target !== null)
+              return [target, obj];
+
+            return obj;
+          }
+
+          stack.pop();
+          const prev = O.last(stack);
+          prev[0] = prev[0].get(obj);
+
+          continue;
+        }
+
+        const elemsNew = elems[ptr].elems;
+        frame[2]++;
+
+        if(elemsNew.length === 0){
+          frame[0] = frame[0].get(root);
+          continue;
+        }
+
+        stack.push([root, elemsNew, 0]);
+      }
+    };
+
+    const getVal = addr => {
+      return getRef(addr, 0);
+    };
+
+    // The main loop
+    while(stack.length !== 0){
+      const block = O.last(stack);
+      const {insts, ip} = block;
+
+      if(ip === insts.length){
+        stack.pop();
+        continue;
+      }
+
+      const inst = insts[ip];
+      const {addr1, addr2} = inst;
+
+      if(inst instanceof cs.Assignment){
+        const [obj, key] = getRef(addr1);
+        obj.set(key, getVal(addr2));
+        block.ip++;
+        continue;
+      }
+
+      if(inst instanceof cs.Input){
+        if(read()){
+          const [obj, key] = getRef(addr1);
+          obj.set(key, getVal(addr2));
+        }
+        block.ip++;
+        continue;
+      }
+
+      if(inst instanceof cs.Output){
+        write(getVal(addr1) === getVal(addr2));
+        block.ip++;
+        continue;
+      }
+
+      if(inst instanceof cs.Loop){
+        if(getVal(addr1) !== getVal(addr2)){
+          block.ip++;
+          continue;
+        }
+        const instBlock = inst.block;
+        instBlock.ip = 0;
+        stack.push(instBlock);
+        continue;
+      }
+
+      assert.fail(inst);
+    }
+  }
+
+  return Buffer.from(output);
 };
 
 module.exports = run;

@@ -253,7 +253,6 @@
     "id": "topm",
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
-    "details": null,
-    "wip": true
+    "details": "https://esolangs.org/wiki/Transortogonal_Polymorphism"
   }
 ]
