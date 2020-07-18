@@ -5,6 +5,7 @@ const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
+const cs = require('./ctors');
 
 const run = (src, input) => {
   // Parse the source code
@@ -26,7 +27,7 @@ const run = (src, input) => {
         assert(ident in identsInfo, O.sf(ident));
 
         const info = identsInfo[ident];
-        if(info instanceof List) return info;
+        if(info instanceof cs.List) return info;
 
         seen[ident] = 1;
         ident = info.name;
@@ -34,13 +35,13 @@ const run = (src, input) => {
     };
 
     const toList = elem => {
-      if(elem instanceof List) return elem;
+      if(elem instanceof cs.List) return elem;
       return getIdentInfo(elem);
     };
 
     // Parse the main element
     {
-      const stack = [new List()];
+      const stack = [new cs.List()];
       let ident = null;
 
       const append = elem => {
@@ -57,7 +58,7 @@ const run = (src, input) => {
       const pushIdent = () => {
         if(ident === null) return;
 
-        append(new Identifier(ident));
+        append(new cs.Identifier(ident));
 
         if(!(ident in identsInfo)){
           identsInfo[ident] = null;
@@ -75,7 +76,7 @@ const run = (src, input) => {
 
         if(char === '('){
           pushIdent();
-          stack.push(new List());
+          stack.push(new cs.List());
           continue;
         }
 
@@ -131,7 +132,7 @@ const run = (src, input) => {
         for(let i = 0; i !== elems.length; i++){
           const elem = elems[i];
 
-          if(elem instanceof List){
+          if(elem instanceof cs.List){
             stack.push([elem.elems, seen]);
             continue;
           }
@@ -151,62 +152,69 @@ const run = (src, input) => {
       }
     }
 
-    log(main.expr);
+    // Obtain instructions
+    {
+      const mainBlock = new cs.CodeBlock();
+      const stack = [[mainBlock, main.elems]];
+
+      while(stack.length !== 0){
+        const [block, elems] = stack.pop();
+
+        // Reverse elements to avoid quadratic time complexity
+        const elemsArr = elems.slice().reverse();
+
+        const next = () => {
+          if(elemsArr.length !== 0)
+            return elemsArr.pop();
+
+          return new cs.List();
+        };
+
+        while(elemsArr.length !== 0){
+          const elem = next();
+          const {elems} = elem;
+
+          // Assignment
+          if(elem.len === 0){
+            block.push(new cs.Assignment(next(), next()));
+            continue;
+          }
+
+          // Input
+          if(elem.len === 1 && elems[0].len === 0){
+            block.push(new cs.Input(next(), next()));
+            continue;
+          }
+
+          // Output
+          if(elem.len === 1 && elems[0].len === 1 && elems[0].elems[0].len === 0){
+            block.push(new cs.Output(next(), next()));
+            continue;
+          }
+
+          // Loop
+          if(elem.len === 2 && elems[0].len === 0 && elems[1].len === 0){
+            const loop = new cs.Loop(next(), next());
+            block.push(loop);
+            stack.push([loop.block, next().elems]);
+            continue;
+          }
+
+          // Compressed instruction
+
+          for(let i = 0; i !== 2; i++)
+            for(let i = elems.length - 1; i !== -1; i--)
+              elemsArr.push(elems[i]);
+        }
+      }
+
+      main = mainBlock;
+    }
+
+    log(main.toString());
   }
 
   O.exit();
 };
-
-class Element extends O.Stringifiable{
-  parent = null;
-  next = null;
-}
-
-class List extends Element{
-  elems = [];
-  identsStack = [];
-
-  constructor(elems=null){
-    super();
-
-    if(elems !== null)
-      for(const elem of elems)
-        this.push(elem);
-  }
-
-  get expr(){ return this.elems.join(''); }
-
-  push(elem){
-    this.elems.push(elem);
-  }
-
-  slice(){
-    return new List(this);
-  }
-
-  [Symbol.iterator](){
-    return this.elems[Symbol.iterator]();
-  }
-
-  toStr(){
-    const arr = ['('];
-    this.join(arr, this.elems, '');
-    arr.push(')');
-    return arr;
-  }
-}
-
-class Identifier extends Element{
-  constructor(name){
-    super();
-
-    this.name = name;
-  }
-
-  toStr(){
-    if(this.name.length === 1) return this.name;
-    return `\\${this.name} `;
-  }
-}
 
 module.exports = run;
