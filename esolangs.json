@@ -241,12 +241,19 @@
   }, {
     "name": "Integer",
     "id": "integer",
-    "inputFormat": "non-negative integer",
-    "outputFormat": "non-negative integer",
+    "inputFormat": "nonNegativeInteger",
+    "outputFormat": "nonNegativeInteger",
     "details": "https://esolangs.org/wiki/Integer"
   }, {
     "name": "Serenity",
     "id": "serenity",
     "details": "https://esolangs.org/wiki/Serenity"
+  }, {
+    "name": "Transortogonal Polymorphism",
+    "id": "transortogonal-polymorphism",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
+    "details": null,
+    "wip": true
   }
 ]

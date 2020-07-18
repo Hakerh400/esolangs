@@ -70,7 +70,7 @@ const esolangs = {
             esolangs.err(`Input string can only contain bits`);
         } break;
 
-        case 'non-negative integer': {
+        case 'nonNegativeInteger': {
           if(!/^(?:0|[1-9][0-9]*)$/.test(str))
             esolangs.err(`Input must be a non-negative integer`);
 

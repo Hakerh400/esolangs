@@ -71,6 +71,7 @@ const run = async args => {
     const langNameFile = path.join(localTestDir, 'lang.txt');
     const srcsDir = path.join(localTestDir, 'srcs');
     const srcFile = path.join(srcsDir, `${id}.txt`);
+    const inputFile = path.join(localTestDir, 'input.txt');
 
     O.wfs(langNameFile, name);
 
@@ -78,7 +79,9 @@ const run = async args => {
       fs.mkdirSync(srcsDir);
 
     O.wfs(srcFile, '');
+    
     await openFile(srcFile);
+    await openFile(inputFile);
   }
 };
 
