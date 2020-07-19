@@ -39,7 +39,7 @@ class Engine{
       0n,
       new cs.Call(
         MAIN_FUNC_NAME, [
-          new cs.Integer(buf2num(input)),
+          new cs.Integer(input),
         ],
       ),
     ]];
@@ -121,32 +121,12 @@ class Engine{
       assert.fail();
     }
 
-    this.output = num2buf(stack[0][2]);
+    this.output = Buffer.from(String(stack[0][2]));
   }
   
   getOutput(){
     return this.output;
   }
 }
-
-const buf2num = buf => {
-  let num = 0n;
-
-  for(let i = buf.length - 1; i !== -1; i--)
-    num = (num << 8n) | BigInt(buf[i]);
-
-  return num;
-};
-
-const num2buf = num => {
-  const arr = [];
-
-  while(num !== 0n){
-    arr.push(Number(num & 255n));
-    num >>= 8n;
-  }
-
-  return Buffer.from(arr);
-};
 
 module.exports = Engine;

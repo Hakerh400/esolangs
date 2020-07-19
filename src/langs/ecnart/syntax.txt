@@ -3,7 +3,7 @@ script{ s0 func*s0 s0 }
 func{
   ident s0
   args? s0
-  ":" s0
+  "=" s0
   expr
 }
 

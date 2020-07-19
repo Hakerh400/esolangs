@@ -134,6 +134,8 @@
   }, {
     "name": "ƎↃИAЯT",
     "id": "ecnart",
+    "inputFormat": "nonNegativeInteger",
+    "outputFormat": "nonNegativeInteger",
     "details": "https://esolangs.org/wiki/%C6%8E%E2%86%83%D0%98A%D0%AFT"
   }, {
     "name": "ZFC++",
@@ -254,5 +256,12 @@
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Transortogonal_Polymorphism"
+  }, {
+    "name": "μ",
+    "id": "mu",
+    "inputFormat": "nonNegativeInteger",
+    "outputFormat": "nonNegativeInteger",
+    "details": null,
+    "wip": true
   }
 ]
