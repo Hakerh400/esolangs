@@ -134,8 +134,8 @@
   }, {
     "name": "ƎↃИAЯT",
     "id": "ecnart",
-    "inputFormat": "nonNegativeInteger",
-    "outputFormat": "nonNegativeInteger",
+    "inputFormat": "nonNegInt",
+    "outputFormat": "nonNegInt",
     "details": "https://esolangs.org/wiki/%C6%8E%E2%86%83%D0%98A%D0%AFT"
   }, {
     "name": "ZFC++",
@@ -243,8 +243,8 @@
   }, {
     "name": "Integer",
     "id": "integer",
-    "inputFormat": "nonNegativeInteger",
-    "outputFormat": "nonNegativeInteger",
+    "inputFormat": "nonNegInt",
+    "outputFormat": "nonNegInt",
     "details": "https://esolangs.org/wiki/Integer"
   }, {
     "name": "Serenity",
@@ -259,9 +259,15 @@
   }, {
     "name": "μ",
     "id": "mu",
-    "inputFormat": "nonNegativeInteger",
-    "outputFormat": "nonNegativeInteger",
+    "inputFormat": "nonNegInt",
+    "outputFormat": "nonNegInt",
     "details": null,
     "wip": true
+  }, {
+    "name": "Palace",
+    "id": "palace",
+    "inputFormat": "nonNegIntArr",
+    "outputFormat": "nonNegIntArr",
+    "details": "https://esolangs.org/wiki/Palace"
   }
 ]

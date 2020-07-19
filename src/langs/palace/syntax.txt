@@ -3,25 +3,22 @@ script{ s0 func*s0 s0 }
 func{
   ident s0
   args? s0
-  ":" s0
+  "=" s0
   expr
 }
 
 args{ "(" s0 arg*commaSep s0 ")" }
 arg{ expr }
 
-expr{ sum }
-sum{ exprTerm+plusSep }
+expr{ "+"* s0 exprTerm }
 
-exprTerm{ literal | ident | call }
+exprTerm{ zero | ident | call }
 call{ ident s0 args }
 
 ident{ [a-zA-Z_] [a-zA-Z0-9_]* }
-literal{ integer }
-integer{ [0-9]+ }
+zero{ "0" }
 
 commaSep{ s0 "," s0 }
-plusSep{ s0 "+" s0 }
 
 whitespace{ [ \r\n\t] }
 comment{ inlineComment | multilineComment }

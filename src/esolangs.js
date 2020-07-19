@@ -70,11 +70,20 @@ const esolangs = {
             esolangs.err(`Input string can only contain bits`);
         } break;
 
-        case 'nonNegativeInteger': {
+        case 'nonNegInt': {
           if(!/^(?:0|[1-9][0-9]*)$/.test(str))
             esolangs.err(`Input must be a non-negative integer`);
 
           input = BigInt(str);
+        } break;
+
+        case 'nonNegIntArr': {
+          input = str.split(' ').map(str => {
+            if(!/^(?:0|[1-9][0-9]*)$/.test(str))
+              esolangs.err(`Input must be an array of non-negative integers separated by spaces`);
+
+            return BigInt(str);
+          });
         } break;
       }
     }else{

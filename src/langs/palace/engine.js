@@ -8,11 +8,6 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const cs = require('./ctors');
 
-const DEBUG = 0;
-
-const MAIN_FUNC_NAME = 'main';
-const MAIN_FUNC_ARGS_NUM = 1;
-
 class Engine{
   constructor(parsed, input){
     this.parsed = parsed;
@@ -22,44 +17,29 @@ class Engine{
 
   run(){
     const {parsed: prog, input} = this;
-    const {funcsObj} = prog;
+    const {funcsObj, mainFuncName} = prog;
 
-    if(!(MAIN_FUNC_NAME in funcsObj))
-      esolangs.err(`Missing definition for function ${
-        O.sf(MAIN_FUNC_NAME)}`);
+    const mainFuncArgsNum = input.length;
 
-    if(!(MAIN_FUNC_ARGS_NUM in funcsObj[MAIN_FUNC_NAME]))
-      esolangs.err(`There must be a definition for function ${
-        O.sf(MAIN_FUNC_NAME)} that takes ${
-        O.gnum('argument', MAIN_FUNC_ARGS_NUM)}`);
+    if(!(mainFuncArgsNum in funcsObj[mainFuncName]))
+      esolangs.err(`Function ${
+        O.sf(mainFuncName)} must take ${
+        O.gnum('argument', mainFuncArgsNum)}, because the input has ${
+        O.gnum('integer', mainFuncArgsNum)}`);
 
     const stack = [[
       null,
       null,
       0n,
       new cs.Call(
-        MAIN_FUNC_NAME, [
-          new cs.Integer(buf2num(input)),
-        ],
+        mainFuncName,
+        input.map(a => new cs.Integer(a)),
       ),
     ]];
-
-    if(DEBUG)
-      BigInt.prototype.toJSON = {a(){ return String(this); }}.a;
 
     let sPrev = null;
 
     while(1){
-      if(DEBUG){
-        const s = O.sf(stack);
-
-        if(s !== sPrev){
-          sPrev = s;
-          log(O.sf(stack));
-          debug(`\n${'='.repeat(100)}`);
-        }
-      }
-
       const sum = O.last(stack);
 
       if(sum.length === 3){
@@ -121,32 +101,12 @@ class Engine{
       assert.fail();
     }
 
-    this.output = num2buf(stack[0][2]);
+    this.output = Buffer.from(String(stack[0][2]));
   }
   
   getOutput(){
     return this.output;
   }
 }
-
-const buf2num = buf => {
-  let num = 0n;
-
-  for(let i = buf.length - 1; i !== -1; i--)
-    num = (num << 8n) | BigInt(buf[i]);
-
-  return num;
-};
-
-const num2buf = num => {
-  const arr = [];
-
-  while(num !== 0n){
-    arr.push(Number(num & 255n));
-    num >>= 8n;
-  }
-
-  return Buffer.from(arr);
-};
 
 module.exports = Engine;
