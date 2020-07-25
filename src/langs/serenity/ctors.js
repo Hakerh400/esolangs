@@ -816,9 +816,6 @@ class Program{
 }
 
 class Object{
-  static id = 0;
-  id = Object.id++;
-
   static kNull = global.Symbol('null');
 
   #prog = null;
