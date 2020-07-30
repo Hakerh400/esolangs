@@ -8,7 +8,7 @@ const esolangs = require('../..');
 
 class Base extends O.Stringifiable{}
 
-class Program extends O.Stringifiable{
+class Program extends Base{
   constructor(elems){
     super();
 
@@ -20,7 +20,7 @@ class Program extends O.Stringifiable{
   }
 }
 
-class Element extends O.Stringifiable{}
+class Element extends Base{}
 
 class Instruction extends Element{
   constructor(type, args){
