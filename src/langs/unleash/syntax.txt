@@ -1,0 +1,26 @@
+script{ s0 elem*s0 s0 }
+
+elem{ inst | list }
+
+inst{
+  "+" s0 num{0..3}numSep |
+  "-" s0 num{0..2}numSep |
+  "~" s0 num{0..3}numSep |
+  "*" s0 num{0..2}numSep |
+  "." s0 num{0..1} |
+  "%" s0 num{0..1}
+}
+
+list{ "(" s0 elem*s0 s0 ")" }
+
+num{ "0" | [1-9] [0-9]* }
+numSep{ s0 "|" s0 }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }

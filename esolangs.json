@@ -267,5 +267,11 @@
     "inputFormat": "nonNegIntArr",
     "outputFormat": "nonNegIntArr",
     "details": "https://esolangs.org/wiki/Palace"
+  }, {
+    "name": "Unleash",
+    "id": "unleash",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
+    "details": "https://esolangs.org/wiki/Unleash"
   }
 ]
