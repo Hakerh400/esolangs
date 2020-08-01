@@ -32,7 +32,7 @@ class Instruction extends Element{
     switch(type){
       case 0:
         if(len === 0) args = [0, 1, 0];
-        else if(len === 1) args = [a, 1, a];
+        else if(len === 1) args = [a, 1, 0];
         else if(len === 2) args = [a, 1, b];
         break;
 
@@ -49,7 +49,7 @@ class Instruction extends Element{
 
       case 3:
         if(len === 0) args = [0, 1];
-        else if(len === 1) args = [a, 1];
+        else if(len === 1) args = [0, a];
         break;
 
       case 4:

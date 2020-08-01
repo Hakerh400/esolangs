@@ -147,7 +147,10 @@ class Stack extends O.Stringifiable{
 
   expand(len){
     const {elems} = this;
-    while(elems.length < len) elems.push(emptyList);
+    while(elems.length < len){
+      if(DEBUG) assert.fail();
+      elems.push(emptyList);
+    }
   }
 
   slice(start, len){
