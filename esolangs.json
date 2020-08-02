@@ -273,5 +273,10 @@
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Unleash"
+  }, {
+    "name": "Conglument",
+    "id": "conglument",
+    "details": null,
+    "wip": true
   }
 ]

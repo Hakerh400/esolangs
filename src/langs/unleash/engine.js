@@ -44,14 +44,14 @@ class Engine{
     const dbg = () => {
       log(`${'Code:'.padEnd(7)}${code}`);
       log(`${'Stack:'.padEnd(7)}${stack}`);
-      debug();
+      // debug();
     };
 
     const code = new Stack(prog.elems);
     const stack = new Stack();
 
     while(!code.isEmpty){
-      if(DEBUG) dbg();
+      // if(DEBUG) dbg();
 
       const elem = code.pop();
 
