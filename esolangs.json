@@ -30,6 +30,8 @@
   }, {
     "name": "Functasy",
     "id": "functasy",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Functasy"
   }, {
     "name": "Examinable Invocation Vector",

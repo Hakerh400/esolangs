@@ -8,19 +8,57 @@ const esolangs = require('../..');
 const run = (src, input) => {
   src = src.toString();
 
-  const io = new O.IO(input, 0, 1);
+  const io = new IO(input, 0, 1);
 
   let s = [[]]; // Stack
   let e = 0; // Element
+  let d = 0; // Depth
+
+  const parseIdent = identStr => {
+    if(identStr[0] === '0' && identStr.length !== 1)
+      esolangs.err(`Invalid identifier ${identStr}`);
+
+    const ident = identStr | 0;
+
+    if(ident >= d)
+      esolangs.err(`Identifier ${identStr} cannot appear in that context`);
+
+    return ident + 1;
+  };
 
   // Tokenize and iterate over tokens
-  for(let t of src.match(/\d+|[\(\)]/g) || [])
-    t === ')' ?
-      (e = s[0], s = s[1]) :
-      (e = e ? e[2] = [] : s[0][1] = [],
-      t === '(' ?
-        (s = [e, s], e = 0) :
-        e[0] = -~t);
+  O.tokenize(src, [
+    /\s+/, O.nop,
+
+    /[0-9]+|[\(\)]/, t => {
+      if(t === ')'){
+        if(d === 0)
+          esolangs.err(`Missing open parenthese`);
+
+        e = s[0];
+        s = s[1];
+        d--;
+
+        return;
+      }
+
+      e = e ? e[2] = [] : s[0][1] = [];
+
+      if(t === '('){
+        s = [e, s];
+        e = 0;
+        d++;
+
+        return;
+      }
+
+      e[0] = parseIdent(t);
+    },
+
+    t => {
+      esolangs.err(`Invalid syntax near ${O.sf(t.slice(0, 100))}`);
+    },
+  ]);
 
   // Initial invocation parameters
   let inv = [0, [0, e = s[0][1]], 0, e];
@@ -53,5 +91,33 @@ const run = (src, input) => {
 
   return io.getOutput();
 };
+
+class IO{
+  output = [];
+
+  constructor(input){
+    this.input = input;
+    this.inputIndex = 0;
+    this.inputFlag = 1;
+  }
+
+  read(){
+    const {input, inputFlag} = this;
+    if(this.inputIndex === input.length) return 0;
+
+    this.inputFlag ^= 1;
+    if(inputFlag) return 1;
+
+    return input[this.inputIndex++] | 0;
+  }
+
+  write(bit){
+    this.output.push(bit | 0);
+  }
+
+  getOutput(){
+    return Buffer.from(this.output.join(''));
+  }
+}
 
 module.exports = run;
