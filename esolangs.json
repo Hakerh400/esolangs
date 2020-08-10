@@ -259,8 +259,8 @@
   }, {
     "name": "μ",
     "id": "mu",
-    "inputFormat": "nonNegInt",
-    "outputFormat": "nonNegInt",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
     "details": null,
     "wip": true
   }, {
