@@ -165,7 +165,7 @@
     "details": "https://esolangs.org/wiki/Entrance"
   }, {
     "name": "Minimal operation language",
-    "id": "minimal-operation-language",
+    "id": "mol",
     "details": "https://esolangs.org/wiki/Minimal_operation_language",
     "interactive": true
   }, {

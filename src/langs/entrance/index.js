@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
-const parser = require('../../common/parser');
+const parser = require('../../common/parsers/elevated-parser');
 const ast = require('./ast');
 const cs = require('./ctors');
 

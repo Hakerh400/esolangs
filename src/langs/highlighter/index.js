@@ -5,7 +5,7 @@ const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
-const parser = require('../../common/parser');
+const parser = require('../../common/parsers/elevated-parser');
 const Command = require('./command');
 
 const run = (src, input) => {
