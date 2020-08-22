@@ -18,8 +18,11 @@ const types = O.enum([
   'GLOBAL',
 ]);
 
-const run = (src, input) => {
+const run = (src, inputStr) => {
   const func = parse(src.toString());
+  O.logf(func);
+  O.exit();
+  const input = initInput(inputStr);
   const output = [];
   const stack = [[func, output, [input]]];
 
@@ -58,6 +61,15 @@ const run = (src, input) => {
   }
 
   return Buffer.from(output[0]);
+};
+
+const initInput = str => {
+  let input = [types.FUNCTOR, 0, 0];
+
+  for(let i = str.length - 1; i !== -1; i--)
+    input = [types.COMBINATOR, 0, null, []];
+
+  return input;
 };
 
 const parse = src => {
@@ -155,7 +167,7 @@ const parse = src => {
       if(a > 1)
         esolangs.err(`Argument of + can be either 0 or 1`);
 
-      return initIdents([types.FUNCTOR, 1, String(a)]);
+      return initIdents([types.FUNCTOR, 1, a]);
     }
 
     if(char === '%'){
