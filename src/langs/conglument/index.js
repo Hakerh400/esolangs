@@ -14,7 +14,7 @@ const run = (src, input) => {
   let prevIdent = 0;
 
   const mainComposition = new cs.Composition(); // The main composition
-  const stack = [mainComposition]; // Contains incomplete functions
+  const stack = [mainComposition]; // Stack of incomplete functions
   const scope = O.obj(); // Map from identifiers to functions
 
   const err = msg => {
@@ -154,6 +154,8 @@ const run = (src, input) => {
 
     mainComposition.push(func);
   }
+
+  assert(mainComposition.arity === 0);
 
   log(mainComposition.toString());
 
