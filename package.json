@@ -18,6 +18,7 @@
   "dependencies": {
     "@hakerh400/list": "~1.0.4",
     "@hakerh400/table": "~1.0.0",
+    "@hakerh400/fs-rec": "~1.0.1",
     "omikron": "~1.2.37"
   },
   "devDependencies": {

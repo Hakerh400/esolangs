@@ -278,6 +278,8 @@
   }, {
     "name": "Conglument",
     "id": "conglument",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
     "details": null,
     "wip": true
   }
