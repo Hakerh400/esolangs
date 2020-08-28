@@ -66,7 +66,7 @@ class Tokenizer{
     }
 
     if(/[a-zA-Z]/.test(src[0])){
-      const str = src.match(/^[a-zA-Z]+/)[0];
+      const str = src.match(/^[a-zA-Z][a-zA-Z0-9]*/)[0];
       this.src = src.slice(str.length);
       return new Identifier(str);
     }

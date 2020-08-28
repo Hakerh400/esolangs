@@ -8,14 +8,91 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 const tk = require('./tokenizer');
 const cs = require('./ctors');
+const sf = require('./stack-frame');
 
 const run = (src, input) => {
+  let frame = new sf.Global(parse(src, input));
+  let output = '';
+
+  const set = func => {
+    frame = frame.set(func);
+  };
+
+  const fail = () => {
+    O.logb();
+    log(frame.func.toString());
+    O.logb();
+
+    assert.fail();
+  };
+
+  while(1){
+    const {func} = frame;
+
+    if(func instanceof cs.Empty){
+      assert(func.arity === 0);
+      break;
+    }
+
+    if(func instanceof cs.String){
+      const {str} = func;
+
+      if(str.length === 0){
+        set(new cs.Empty(0));
+        continue;
+      }
+
+      const c = new cs.Composition();
+      c.push(new cs.Prefix(str[0] | 0));
+      c.push(new cs.String(str.slice(1)));
+      set(c);
+
+      continue;
+    }
+
+    if(func instanceof cs.Composition){
+      const {target, args} = func;
+
+      if(target instanceof cs.Empty){
+        set(new cs.Empty(func.arity));
+        continue;
+      }
+
+      if(target instanceof cs.Prefix){
+        if(frame instanceof sf.Global){
+          assert(args.length === 1);
+          output += target.bit;
+          set(args[0]);
+          continue;
+        }
+
+        // frame = frame.next;
+        fail();
+
+        continue;
+      }
+
+      if(target instanceof cs.Composition){
+        frame = new sf.Target(target, frame);
+        continue;
+      }
+
+      fail();
+    }
+
+    fail();
+  }
+
+  return Buffer.from(output);
+};
+
+const parse = (src, input) => {
   const tokenizer = new tk.Tokenizer(src);
   let prevIdent = 0;
 
-  const mainComposition = new cs.Composition(); // The main composition
-  const stack = [mainComposition]; // Stack of incomplete functions
-  const scope = O.obj(); // Map from identifiers to functions
+  const mainComposition = new cs.Composition(1);
+  const stack = [mainComposition];
+  const scope = O.obj();
 
   const err = msg => {
     esolangs.err(`${msg} (near ${O.sf(tokenizer.srcPrev.slice(0, 100))})`);
@@ -67,14 +144,14 @@ const run = (src, input) => {
         const num = next();
 
         if(!(num instanceof tk.Number))
-          err(`Successor takes a number as argument`);
+          err(`Prefix takes a number as argument`);
 
         const {val} = num;
 
         if(!(val === 0 || val === 1))
-          err(`Argument of a successor must be either 0 or 1`);
+          err(`Argument of a prefix must be either 0 or 1`);
 
-        push(new cs.Successor(val));
+        push(new cs.Prefix(val));
       } break;
 
       case tk.Percent: {
@@ -98,6 +175,18 @@ const run = (src, input) => {
           err(`The second argument of a projection must be strictly smaller than the first argument`);
 
         push(new cs.Projection(val1, val2));
+      } break;
+
+      case tk.Tilde: {
+        push(new cs.Composition());
+      } break;
+
+      case tk.Minus: {
+        push(new cs.Recursion());
+      } break;
+
+      case tk.Star: {
+        push(new cs.Minimization());
       } break;
 
       case tk.Number: {
@@ -141,25 +230,10 @@ const run = (src, input) => {
   if(mainComposition.target.arity !== 1)
     esolangs.err(`The main function must be unary`);
 
-  // Transform the input into a function
-  {
-    let func = new cs.Empty(0);
-
-    for(const bit of input){
-      const c = new cs.Composition();
-      c.push(new cs.Successor(bit | 0));
-      c.push(func);
-      func = c;
-    }
-
-    mainComposition.push(func);
-  }
-
+  mainComposition.push(new cs.String(input));
   assert(mainComposition.arity === 0);
 
-  log(mainComposition.toString());
-
-  O.exit();
+  return mainComposition;
 };
 
 module.exports = run;
