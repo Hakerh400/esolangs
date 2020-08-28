@@ -8,9 +8,20 @@ const esolangs = require('../..');
 const cs = require('./ctors');
 
 class StackFrame{
-  constructor(func, next){
-    this.func = func;
+  #func = null;
+
+  constructor(next, func){
     this.next = next;
+    this.func = func;
+  }
+
+  get func(){
+    return this.#func;
+  }
+
+  set func(func){
+    assert(func.full);
+    this.#func = func;
   }
 
   set(){ O.virtual('set'); }
@@ -18,7 +29,7 @@ class StackFrame{
 
 class Global extends StackFrame{
   constructor(func){
-    super(func, null);
+    super(null, func);
   }
 
   set(func){
@@ -27,23 +38,30 @@ class Global extends StackFrame{
   }
 }
 
-class Target extends StackFrame{
+class CompositionArgument extends StackFrame{
+  constructor(next, func, index){
+    super(next, func);
+
+    this.index = index;
+  }
+
   set(func){
     const {next} = this;
 
     const c = new cs.Composition();
-    c.push(func);
+    c.push(next.func.target);
 
-    for(const arg of next.func.args)
-      c.push(args);
+    next.func.args.forEach((arg, index) => {
+      if(index === this.index) c.push(func);
+      else c.push(arg);
+    });
 
-    next.func = c;
-    return next;
+    return next.set(c);
   }
 }
 
 module.exports = {
   StackFrame,
   Global,
-  Target,
+  CompositionArgument,
 };

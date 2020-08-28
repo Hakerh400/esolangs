@@ -6,6 +6,8 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 
+const maxInt = global.Number.MAX_SAFE_INTEGER;
+
 class Tokenizer{
   emittedEof = 0;
 
@@ -96,7 +98,7 @@ class Number extends Token{
 
     const num = +str;
 
-    if(num > Number.MAX_SAFE_INTEGER)
+    if(num > maxInt)
       esolangs.err(`Too large number: ${str}`);
 
     this.val = num;

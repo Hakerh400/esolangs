@@ -30,7 +30,8 @@ const run = (src, input) => {
     const {func} = frame;
 
     if(func instanceof cs.Empty){
-      assert(func.arity === 0);
+      assert(frame instanceof cs.Global);
+      assert(func.nullary);
       break;
     }
 
@@ -60,7 +61,6 @@ const run = (src, input) => {
 
       if(target instanceof cs.Prefix){
         if(frame instanceof sf.Global){
-          assert(args.length === 1);
           output += target.bit;
           set(args[0]);
           continue;
@@ -72,8 +72,95 @@ const run = (src, input) => {
         continue;
       }
 
+      if(target instanceof cs.Projection){
+        set(args[target.index]);
+        continue;
+      }
+
       if(target instanceof cs.Composition){
-        frame = new sf.Target(target, frame);
+        const {target: target1, args: args1} = target;
+        const c = new cs.Composition();
+
+        c.push(target1);
+
+        for(const arg1 of args1){
+          const c1 = new cs.Composition();
+
+          c1.push(arg1);
+
+          for(const arg of args)
+            c1.push(arg);
+
+          c.push(c1);
+        }
+
+        set(c);
+
+        continue;
+      }
+
+      if(target instanceof cs.Recursion){
+        const arg = args[0];
+
+        if(arg instanceof cs.Empty){
+          const f = target.empty;
+
+          if(f.nullary){
+            set(f);
+            continue;
+          }
+
+          const c = new cs.Composition();
+
+          c.push(f);
+
+          args.forEach((arg, index) => {
+            if(index === 0) return;
+            c.push(arg);
+          });
+
+          set(c);
+
+          continue;
+        }
+
+        if(arg instanceof cs.Prefix){
+          assert.fail();
+        }
+
+        if(arg instanceof cs.Composition && arg.target instanceof cs.Prefix){
+          const {bit} = arg.target;
+          const c = new cs.Composition();
+          const f = bit ? target.one : target.zero;
+          const y = arg.args[0];
+
+          c.push(f);
+          c.push(y);
+
+          const c1 = new cs.Composition();
+
+          c1.push(target);
+          c1.push(y);
+
+          args.forEach((arg, index) => {
+            if(index === 0) return;
+            c1.push(arg);
+          });
+
+          c.push(c1);
+
+          args.forEach((arg, index) => {
+            if(index === 0) return;
+            c.push(arg);
+          });
+
+          set(c);
+
+          continue;
+        }
+
+        frame = new sf.CompositionArgument(frame, arg, 0);
+
         continue;
       }
 
@@ -135,7 +222,7 @@ const parse = (src, input) => {
         const num = next();
 
         if(!(num instanceof tk.Number))
-          err(`Empty function takes a number as argument`);
+          err(`Empty string takes a number as argument`);
 
         push(new cs.Empty(num.val));
       } break;
@@ -227,11 +314,11 @@ const parse = (src, input) => {
   if(!(next() instanceof tk.Eof))
     err(`Extra tokens found at the end of the source code`);
 
-  if(mainComposition.target.arity !== 1)
+  if(!mainComposition.target.unary)
     esolangs.err(`The main function must be unary`);
 
   mainComposition.push(new cs.String(input));
-  assert(mainComposition.arity === 0);
+  assert(mainComposition.nullary);
 
   return mainComposition;
 };

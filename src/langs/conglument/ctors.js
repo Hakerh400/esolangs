@@ -12,6 +12,10 @@ class Function extends Base{
   get full(){ O.virtual('full'); }
   get arity(){ O.virtual('arity'); }
 
+  get nullary(){ return this.arity === 0; }
+  get unary(){ return this.arity === 1; }
+  get binary(){ return this.arity === 2; }
+
   push(){ O.virtual('push'); }
 
   toString(){
@@ -82,7 +86,7 @@ class Composition extends Combinator{
   target = null;
   args = [];
 
-  constructor(main){
+  constructor(main=0){
     super();
 
     this.main = main;
@@ -103,7 +107,7 @@ class Composition extends Combinator{
     assert(func.full);
 
     if(this.target === null){
-      if(func.arity === 0){
+      if(func.nullary){
         if(this.main)
           esolangs.err(`The main function must be unary`);
 
