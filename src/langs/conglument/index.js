@@ -14,13 +14,20 @@ const run = (src, input) => {
   let frame = new sf.Global(parse(src, input));
   let output = '';
 
+  O.exit(frame.func.target.minify());
+
   const set = func => {
     frame = frame.set(func);
   };
 
   const fail = () => {
     O.logb();
+
+    log(frame.constructor.name);
+    log();
+
     log(frame.func.toString());
+
     O.logb();
 
     assert.fail();
@@ -29,23 +36,26 @@ const run = (src, input) => {
   while(1){
     const {func} = frame;
 
+    // log(func.toString());
+    // debug(`\n${'='.repeat(100)}`);
+
     if(func instanceof cs.Empty){
-      assert(frame instanceof cs.Global);
+      assert(frame instanceof sf.Global);
       assert(func.nullary);
       break;
     }
 
     if(func instanceof cs.String){
-      const {str} = func;
+      const {str, arity} = func;
 
       if(str.length === 0){
-        set(new cs.Empty(0));
+        set(new cs.Empty(arity));
         continue;
       }
 
       const c = new cs.Composition();
       c.push(new cs.Prefix(str[0] | 0));
-      c.push(new cs.String(str.slice(1)));
+      c.push(new cs.String(str.slice(1), arity));
       set(c);
 
       continue;
@@ -62,11 +72,12 @@ const run = (src, input) => {
       if(target instanceof cs.Prefix){
         if(frame instanceof sf.Global){
           output += target.bit;
+          // debug('---> ' + target.bit);
           set(args[0]);
           continue;
         }
 
-        // frame = frame.next;
+        // frame = frame.prev;
         fail();
 
         continue;
@@ -79,12 +90,13 @@ const run = (src, input) => {
 
       if(target instanceof cs.Composition){
         const {target: target1, args: args1} = target;
-        const c = new cs.Composition();
+        const c = new cs.Composition(target1.nullary ? func.arity : null);
+        const presetArity = target.nullary ? func.arity : null
 
         c.push(target1);
 
         for(const arg1 of args1){
-          const c1 = new cs.Composition();
+          const c1 = new cs.Composition(presetArity);
 
           c1.push(arg1);
 
@@ -94,6 +106,7 @@ const run = (src, input) => {
           c.push(c1);
         }
 
+        assert(c.arity === func.arity);
         set(c);
 
         continue;
@@ -104,13 +117,7 @@ const run = (src, input) => {
 
         if(arg instanceof cs.Empty){
           const f = target.empty;
-
-          if(f.nullary){
-            set(f);
-            continue;
-          }
-
-          const c = new cs.Composition();
+          const c = new cs.Composition(f.nullary ? func.arity : null);
 
           c.push(f);
 
@@ -164,6 +171,71 @@ const run = (src, input) => {
         continue;
       }
 
+      if(target instanceof cs.Minimization){
+        const {strs, func} = target;
+
+        if(strs.length === 0)
+          esolangs.loop(`Minimization does not halt`);
+
+        extractBit: {
+          const bit = target.commonBit;
+          if(bit === null) break extractBit;
+
+          const c = new cs.Composition();
+          const c1 = new cs.Composition();
+
+          c1.push(target.woutBit());
+
+          for(const arg of args)
+            c1.push(arg);
+
+          c.push(new cs.Prefix(bit));
+          c.push(c1);
+
+          set(c);
+
+          continue;
+        }
+
+        const str = strs[0];
+
+        const cMain = new cs.Composition();
+        const cFunc = new cs.Composition();
+        const cAcc = new cs.Composition();
+        const cRej = new cs.Composition();
+        const cAux = new cs.Composition(2, 1);
+        const r = new cs.Recursion();
+
+        cAcc.push(target.accept());
+        cRej.push(target.reject());
+        cFunc.push(func);
+        cFunc.push(new cs.String(str));
+
+        for(const arg of args){
+          cAcc.push(arg);
+          cRej.push(arg);
+          cFunc.push(arg);
+        }
+
+        cAux.push(cRej);
+
+        r.push(cAcc);
+        r.push(cAux);
+        r.push(new cs.String(str, 2));
+
+        cMain.push(r);
+        cMain.push(cFunc);
+
+        set(cMain);
+
+        continue;
+      }
+
+      if(target instanceof cs.String){
+        frame = new sf.CompositionTarget(frame, target);
+        continue;
+      }
+
       fail();
     }
 
@@ -177,7 +249,7 @@ const parse = (src, input) => {
   const tokenizer = new tk.Tokenizer(src);
   let prevIdent = 0;
 
-  const mainComposition = new cs.Composition(1);
+  const mainComposition = new cs.Composition();
   const stack = [mainComposition];
   const scope = O.obj();
 

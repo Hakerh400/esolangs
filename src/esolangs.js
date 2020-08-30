@@ -130,9 +130,13 @@ const esolangs = {
     it should call this method, since it should not give a wrong result or
     throw an error for a valid program.
   */
-  loop(reason){
-    log(`WARNING: The interpreter cannot proceed`);
-    log(`Reason: ${reason}`);
+  loop(reason=null){
+    if(this.debugMode){
+      log(`WARNING: The interpreter cannot proceed`);
+      if(reason !== null) log(`Reason: ${reason}`);
+      O.exit();
+    }
+    
     for(;;);
   },
 

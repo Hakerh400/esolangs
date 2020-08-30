@@ -10,8 +10,8 @@ const cs = require('./ctors');
 class StackFrame{
   #func = null;
 
-  constructor(next, func){
-    this.next = next;
+  constructor(prev, func){
+    this.prev = prev;
     this.func = func;
   }
 
@@ -21,6 +21,16 @@ class StackFrame{
 
   set func(func){
     assert(func.full);
+
+    if(this.#func !== null && func.arity !== this.func.arity){
+      log(this.#func.toString());
+      O.logb();
+      log(func.toString());
+      O.logb();
+
+      assert.fail();
+    }
+
     this.#func = func;
   }
 
@@ -29,6 +39,7 @@ class StackFrame{
 
 class Global extends StackFrame{
   constructor(func){
+    assert(func.nullary);
     super(null, func);
   }
 
@@ -39,24 +50,38 @@ class Global extends StackFrame{
 }
 
 class CompositionArgument extends StackFrame{
-  constructor(next, func, index){
-    super(next, func);
+  constructor(prev, func, index){
+    super(prev, func);
 
     this.index = index;
   }
 
   set(func){
-    const {next} = this;
+    const {prev} = this;
 
     const c = new cs.Composition();
-    c.push(next.func.target);
+    c.push(prev.func.target);
 
-    next.func.args.forEach((arg, index) => {
+    prev.func.args.forEach((arg, index) => {
       if(index === this.index) c.push(func);
       else c.push(arg);
     });
 
-    return next.set(c);
+    return prev.set(c);
+  }
+}
+
+class CompositionTarget extends StackFrame{
+  set(func){
+    const {prev} = this;
+
+    const c = new cs.Composition();
+    c.push(func);
+
+    for(const arg of prev.func.args)
+      c.push(arg);
+
+    return prev.set(c);
   }
 }
 
@@ -64,4 +89,5 @@ module.exports = {
   StackFrame,
   Global,
   CompositionArgument,
+  CompositionTarget,
 };
