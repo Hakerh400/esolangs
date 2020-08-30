@@ -56,16 +56,14 @@ class Tokenizer{
       return new Star();
     }
 
-    if(/[0-9]/.test(src[0])){
-      const str = src.match(/^[0-9]/)[0];
-      this.src = src.slice(str.length);
-      return new Number(str);
-    }
+    if(/[a-zA-Z0-9\\]/.test(src[0])){
+      const match = src.match(/^(?:[a-zA-Z0-9]|\\[a-zA-Z0-9]+)/)[0];
+      const str = match.match(/[a-zA-Z0-9]+/)[0];
+      const isNum = /^[0-9]+$/.test(str);
 
-    if(/[a-zA-Z]/.test(src[0])){
-      const str = src.match(/^[a-zA-Z]/)[0];
-      this.src = src.slice(str.length);
-      return new Identifier(str);
+      this.src = src.slice(match.length);
+
+      return isNum ? new Number(str) : new Identifier(str);
     }
 
     esolangs.err(`Invalid token: ${O.sf(src[0])}`);
@@ -86,9 +84,17 @@ class Tilde extends Token{}
 class Minus extends Token{}
 class Star extends Token{}
 
-class Number extends Token{
+class Identifier extends Token{
   constructor(str){
     super();
+
+    this.name = str;
+  }
+}
+
+class Number extends Identifier{
+  constructor(str){
+    super(str);
 
     const num = +str;
 
@@ -96,14 +102,6 @@ class Number extends Token{
       esolangs.err(`Too large number: ${str}`);
 
     this.val = num;
-  }
-}
-
-class Identifier extends Token{
-  constructor(str){
-    super();
-
-    this.name = str;
   }
 }
 
@@ -117,6 +115,6 @@ module.exports = {
   Tilde,
   Minus,
   Star,
-  Number,
   Identifier,
+  Number,
 };

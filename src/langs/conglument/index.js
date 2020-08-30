@@ -57,7 +57,7 @@ const run = (src, input) => {
         continue;
       }
 
-      const c = new cs.Composition();
+      const c = new cs.Composition(null);
       c.push(new cs.Prefix(str[0] | 0));
       c.push(new cs.String(str.slice(1), arity));
       set(c);
@@ -95,12 +95,12 @@ const run = (src, input) => {
       if(target instanceof cs.Composition){
         const {target: target1, args: args1} = target;
         const c = new cs.Composition(target1.nullary ? func.arity : null);
-        const presetArity = target.nullary ? func.arity : null
+        const explicitArity = target.nullary ? func.arity : null
 
         c.push(target1);
 
         for(const arg1 of args1){
-          const c1 = new cs.Composition(presetArity);
+          const c1 = new cs.Composition(explicitArity);
 
           c1.push(arg1);
 
@@ -141,15 +141,14 @@ const run = (src, input) => {
 
         if(arg instanceof cs.Composition && arg.target instanceof cs.Prefix){
           const {bit} = arg.target;
-          const c = new cs.Composition();
           const f = bit ? target.one : target.zero;
           const y = arg.args[0];
 
+          const c = new cs.Composition(f.nullary ? func.arity : null);
           c.push(f);
           c.push(y);
 
-          const c1 = new cs.Composition();
-
+          const c1 = new cs.Composition(target.nullary ? y.arity : null);
           c1.push(target);
           c1.push(y);
 
@@ -176,7 +175,7 @@ const run = (src, input) => {
       }
 
       if(target instanceof cs.Minimization){
-        const {strs, func} = target;
+        const {strs} = target;
 
         if(strs.length === 0)
           esolangs.loop(`Minimization does not halt`);
@@ -185,8 +184,8 @@ const run = (src, input) => {
           const bit = target.commonBit;
           if(bit === null) break extractBit;
 
-          const c = new cs.Composition();
-          const c1 = new cs.Composition();
+          const c = new cs.Composition(null);
+          const c1 = new cs.Composition(target.nullary ? 0 : null);
 
           c1.push(target.woutBit());
 
@@ -201,19 +200,71 @@ const run = (src, input) => {
           continue;
         }
 
+        /*
+          func            10 ~
+          target            3 *
+          target.func         4 (...)
+          args[0]           10 A
+          args[1]           10 B
+          args[2]           10 C
+
+
+          ========================================
+
+
+          cMain           10 ~
+          r                 11 -
+          cAcc                10 (ACCEPT)
+          cWrap               12 (WRAP)
+          strs[0]             12 STR
+          cFunc             10 ~
+          target.func         4 (...)
+          strs[0]             10 STR
+          args[0]             10 A
+          args[1]             10 B
+          args[2]             10 C
+          |                 10 % 10 0
+          |                 10 % 10 1
+          |                 10 % 10 2
+          |                 ...
+          |                 10 % 10 9
+
+
+          cAcc              10 ~
+          target.accept()     3 ACCEPT(...)
+          args[0]             10 A
+          args[1]             10 B
+          args[2]             10 C
+
+
+          cRej              10 ~
+          target.reject()     3 REJECT(...)
+          args[0]             10 A
+          args[1]             10 B
+          args[2]             10 C
+
+
+          cWrap           12 ~
+          cRej              10 cRej
+          |                 12 % 12 0
+          |                 12 % 12 1
+          |                 12 % 12 2
+          |                 ...
+          |                 12 % 12 9
+        */
+
         const str = strs[0];
+        const argsNum = func.arity;
 
-        const cMain = new cs.Composition();
-        const cFunc = new cs.Composition();
-        const cAcc = new cs.Composition();
-        const cRej = new cs.Composition();
-        const cAux = new cs.Composition(2, 1);
-        const r = new cs.Recursion();
-
+        const cAcc = new cs.Composition(target.nullary ? argsNum : null);
         cAcc.push(target.accept());
+
+        const cRej = new cs.Composition(target.nullary ? argsNum : null);
         cRej.push(target.reject());
-        cFunc.push(func);
-        cFunc.push(new cs.String(str));
+
+        const cFunc = new cs.Composition(null);
+        cFunc.push(target.func);
+        cFunc.push(new cs.String(str, argsNum));
 
         for(const arg of args){
           cAcc.push(arg);
@@ -221,14 +272,23 @@ const run = (src, input) => {
           cFunc.push(arg);
         }
 
-        cAux.push(cRej);
+        const cWrap = new cs.Composition(func.nullary ? argsNum + 2 : null);
+        cWrap.push(cRej);
 
-        r.push(cAcc);
-        r.push(cAux);
-        r.push(new cs.String(str, 2));
+        for(let i = 0; i !== argsNum; i++)
+          cWrap.push(new cs.Projection(argsNum + 2, i));
 
-        cMain.push(r);
+        const rec = new cs.Recursion();
+        rec.push(cAcc);
+        rec.push(cWrap);
+        rec.push(new cs.String(str, argsNum + 2));
+
+        const cMain = new cs.Composition(null);
+        cMain.push(rec);
         cMain.push(cFunc);
+
+        for(let i = 0; i !== argsNum; i++)
+          cMain.push(new cs.Projection(argsNum, i));
 
         set(cMain);
 
@@ -253,7 +313,7 @@ const parse = (src, input) => {
   const tokenizer = new tk.Tokenizer(src);
   let prevIdent = 0;
 
-  const mainComposition = new cs.Composition();
+  const mainComposition = new cs.Composition(null);
   const stack = [mainComposition];
   const scope = O.obj();
 
@@ -285,7 +345,12 @@ const parse = (src, input) => {
         scope[ident.name] = func;
       }
 
-      O.last(stack).push(func);
+      const last = O.last(stack);
+
+      if(last === mainComposition && !func.unary)
+        esolangs.err(`The main function must be unary`);
+
+      last.push(func);
     }
   };
 
@@ -298,7 +363,7 @@ const parse = (src, input) => {
         const num = next();
 
         if(!(num instanceof tk.Number))
-          err(`Empty string takes a number as argument`);
+          err(`Empty string function takes a number as argument`);
 
         push(new cs.Empty(num.val));
       } break;
@@ -338,7 +403,20 @@ const parse = (src, input) => {
       } break;
 
       case tk.Tilde: {
-        push(new cs.Composition());
+        let explicitArity = null;
+
+        const tok = next();
+
+        if(tok instanceof tk.Eof)
+          esolangs.err(`Missing arguments for composition (at the end of the source code)`);
+
+        if(tok instanceof tk.Number){
+          explicitArity = tok.val;
+        }else{
+          tokenizer.src = tokenizer.srcPrev;
+        }
+
+        push(new cs.Composition(explicitArity));
       } break;
 
       case tk.Minus: {
@@ -349,11 +427,7 @@ const parse = (src, input) => {
         push(new cs.Minimization());
       } break;
 
-      case tk.Number: {
-        err(`Stray number ${tok.val}`);
-      } break;
-
-      case tk.Identifier: {
+      case tk.Identifier: case tk.Number: {
         const {name} = tok;
 
         prevIdent = 1;
@@ -382,8 +456,7 @@ const parse = (src, input) => {
   if(!(next() instanceof tk.Eof))
     err(`Extra tokens found at the end of the source code`);
 
-  if(!mainComposition.target.unary)
-    esolangs.err(`The main function must be unary`);
+  assert(mainComposition.target.unary);
 
   mainComposition.push(new cs.String(input));
   assert(mainComposition.nullary);

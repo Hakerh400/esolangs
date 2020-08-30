@@ -59,7 +59,7 @@ class CompositionArgument extends StackFrame{
   set(func){
     const {prev} = this;
 
-    const c = new cs.Composition();
+    const c = new cs.Composition(prev.func.explicitArity);
     c.push(prev.func.target);
 
     prev.func.args.forEach((arg, index) => {
@@ -75,7 +75,7 @@ class CompositionTarget extends StackFrame{
   set(func){
     const {prev} = this;
 
-    const c = new cs.Composition();
+    const c = new cs.Composition(prev.func.explicitArity);
     c.push(func);
 
     for(const arg of prev.func.args)
