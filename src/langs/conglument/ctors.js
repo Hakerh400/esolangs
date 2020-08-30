@@ -8,7 +8,10 @@ const esolangs = require('../..');
 const arrOrder = require('../../common/arr-order');
 const debug = require('../../common/debug');
 
-const identChars = O.chars('a', 26);
+const identChars = (
+  O.chars('a', 'z') +
+  O.chars('A', 'Z')
+);
 
 class Base extends O.Stringifiable{}
 
@@ -78,13 +81,13 @@ class Function extends Base{
       const parts = str.split(maxStr);
 
       parts[1] = maxStr + parts[1];
-      str = parts.join(`#${num++}`);
+      str = parts.join(`[${num++}]`);
     }
 
     num = 0;
 
     while(1){
-      const match = str.match(/#\d+/);
+      const match = str.match(/\[\d+\]/);
       if(match === null) break;
 
       const ident = arrOrder.str(identChars, ++num);
@@ -277,9 +280,11 @@ class Composition extends Combinator{
       return;
     }
 
-    if(func.arity !== args[0].arity)
+    if(func.arity !== args[0].arity){
+      log(O.abc.srcPrev);
       this.err(`All arguments of a composition (except the first) must have the same arity (expected: ${
         args[0].arity}, got: ${func.arity})`);
+    }
 
     args.push(func);
   }
@@ -349,11 +354,13 @@ class Recursion extends Combinator{
       return;
     }
 
-    if(func.arity !== this.empty.arity + 2)
+    if(func.arity !== this.empty.arity + 2){
+      log(O.abc.srcPrev);
       esolangs.err(`The arity of the second and the third argument of a recursion${
         ''} must be by 2 larger than the arity of the first argument (arities: [${[
         this.empty, this.zero, this.one, func,
       ].filter(a => a !== null).map(a => a.arity).join(', ')}])`);
+    }
 
     if(this.zero === null){
       this.zero = func;

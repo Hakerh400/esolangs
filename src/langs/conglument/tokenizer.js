@@ -56,6 +56,16 @@ class Tokenizer{
       return new Star();
     }
 
+    if(src[0] === '('){
+      this.src = src.slice(1);
+      return new OpenParenthese();
+    }
+
+    if(src[0] === ')'){
+      this.src = src.slice(1);
+      return new ClosedParenthese();
+    }
+
     if(/[a-zA-Z0-9\\]/.test(src[0])){
       const match = src.match(/^(?:[a-zA-Z0-9]|\\[a-zA-Z0-9]+)/)[0];
       const str = match.match(/[a-zA-Z0-9]+/)[0];
@@ -83,6 +93,8 @@ class Percent extends Token{}
 class Tilde extends Token{}
 class Minus extends Token{}
 class Star extends Token{}
+class OpenParenthese extends Token{}
+class ClosedParenthese extends Token{}
 
 class Identifier extends Token{
   constructor(str){
@@ -115,6 +127,8 @@ module.exports = {
   Tilde,
   Minus,
   Star,
+  OpenParenthese,
+  ClosedParenthese,
   Identifier,
   Number,
 };
