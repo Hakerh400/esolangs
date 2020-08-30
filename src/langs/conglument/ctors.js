@@ -185,6 +185,8 @@ class Combinator extends Function{
   setComputedArity(computedArity){
     return this.#computedArity = computedArity;
   }
+
+  push(){ O.virtual('push'); }
 }
 
 class Composition extends Combinator{
@@ -247,7 +249,7 @@ class Composition extends Combinator{
 
   get typeStr(){ return '~'; }
 
-  push(func){
+  push(func, parsing=0){
     assert(!this.full);
     assert(func.full);
 
@@ -258,15 +260,19 @@ class Composition extends Combinator{
       this.target = func;
 
       if(func.nullary){
-        if(explicitArity === null)
-          this.err(`A composition whose first argument is a nullary function must have an explicit arity`);
+        if(explicitArity === null){
+          assert(parsing);
+          return `A composition whose first argument is a nullary function must have an explicit arity`;
+        }
 
         this.arity = explicitArity;
       }else{
-        if(explicitArity !== null)
-          this.err(`A composition whose explicit arity is ${
+        if(explicitArity !== null){
+          assert(parsing);
+          return `A composition whose explicit arity is ${
             explicitArity} must take a nullary function as the first argument, but it takes a function that has ${
-            O.gnum('argument', func.arity)}`);
+            O.gnum('argument', func.arity)}`;
+        }
       }
 
       return;
@@ -279,15 +285,13 @@ class Composition extends Combinator{
       return;
     }
 
-    if(func.arity !== args[0].arity)
-      this.err(`All arguments of a composition (except the first) must have the same arity (expected: ${
-        args[0].arity}, got: ${func.arity})`);
+    if(func.arity !== args[0].arity){
+      assert(parsing);
+      return `All arguments of a composition (except the first) must have the same arity (expected: ${
+        args[0].arity}, got: ${func.arity})`;
+    }
 
     args.push(func);
-  }
-
-  err(msg){
-    esolangs.err(msg);
   }
 
   toStr(opts){
@@ -338,7 +342,7 @@ class Recursion extends Combinator{
 
   get typeStr(){ return '-'; }
 
-  push(func){
+  push(func, parsing=0){
     assert(!this.full);
     assert(func.full);
 
@@ -347,11 +351,13 @@ class Recursion extends Combinator{
       return;
     }
 
-    if(func.arity !== this.empty.arity + 2)
-      esolangs.err(`The arity of the second and the third argument of a recursion${
+    if(func.arity !== this.empty.arity + 2){
+      assert(parsing);
+      return `The arity of the second and the third argument of a recursion${
         ''} must be by 2 larger than the arity of the first argument (arities: [${[
         this.empty, this.zero, this.one, func,
-      ].filter(a => a !== null).map(a => a.arity).join(', ')}])`);
+      ].filter(a => a !== null).map(a => a.arity).join(', ')}])`;
+    }
 
     if(this.zero === null){
       this.zero = func;
@@ -409,10 +415,14 @@ class Minimization extends Combinator{
 
   get typeStr(){ return '*'; }
 
-  push(func){
+  push(func, parsing=0){
     assert(!this.full);
     assert(func.full);
-    assert(!func.nullary);
+
+    if(func.nullary){
+      assert(parsing);
+      return `Argument of a minimization cannot be a nullary function`;
+    }
 
     this.func = func;
   }

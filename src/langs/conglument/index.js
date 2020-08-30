@@ -26,11 +26,13 @@ const run = (src, input) => {
   };
 
   const fail = () => {
-    // O.logb();
-    // log(frame.constructor.name);
-    // log();
-    // log(frame.func.toString());
-    // O.logb();
+    if(0){
+      O.logb();
+      log(frame.constructor.name);
+      log();
+      log(frame.func.toString());
+      O.logb();
+    }
 
     assert.fail();
   };

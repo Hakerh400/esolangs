@@ -66,7 +66,8 @@ const parse = (src, input) => {
         err(`Parenthesis can only contain a single full function`);
       }
 
-      last.push(func);
+      const errMsg = last.push(func, 1);
+      if(errMsg) err(errMsg);
     }
   };
 
