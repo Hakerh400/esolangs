@@ -56,19 +56,14 @@ class Tokenizer{
       return new Star();
     }
 
-    if(src[0] === '|'){
-      this.src = src.slice(1);
-      return new Pipe();
-    }
-
     if(/[0-9]/.test(src[0])){
-      const str = src.match(/^[0-9]+/)[0];
+      const str = src.match(/^[0-9]/)[0];
       this.src = src.slice(str.length);
       return new Number(str);
     }
 
     if(/[a-zA-Z]/.test(src[0])){
-      const str = src.match(/^[a-zA-Z][a-zA-Z0-9]*/)[0];
+      const str = src.match(/^[a-zA-Z]/)[0];
       this.src = src.slice(str.length);
       return new Identifier(str);
     }
@@ -90,7 +85,6 @@ class Percent extends Token{}
 class Tilde extends Token{}
 class Minus extends Token{}
 class Star extends Token{}
-class Pipe extends Token{}
 
 class Number extends Token{
   constructor(str){
@@ -123,7 +117,6 @@ module.exports = {
   Tilde,
   Minus,
   Star,
-  Pipe,
   Number,
   Identifier,
 };

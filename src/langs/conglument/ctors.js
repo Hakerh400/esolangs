@@ -6,8 +6,9 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 const arrOrder = require('../../common/arr-order');
+const debug = require('../../common/debug');
 
-const chars = O.chars('a', 26);
+const identChars = O.chars('a', 26);
 
 class Base extends O.Stringifiable{}
 
@@ -38,7 +39,64 @@ class Function extends Base{
       }
     });
 
-    O.exit(str);
+    let num = 0;
+
+    while(1){
+      const strs = O.obj();
+      const stack = [];
+
+      let maxStr = null;
+
+      for(const c of str){
+        if(c === '('){
+          stack.push(c);
+          continue;
+        }
+
+        if(c === ')'){
+          const s = stack.pop() + c;
+          O.setLast(stack, O.last(stack) + s);
+
+          if(s in strs){
+            const cnt = ++strs[s];
+
+            if(cnt >= 2)
+              if(maxStr === null || s.length > maxStr.length)
+                maxStr = s;
+          }else{
+            strs[s] = 1;
+          }
+
+          continue;
+        }
+
+        O.setLast(stack, O.last(stack) + c);
+      }
+
+      if(maxStr === null) break;
+
+      const parts = str.split(maxStr);
+
+      parts[1] = maxStr + parts[1];
+      str = parts.join(`#${num++}`);
+    }
+
+    num = 0;
+
+    while(1){
+      const match = str.match(/#\d+/);
+      if(match === null) break;
+
+      const ident = arrOrder.str(identChars, ++num);
+      str = str.split(match[0]).join(ident);
+    }
+
+    str = str.
+      replace(/[\(\)]/g, '').
+      replace(/.{100}/g, a => `${a}\n`).
+      trim();
+
+    return str;
   }
 
   toString(){
@@ -107,7 +165,7 @@ class Projection extends Functor{
   get typeStr(){ return '%'; }
 
   toStr(opts){
-    return [opts.arity ? this.arityStr : '', this.typeStr, global.String(this.arity), '|', global.String(this.index)];
+    return [opts.arity ? this.arityStr : '', this.typeStr, global.String(this.arity), global.String(this.index)];
   }
 }
 

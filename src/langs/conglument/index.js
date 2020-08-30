@@ -10,11 +10,15 @@ const tk = require('./tokenizer');
 const cs = require('./ctors');
 const sf = require('./stack-frame');
 
+const MINIFY = 1;
+
 const run = (src, input) => {
   let frame = new sf.Global(parse(src, input));
   let output = '';
 
-  O.exit(frame.func.target.minify());
+  if(MINIFY){
+    log(`${frame.func.target.minify()}\n`);
+  }
 
   const set = func => {
     frame = frame.set(func);
@@ -315,17 +319,14 @@ const parse = (src, input) => {
 
       case tk.Percent: {
         const num1 = next();
-        const pipe = next();
         const num2 = next();
 
         const ok = (
           num1 instanceof tk.Number &&
-          pipe instanceof tk.Pipe &&
           num2 instanceof tk.Number
         );
 
-        if(!ok)
-          err(`Projection takes two numbers as arguments separated by a pipe character`);
+        if(!ok) err(`Projection takes two numbers as arguments`);
 
         const {val: val1} = num1;
         const {val: val2} = num2;
@@ -364,11 +365,6 @@ const parse = (src, input) => {
 
         stack.push(tok);
         continue tokLoop;
-      } break;
-
-      case tk.Pipe: {
-        if(!prevIdent)
-          err(`Stray pipe character`);
       } break;
 
       case tk.Eof: {
