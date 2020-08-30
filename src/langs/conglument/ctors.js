@@ -90,6 +90,8 @@ class Function extends Base{
       if(match === null) break;
 
       const ident = arrOrder.str(identChars, ++num);
+      assert(ident.length === 1);
+
       str = str.split(match[0]).join(ident);
     }
 

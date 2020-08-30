@@ -11,13 +11,18 @@ const tk = require('./tokenizer');
 const cs = require('./ctors');
 const sf = require('./stack-frame');
 
-const MINIFY = 0;
+const defaultOpts = {
+  debug: 0,
+  minify: 0,
+};
 
-const run = (src, input) => {
+const run = (src, input, optsArg={}) => {
+  const opts = Object.assign({}, defaultOpts, optsArg);
+
   let frame = new sf.Global(parser.parse(src, input));
   let output = '';
 
-  if(MINIFY){
+  if(opts.minify){
     log(`${frame.func.target.minify()}\n`);
   }
 
@@ -26,7 +31,7 @@ const run = (src, input) => {
   };
 
   const fail = () => {
-    if(0){
+    if(opts.debug){
       O.logb();
       log(frame.constructor.name);
       log();
