@@ -11,7 +11,7 @@ const tk = require('./tokenizer');
 const cs = require('./ctors');
 const sf = require('./stack-frame');
 
-const MINIFY = 1;
+const MINIFY = 0;
 
 const run = (src, input) => {
   let frame = new sf.Global(parser.parse(src, input));
@@ -26,23 +26,17 @@ const run = (src, input) => {
   };
 
   const fail = () => {
-    O.logb();
-
-    log(frame.constructor.name);
-    log();
-
-    log(frame.func.toString());
-
-    O.logb();
+    // O.logb();
+    // log(frame.constructor.name);
+    // log();
+    // log(frame.func.toString());
+    // O.logb();
 
     assert.fail();
   };
 
   while(1){
     const {func} = frame;
-
-    // log(func.toString());
-    // debug(`\n${'='.repeat(100)}`);
 
     if(func instanceof cs.Empty){
       assert(frame instanceof sf.Global);
@@ -256,8 +250,6 @@ const run = (src, input) => {
 
         const str = strs[0];
         const argsNum = func.arity;
-
-        log('---> ' + (str||'/'));
 
         const cAcc = new cs.Composition(target.nullary ? argsNum : null);
         cAcc.push(target.accept());

@@ -6,7 +6,6 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 const arrOrder = require('../../common/arr-order');
-const debug = require('../../common/debug');
 
 const identChars = (
   O.chars('a', 'z') +
@@ -280,21 +279,15 @@ class Composition extends Combinator{
       return;
     }
 
-    if(func.arity !== args[0].arity){
-      log(O.abc.srcPrev);
+    if(func.arity !== args[0].arity)
       this.err(`All arguments of a composition (except the first) must have the same arity (expected: ${
         args[0].arity}, got: ${func.arity})`);
-    }
 
     args.push(func);
   }
 
   err(msg){
-    log(msg);
-    log();
-    assert.fail();
-
-    // esolangs.err(msg);
+    esolangs.err(msg);
   }
 
   toStr(opts){
@@ -354,13 +347,11 @@ class Recursion extends Combinator{
       return;
     }
 
-    if(func.arity !== this.empty.arity + 2){
-      log(O.abc.srcPrev);
+    if(func.arity !== this.empty.arity + 2)
       esolangs.err(`The arity of the second and the third argument of a recursion${
         ''} must be by 2 larger than the arity of the first argument (arities: [${[
         this.empty, this.zero, this.one, func,
       ].filter(a => a !== null).map(a => a.arity).join(', ')}])`);
-    }
 
     if(this.zero === null){
       this.zero = func;

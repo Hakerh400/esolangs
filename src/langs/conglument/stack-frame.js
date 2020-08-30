@@ -23,10 +23,10 @@ class StackFrame{
     assert(func.full);
 
     if(this.#func !== null && func.arity !== this.func.arity){
-      log(this.#func.toString());
-      O.logb();
-      log(func.toString());
-      O.logb();
+      // log(this.#func.toString());
+      // O.logb();
+      // log(func.toString());
+      // O.logb();
 
       assert.fail();
     }

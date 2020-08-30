@@ -280,7 +280,6 @@
     "id": "conglument",
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
-    "details": null,
-    "wip": true
+    "details": "https://esolangs.org/wiki/Conglument"
   }
 ]

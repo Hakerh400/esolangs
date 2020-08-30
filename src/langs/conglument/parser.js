@@ -5,7 +5,6 @@ const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
-const debug = require('../../common/debug');
 const tk = require('./tokenizer');
 const cs = require('./ctors');
 const sf = require('./stack-frame');
@@ -13,8 +12,6 @@ const sf = require('./stack-frame');
 const parse = (src, input) => {
   const tokenizer = new tk.Tokenizer(src);
   let prevIdent = 0;
-
-  O.abc = tokenizer;
 
   const mainComposition = new cs.Composition(null);
   const stack = [mainComposition];
@@ -61,6 +58,13 @@ const parse = (src, input) => {
 
       if(last === mainComposition && !func.unary)
         esolangs.err(`The main function must be unary`);
+
+      if(last.full){
+        assert(stack.length >= 2);
+        assert(stack[stack.length - 2] instanceof tk.OpenParenthese);
+
+        err(`Parenthesis can only contain a single full function`);
+      }
 
       last.push(func);
     }
