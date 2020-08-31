@@ -13,7 +13,8 @@ const sf = require('./stack-frame');
 
 const defaultOpts = {
   debug: 0,
-  minify: 0,
+  minify: 1,
+  format: 0,
 };
 
 const run = (src, input, optsArg={}) => {
@@ -22,9 +23,11 @@ const run = (src, input, optsArg={}) => {
   let frame = new sf.Global(parser.parse(src, input));
   let output = '';
 
-  if(opts.minify){
+  if(opts.format)
+    log(`${frame.func.target}\n`);
+
+  if(opts.minify)
     log(`${frame.func.target.minify()}\n`);
-  }
 
   const set = func => {
     frame = frame.set(func);

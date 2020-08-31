@@ -8,6 +8,8 @@ const esolangs = require('../..');
 const arrOrder = require('../../common/arr-order');
 const debug = require('../../common/debug');
 
+const DISPLAY_ARITY = 0;
+
 const identChars = (
   O.chars('a', 'z') +
   O.chars('A', 'Z')
@@ -45,7 +47,8 @@ class Function extends Base{
   push(){ O.virtual('push'); }
 
   get arityStr(){
-    return `${this.arity} `;
+    if(DISPLAY_ARITY) return `${this.arity} `;
+    return '';
   }
 
   minify(){
