@@ -13,7 +13,7 @@ const sf = require('./stack-frame');
 
 const defaultOpts = {
   debug: 0,
-  minify: 1,
+  minify: 0,
   format: 0,
 };
 
