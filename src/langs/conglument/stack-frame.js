@@ -35,6 +35,8 @@ class StackFrame{
     this.#func = func;
   }
 
+  getNewFunc(){ O.virtual('getNewFunc'); }
+
   set(func){
     let frame = this;
 
