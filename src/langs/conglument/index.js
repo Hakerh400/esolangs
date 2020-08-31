@@ -60,7 +60,7 @@ const run = (src, input, optsArg={}) => {
       }
 
       const c = new cs.Composition(null);
-      c.push(new cs.Prefix(str[0] | 0));
+      c.push(cs.Prefix.get(str[0] | 0));
       c.push(new cs.String(str.slice(1), arity));
       set(c);
 
@@ -194,7 +194,7 @@ const run = (src, input, optsArg={}) => {
           for(const arg of args)
             c1.push(arg);
 
-          c.push(new cs.Prefix(bit));
+          c.push(cs.Prefix.get(bit));
           c.push(c1);
 
           set(c);

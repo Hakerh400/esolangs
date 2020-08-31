@@ -162,9 +162,18 @@ class Empty extends Functor{
 }
 
 class Prefix extends Functor{
-  constructor(bit){
+  static kCtor = Symbol('ctor');
+
+  static get(bit){
+    if(bit === 0) return Prefix.zero;
+    if(bit === 1) return Prefix.one;
+    assert.fail(bit);
+  }
+
+  constructor(kCtor, bit){
     super(1);
 
+    assert(kCtor === Prefix.kCtor);
     assert(bit === 0 || bit === 1);
 
     this.bit = bit;
@@ -176,6 +185,9 @@ class Prefix extends Functor{
     return [!opts.min ? this.arityStr : '', this.typeStr, global.String(this.bit)];
   }
 }
+
+Prefix.zero = new Prefix(Prefix.kCtor, 0);
+Prefix.one = new Prefix(Prefix.kCtor, 1);
 
 class Projection extends Functor{
   constructor(arity, index){

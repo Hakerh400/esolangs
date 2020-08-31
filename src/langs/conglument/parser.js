@@ -96,7 +96,7 @@ const parse = (src, input) => {
         if(!(val === 0 || val === 1))
           err(`Argument of a prefix must be either 0 or 1`);
 
-        push(new cs.Prefix(val));
+        push(cs.Prefix.get(val));
       } break;
 
       case tk.Percent: {
