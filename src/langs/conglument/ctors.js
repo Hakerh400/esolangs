@@ -6,6 +6,7 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 const arrOrder = require('../../common/arr-order');
+const debug = require('../../common/debug');
 
 const identChars = (
   O.chars('a', 'z') +
@@ -15,9 +16,27 @@ const identChars = (
 class Base extends O.Stringifiable{}
 
 class Function extends Base{
+  #computedArity = null;
+
+  hasComputedArity(){
+    return this.#computedArity !== null;
+  }
+
+  getComputedArity(){
+    const arity = this.#computedArity;
+    assert(arity !== null);
+    return arity;
+  }
+
+  setComputedArity(arity){
+    return this.#computedArity = arity;
+  }
+
   get full(){ O.virtual('full'); }
   get arity(){ O.virtual('arity'); }
   get typeStr(){ O.virtual('typeStr'); }
+
+  get examinable(){ return 0; }
 
   get nullary(){ return this.arity === 0; }
   get unary(){ return this.arity === 1; }
@@ -118,6 +137,7 @@ class Functor extends Function{
     assert(arity >= 0);
 
     this.#arity = arity;
+    this.setComputedArity(arity);
   }
 
   get chNum(){ return 0; }
@@ -133,6 +153,7 @@ class Empty extends Functor{
     super(arity);
   }
 
+  get examinable(){ return 1; }
   get typeStr(){ return '.'; }
 
   toStr(opts){
@@ -174,20 +195,6 @@ class Projection extends Functor{
 }
 
 class Combinator extends Function{
-  #computedArity = null;
-
-  hasComputedArity(){
-    return this.#computedArity !== null;
-  }
-
-  getComputedArity(){
-    return this.#computedArity;
-  }
-
-  setComputedArity(computedArity){
-    return this.#computedArity = computedArity;
-  }
-
   push(){ O.virtual('push'); }
 }
 
@@ -216,37 +223,48 @@ class Composition extends Combinator{
   }
 
   get full(){
-    return this.target !== null && this.args.length === this.target.arity;
+    if(this.target !== null && this.args.length === this.target.arity){
+      if(!this.hasComputedArity()) this.computeArity();
+      return 1;
+    }
+
+    return 0;
   }
 
   get arity(){
-    const {args} = this;
-
     assert(this.full);
-
-    if(args.length === 0){
-      assert(this.#arity !== null);
-      return this.#arity;
-    }
 
     if(this.hasComputedArity())
       return this.getComputedArity();
 
-    const arity = args[0].arity;
-    this.setComputedArity(arity);
-
-    return arity;
+    return this.computeArity();
   }
 
   set arity(arity){
     const {target, args} = this;
 
+    assert(this.#arity === null);
+    this.#arity = arity;
+    
     assert(this.full);
     assert(target.nullary);
-    assert(this.#arity === null);
     assert(arity !== null);
+  }
 
-    this.#arity = arity;
+  computeArity(){
+    const {args} = this;
+
+    if(args.length === 0){
+      assert(this.#arity !== null);
+      return this.setComputedArity(this.#arity);
+    }
+
+    return this.setComputedArity(args[0].getComputedArity());
+  }
+
+  get examinable(){
+    assert(this.full);
+    return this.target instanceof Prefix;
   }
 
   get typeStr(){ return '~'; }
@@ -327,7 +345,12 @@ class Recursion extends Combinator{
   }
 
   get full(){
-    return this.one !== null;
+    if(this.one !== null){
+      if(!this.hasComputedArity()) this.computeArity();
+      return 1;
+    }
+
+    return 0;
   }
 
   get arity(){
@@ -336,10 +359,11 @@ class Recursion extends Combinator{
     if(this.hasComputedArity())
       return this.getComputedArity();
 
-    const arity = this.empty.arity + 1;
-    this.setComputedArity(arity);
-    
-    return arity;
+    return this.computeArity();
+  }
+
+  computeArity(){
+    return this.setComputedArity(this.empty.getComputedArity() + 1);
   }
 
   get typeStr(){ return '-'; }
@@ -400,7 +424,12 @@ class Minimization extends Combinator{
   }
 
   get full(){
-    return this.func !== null;
+    if(this.func !== null){
+      if(!this.hasComputedArity()) this.computeArity();
+      return 1;
+    }
+
+    return 0;
   }
 
   get arity(){
@@ -409,10 +438,11 @@ class Minimization extends Combinator{
     if(this.hasComputedArity())
       return this.getComputedArity();
 
-    const arity = this.func.arity - 1;
-    this.setComputedArity(arity);
-    
-    return arity;
+    return this.computeArity();
+  }
+
+  computeArity(){
+    return this.setComputedArity(this.func.getComputedArity() - 1);
   }
 
   get typeStr(){ return '*'; }
@@ -519,6 +549,7 @@ class String extends Function{
 
     this.str = str;
     this.#arity = arity;
+    this.setComputedArity(arity);
   }
 
   get full(){ return 1; }

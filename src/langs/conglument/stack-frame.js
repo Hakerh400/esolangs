@@ -5,6 +5,7 @@ const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
+const debug = require('../../common/debug');
 const cs = require('./ctors');
 
 class StackFrame{
@@ -34,7 +35,18 @@ class StackFrame{
     this.#func = func;
   }
 
-  set(){ O.virtual('set'); }
+  set(func){
+    let frame = this;
+
+    while(frame.prev !== null && func.examinable){
+      func = frame.getNewFunc(func);
+      frame = frame.prev;
+    }
+
+    frame.func = func;
+
+    return frame;
+  }
 }
 
 class Global extends StackFrame{
@@ -43,9 +55,8 @@ class Global extends StackFrame{
     super(null, func);
   }
 
-  set(func){
-    this.func = func;
-    return this;
+  propagate(func){
+    assert.fail();
   }
 }
 
@@ -56,7 +67,7 @@ class CompositionArgument extends StackFrame{
     this.index = index;
   }
 
-  set(func){
+  getNewFunc(func){
     const {prev} = this;
 
     const c = new cs.Composition(prev.func.explicitArity);
@@ -67,12 +78,12 @@ class CompositionArgument extends StackFrame{
       else c.push(arg);
     });
 
-    return prev.set(c);
+    return c;
   }
 }
 
 class CompositionTarget extends StackFrame{
-  set(func){
+  getNewFunc(func){
     const {prev} = this;
 
     const c = new cs.Composition(prev.func.explicitArity);
@@ -81,7 +92,7 @@ class CompositionTarget extends StackFrame{
     for(const arg of prev.func.args)
       c.push(arg);
 
-    return prev.set(c);
+    return c;
   }
 }
 
