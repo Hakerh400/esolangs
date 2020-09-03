@@ -105,15 +105,19 @@ class Identifier extends Token{
 }
 
 class Number extends Identifier{
-  constructor(str){
-    super(str);
+  #val = null;
 
+  get val(){
+    if(this.#val !== null)
+      return this.#val;
+
+    const {name: str} = this;
     const num = +str;
 
     if(num > maxInt)
       esolangs.err(`Too large number: ${str}`);
 
-    this.val = num;
+    return this.#val = num;
   }
 }
 
