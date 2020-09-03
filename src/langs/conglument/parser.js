@@ -101,7 +101,7 @@ const parse = (src, input) => {
 
       case tk.Percent: {
         const num1 = next();
-        const num2 = next();
+        const num2 = !(num1 instanceof tk.Eof) ? next() : null;
 
         const ok = (
           num1 instanceof tk.Number &&

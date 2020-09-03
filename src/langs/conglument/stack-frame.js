@@ -62,6 +62,20 @@ class Global extends StackFrame{
   }
 }
 
+class CompositionTarget extends StackFrame{
+  getNewFunc(func){
+    const {prev} = this;
+
+    const c = new cs.Composition(prev.func.explicitArity);
+    c.push(func);
+
+    for(const arg of prev.func.args)
+      c.push(arg);
+
+    return c;
+  }
+}
+
 class CompositionArgument extends StackFrame{
   constructor(prev, func, index){
     super(prev, func);
@@ -84,23 +98,9 @@ class CompositionArgument extends StackFrame{
   }
 }
 
-class CompositionTarget extends StackFrame{
-  getNewFunc(func){
-    const {prev} = this;
-
-    const c = new cs.Composition(prev.func.explicitArity);
-    c.push(func);
-
-    for(const arg of prev.func.args)
-      c.push(arg);
-
-    return c;
-  }
-}
-
 module.exports = {
   StackFrame,
   Global,
-  CompositionArgument,
   CompositionTarget,
+  CompositionArgument,
 };

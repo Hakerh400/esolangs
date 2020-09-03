@@ -18,7 +18,7 @@ const defaultOpts = {
 };
 
 const run = (src, input, optsArg={}) => {
-  const opts = Object.assign({}, defaultOpts, optsArg);
+  const opts = Object.assign(O.obj(), defaultOpts, optsArg);
 
   let frame = new sf.Global(parser.parse(src, input));
   let output = '';
@@ -100,7 +100,7 @@ const run = (src, input, optsArg={}) => {
       if(target instanceof cs.Composition){
         const {target: target1, args: args1} = target;
         const c = new cs.Composition(target1.nullary ? func.arity : null);
-        const explicitArity = target.nullary ? func.arity : null
+        const explicitArity = target.nullary ? func.arity : null;
 
         c.push(target1);
 

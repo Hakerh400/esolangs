@@ -152,10 +152,6 @@ class Functor extends Function{
 }
 
 class Empty extends Functor{
-  constructor(arity){
-    super(arity);
-  }
-
   get examinable(){ return 1; }
   get typeStr(){ return '.'; }
 
@@ -209,9 +205,7 @@ class Projection extends Functor{
   }
 }
 
-class Combinator extends Function{
-  push(){ O.virtual('push'); }
-}
+class Combinator extends Function{}
 
 class Composition extends Combinator{
   #arity = null;
