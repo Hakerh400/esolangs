@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
 const O = require('omikron');
-const config = require('../../config');
+const config = require('@hakerh400/config');
 
 const cwd = __dirname;
 const mainDir = path.join(cwd, '../..');
@@ -87,7 +87,7 @@ const run = async args => {
 
 const openFile = file => {
   return new Promise((res, rej) => {
-    const {textEditor} = config;
+    const textEditor = config.getExe('textEditor', 0);
     if(textEditor === null) return res(null);
 
     const proc = cp.spawn(textEditor, [file]);

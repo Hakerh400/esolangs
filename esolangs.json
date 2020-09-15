@@ -281,5 +281,14 @@
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Conglument"
+  }, {
+    "name": "1L_a",
+    "id": "1l-a",
+    "details": null,
+    "wip": true
+  }, {
+    "name": "GORBITSA",
+    "id": "gorbitsa",
+    "details": "https://esolangs.org/wiki/GORBITSA"
   }
 ]

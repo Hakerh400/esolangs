@@ -19,7 +19,8 @@
     "omikron": "~1.2.39",
     "@hakerh400/list": "~1.0.4",
     "@hakerh400/table": "~1.0.0",
-    "@hakerh400/fs-rec": "~1.0.2"
+    "@hakerh400/fs-rec": "~1.0.2",
+    "@hakerh400/config": "~1.0.1"
   },
   "devDependencies": {
     "@hakerh400/jstest": "~1.1.2"

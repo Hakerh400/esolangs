@@ -19,16 +19,16 @@ const opts = {
   useBitIO: 0,
 };
 
-const main = () => {
+const main = async () => {
   esolangs.debugMode = 1;
 
   const outputOnly = O.has(info, 'outputOnly') && info.outputOnly;
 
   const src = O.rfs(srcFile);
   const input = !outputOnly ? O.rfs(inputFile) : null;
-  const output = esolangs.run(name, src, input, opts);
+  const output = await esolangs.run(name, src, input, opts);
   
   log(String(output));
 };
 
-main();
+main().catch(O.error);

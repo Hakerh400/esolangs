@@ -2,16 +2,35 @@
 
 const fs = require('fs');
 const path = require('path');
+const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('./esolangs');
 
 const args = process.argv.slice(2);
+const cwd = __dirname;
+
+let isInvokedCache = null;
 
 const isInvoked = () => {
-  return args.length !== 0;
+  return require.resolve('..') === require.main.filename;
 };
 
-const exec = () => {
+const getInfoById = id => {
+  assert(typeof id === 'string');
+  return esolangs.getInfoById(id);
+};
+
+const run = async (name, ...args) => {
+  assert(typeof name === 'string');
+
+  try{
+    return await esolangs.run(name, ...args);
+  }catch(err){
+    O.error(err);
+  }
+};
+
+const exec = async () => {
   const interactive = O.last(args) === '--interactive';
 
   if(interactive){
@@ -21,14 +40,14 @@ const exec = () => {
   if(args.length < 2) errArgs();
 
   const [id, fsrc] = args.splice(0, 2);
-  const info = esolangs.getInfoById(id);
+  const info = getInfoById(id);
   if(info === null) err(`Unsupported language with ID ${O.sf(id)}`);
 
   const src = read(fsrc);
 
   if(interactive){
     if(args.length !== 0) errArgs();
-    esolangs.run(info.name, src, null);
+    await run(info.name, src, null);
     return;
   }
 
@@ -38,7 +57,7 @@ const exec = () => {
   const fin = hasInput ? args[0] : null;
   const fout = hasInput ? args[1] : args[0];
   const input = hasInput ? read(fin) : null;
-  const output = esolangs.run(info.name, src, input);
+  const output = await run(info.name, src, input);
 
   write(fout, output);
 };
@@ -64,10 +83,13 @@ const errArgs = () => {
     err('Invalid arguments\n', 0);
 
   log(
+    `\n` +
     `Usage: node index <language> <source> <input> <output>\n` +
     `Parameter <input> should be omitted for output-only languages\n` +
-    `For interactive mode add --interactive flag instead of <input> <output>`
+    `For interactive mode, add --interactive flag instead of <input> <output>`
   );
+
+  O.exit();
 };
 
 const err = (msg, exit=1) => {
@@ -76,6 +98,11 @@ const err = (msg, exit=1) => {
 };
 
 module.exports = {
-  isInvoked,
+  get isInvoked(){
+    if(isInvokedCache === null)
+      return isInvokedCache = isInvoked();
+
+    return isInvokedCache;
+  },
   exec: () => exec(args.slice()),
 };

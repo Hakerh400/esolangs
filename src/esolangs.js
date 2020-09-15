@@ -141,7 +141,7 @@ const esolangs = {
   },
 
   err(msg){
-    if(this.debugMode || isCLIInvoked) O.error(msg);
+    if(this.debugMode || cli.isInvoked) O.error(msg);
     throw new Error(msg);
   },
 };
@@ -149,4 +149,3 @@ const esolangs = {
 module.exports = esolangs;
 
 const cli = require('./cli');
-const isCLIInvoked = cli.isInvoked();

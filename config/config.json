@@ -1,3 +1,6 @@
 {
-  "textEditor": "C:/Program Files/Program/prog.exe"
+  "exe": {
+    "textEditor": "C:/Program Files/Program/prog.exe",
+    "FFmpeg": "C:/Program Files/FFmpeg/bin/original/ffmpeg.exe"
+  }
 }
