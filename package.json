@@ -1,7 +1,7 @@
 {
   "name": "@hakerh400/esolangs",
   "description": "Collection of interpreters for esoteric programming languages",
-  "version": "1.2.22",
+  "version": "1.2.23",
   "author": "Thomas <hakerh403@gmail.com>",
   "main": "index.js",
   "contributors": [],
