@@ -38,6 +38,8 @@ replace `<input> <output>` with `--interactive` flag. The standard input and out
 
 If any error occurs, it will be written to the console and the output file will not be created.
 
+**Note:** Do not use `run.bat` to run interpreters. The `run.bat` is a batch file intended to be used for tooling (creating new languages from a template and similar actions).
+
 ### API
 
 Example of using `@hakerh400/esolangs` in a Node.js application:
