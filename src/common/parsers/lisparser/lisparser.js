@@ -3,20 +3,15 @@
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../../..');
+const Specification = require('./specification');
 const cs = require('./ctors');
 
 class Lisparser{
-  static parseSpec(str){
-    const ast = cs.ListElement.parse(str);
-
-    return ast;
-  }
-
   constructor(spec){
     if(typeof spec === 'string')
-      spec = Lisparser.parseSpec(spec);
+      spec = Specification.parse(spec);
 
-    assert(spec instanceof cs.ListElement);
+    assert(spec instanceof Specification);
 
     this.spec = spec;
   }
