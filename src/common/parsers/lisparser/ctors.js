@@ -111,7 +111,7 @@ class Type{
   }
 
   extends(other){
-    for(let e = ext; e !== null; e = e.ext)
+    for(let e = this; e !== null; e = e.ext)
       if(e === other) return 1;
 
     return 0;
@@ -160,6 +160,18 @@ class TypeValue extends AttributeValue{
   }
 }
 
+class ASTNode extends Base{
+  constructor(type=null, attribs=O.obj()){
+    super();
+
+    this.type = type;
+    this.attribs = attribs;
+  }
+
+  get chNum(){ return this.type.attribs.length; }
+  getCh(i){ return this.attribs[this.type.attribs[i].name]; }
+}
+
 module.exports = {
   Base,
   Identifier,
@@ -175,4 +187,5 @@ module.exports = {
   AttributeValue,
   IdentifierValue,
   TypeValue,
+  ASTNode,
 };
