@@ -290,5 +290,11 @@
     "name": "GORBITSA",
     "id": "gorbitsa",
     "details": "https://esolangs.org/wiki/GORBITSA"
+  }, {
+    "name": "Detrovert",
+    "id": "detrovert",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
+    "details": "https://esolangs.org/wiki/Detrovert"
   }
 ]

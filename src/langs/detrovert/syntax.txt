@@ -1,0 +1,54 @@
+script{
+  s0
+  typeDefs
+  s0
+  pattern*s0
+  s0
+}
+
+typeDefs{
+  "(" s0
+  typeDef*s0
+  s0 ")"
+}
+
+typeDef{
+  ident ext? s0 "(" s0
+  attrDef*s1
+  s0 ")"
+}
+
+ext{ s0 "~" s0 ident }
+attrDef{ ident s1 type }
+
+pattern{
+  "(" s0
+  match+s0
+  s0 "->" s0
+  tform*s0
+  s0 ")"
+}
+
+match{ type s1 ident s0 attribs }
+tform{ tformType? ident s0 attribs }
+tformType{ ths? | type ths }
+ths{ s0 "*"+s0 s0 | s1 }
+
+attribs{
+  "(" s0
+  attrib*s1
+  s0 ")"
+}
+
+attrib{ ident s1 ident }
+type{ "."? ident }
+ident{ [a-zA-Z0-9]+ }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }
