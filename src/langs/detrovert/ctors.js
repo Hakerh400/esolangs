@@ -37,11 +37,11 @@ class Program extends Base{
     super();
 
     {
-      new Type(this, 'Base', Type.kBase, {}, 1);
+      new Type(this, 'Base', Type.kBase, [], 1);
       new Type(this, 'String', 'Base', [new AttributeDef('bit', 'Bit', 1)], 1);
       new Type(this, 'Bit', 'Base', [new AttributeDef('next', 'Bit', 1)], 1);
-      new Type(this, 'Bit0', 'Bit', {}, 1);
-      new Type(this, 'Bit1', 'Bit', {}, 1);
+      new Type(this, 'Bit0', 'Bit', [], 1);
+      new Type(this, 'Bit1', 'Bit', [], 1);
     }
   }
 

@@ -159,7 +159,6 @@ class Engine{
         }
 
         assert.fail();
-        continue;
       }
 
       assert.fail();
