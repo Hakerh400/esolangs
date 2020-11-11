@@ -1,6 +1,7 @@
 'use strict';
 
 const O = require('omikron');
+const debug = require('../../common/debug');
 
 class IOBase{
   constructor(machine, input){
