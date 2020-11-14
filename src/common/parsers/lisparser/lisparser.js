@@ -394,6 +394,10 @@ class Identifier extends ListElement{
     this.err(`Expected a list, but found identifier ${O.sf(this.name)}`);
   }
 
+  len(){
+    this.list();
+  }
+
   get chNum(){ return 0; }
 
   toStr(){
