@@ -296,5 +296,10 @@
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Detrovert"
+  }, {
+    "name": "Brainlisp",
+    "id": "brainlisp",
+    "details": null,
+    "wip": true
   }
 ]
