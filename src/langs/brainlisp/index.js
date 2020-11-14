@@ -16,14 +16,6 @@ const run = (src, input) => {
   input = [...input];
   const output = [];
 
-  const inp = () => {
-    return input.shift() & 255;
-  };
-
-  const out = byte => {
-    output.push(byte);
-  };
-
   const exec = function*(list, loop=1){
     const elems = loop ? list.ta('loop') : list.a();
 
@@ -38,8 +30,8 @@ const run = (src, input) => {
           case 'right': ip++; break;
           case 'inc': mem[ip] = -~mem[ip] & 255; break;
           case 'dec': mem[ip] = ~-mem[ip] & 255; break;
-          case 'in': mem[ip] = inp(); break;
-          case 'out': out(mem[ip]); break;
+          case 'in': mem[ip] = input.shift() & 255; break;
+          case 'out': output.push(mem[ip]); break;
           case 'loop': yield [exec, elem]; break;
           default: fst.err(`Unknown instruction`); break;
         }
