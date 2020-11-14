@@ -299,7 +299,6 @@
   }, {
     "name": "Brainlisp",
     "id": "brainlisp",
-    "details": null,
-    "wip": true
+    "details": "https://esolangs.org/wiki/Brainlisp"
   }
 ]

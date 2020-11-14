@@ -278,8 +278,6 @@ class ListElement extends O.Stringifiable{
 
   ident(){ O.virtual('ident'); }
   list(){ O.virtual('list'); }
-  get uni(){ O.virtual('uni'); }
-  get n(){ O.virtual('n'); }
 
   get m(){
     return this.ident().name;
