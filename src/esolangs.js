@@ -2,11 +2,13 @@
 
 const fs = require('fs');
 const path = require('path');
+const assert = require('assert');
 const O = require('omikron');
 const packageJson = require('../package');
 const langsList = require('./langs-list');
 const commonStrs = require('./common-strs');
 const Sandbox = require('./sandbox');
+const ProgramError = require('./program-error');
 
 const langsObj = O.obj();
 const langsIdsObj = O.obj();
@@ -21,7 +23,7 @@ const langsDir = path.join(cwd, 'langs');
 
 const esolangs = {
   version: packageJson.version,
-  debugMode: false,
+  debugMode: 0,
 
   Sandbox,
 
@@ -90,22 +92,33 @@ const esolangs = {
       input = Buffer.from(input);
     }
 
-    const func = require(path.join(langsDir, info.id));
+    const afterLoad = func => {
+      if(hasInput){
+        const result = func(Buffer.from(src), input, opts);
+        return result;
+      }
 
-    if(hasInput){
-      const result = func(Buffer.from(src), input, opts);
-      return result;
+      src = Buffer.from(src);
+
+      if(outputOnly)
+        return func(src, null, opts);
+
+      if(!('interactive' in info && info.interactive))
+        esolangs.err(`Language ${O.sf(name)} does not support interactive mode`);
+
+      func(src, null, opts);
+    };
+
+    load: {
+      const pth = path.join(langsDir, info.id);
+
+      if(!O.isBrowser)
+        return afterLoad(require(pth));
+
+      return (async () => {
+        return afterLoad(await require(pth));
+      })();
     }
-
-    src = Buffer.from(src);
-
-    if(outputOnly)
-      return func(src, null, opts);
-
-    if(!('interactive' in info && info.interactive))
-      esolangs.err(`Language ${O.sf(name)} does not support interactive mode`);
-
-    func(src, null, opts);
   },
 
   async runSafe(name, src, input, opts=null, sbxOpts=null){
@@ -113,6 +126,15 @@ const esolangs = {
     const result = await sandbox.run(name, src, input, opts, sbxOpts);
     sandbox.dispose();
     return result;
+  },
+
+  // This method can be used in a browser to control bandwidth
+  async preload(name){
+    const info = esolangs.getInfo(name);
+    assert(info !== null);
+
+    const pth = path.join(langsDir, info.id);
+    const func = await require(pth);
   },
 
   getStrs(){
@@ -142,10 +164,12 @@ const esolangs = {
 
   err(msg){
     if(this.debugMode || cli.isInvoked) O.error(msg);
-    throw new Error(msg);
+    throw new ProgramError(msg);
   },
 };
 
-module.exports = esolangs;
+module.exports = Object.assign(esolangs, {
+  ProgramError,
+});
 
 const cli = require('./cli');

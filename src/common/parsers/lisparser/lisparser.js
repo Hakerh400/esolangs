@@ -219,21 +219,23 @@ class Parser{
     this.exit();
   }
 
-  sErr(msg, file, str, line, pos){
+  sErr(msg, str, line, pos){
     assert(typeof msg === 'string');
 
-    log(`${
-      file}:${
+    let s = `${
+      this.file}:${
       line}\n\n${
       str}\n${
       `${' '.repeat(pos - 1)}^`}\n\nError: ${
-      msg}`);
+      msg}`;
 
-    log(`${O.sanl(new Error().stack).slice(1).join('\n')}`);
-    O.exit();
+    if(esolangs.debugMode)
+      s += `\n${O.sanl(new Error().stack).slice(1).join('\n')}`;
+
+    O.exit(s);
   }
 
-  #err(msg){
+  err(msg){
     O.exit(msg);
   }
 }
@@ -368,7 +370,7 @@ class ListElement extends O.Stringifiable{
   warnEnd(msg){ this.warn(msg, this.endLine, this.endPos); }
 
   err(msg, line=this.startLine, pos=this.startPos){
-    this.parser.err(msg, line, pos);
+    this.parser.sErr(msg, line, pos);
   }
 
   errStart(msg){ this.err(msg, this.startLine, this.startPos); }

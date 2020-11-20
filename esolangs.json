@@ -146,9 +146,9 @@
     "id": "siterip",
     "details": "https://esolangs.org/wiki/Siterip"
   }, {
-    "name": "DAMN COVID-19",
+    "name": "dc",
     "id": "dc",
-    "details": "https://esolangs.org/wiki/DAMN_COVID-19"
+    "details": "https://esolangs.org/wiki/%44%41%4d%4e%5f%43%4f%56%49%44%2d%31%39"
   }, {
     "name": "Self-modifying Turing machine",
     "id": "smtm",
@@ -300,5 +300,9 @@
     "name": "Brainlisp",
     "id": "brainlisp",
     "details": "https://esolangs.org/wiki/Brainlisp"
+  }, {
+    "name": "Text",
+    "id": "text",
+    "details": "https://esolangs.org/wiki/Text"
   }
 ]

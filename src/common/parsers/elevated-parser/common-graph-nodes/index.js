@@ -37,7 +37,7 @@ const cgs = {
 module.exports = cgs;
 
 for(let i = 0; i !== nodes.length; i++){
-  const ctor = require(path.join(cwd, nodes[i]));
+const ctor = require(path.join(cwd, nodes[i]));
   ctorsArr.push(ctor);
   cgs[ctor.name] = ctor;
 }

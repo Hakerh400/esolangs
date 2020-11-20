@@ -55,8 +55,8 @@ class Error extends SG.Node{
     const stackStr = stackArr.join(LINE_SEP);
     const stack = stackStr;
 
-    if(typeof message === 'string')
-      message = message;
+    // if(typeof message === 'string')
+    //   message = message;
 
     this.message = message;
     this.stack = stack;
@@ -92,7 +92,7 @@ class Error extends SG.Node{
 
     if(script !== null){
       if(script.fileName !== null)
-        lines.push(`${script.fileName}:${lineNumber}:${linePos}`);
+        lines.push(`${script.fileName}:${lineNumber}:${linePos}\n`);
 
       lines.push(script.getLine(lineNumber).trimEnd());
       lines.push('^'.padStart(linePos));
@@ -100,7 +100,7 @@ class Error extends SG.Node{
     }
 
     lines.push(`${this.name}${message !== null ? `: ${message}` : ''}`);
-    lines.push(stack.str);
+    // lines.push(stack.str);
 
     return lines.join(LINE_SEP);
   }
