@@ -16,6 +16,14 @@ const {
   TERM, PAIR, IDENT, CALL,
 } = types;
 
+const int2bin = int => {
+  return O.rev((int + 1n).toString(2).slice(1));
+};
+
+const bin2int = bin => {
+  return BigInt(`0b1${O.rev(bin)}`) - 1n;
+};
+
 class Base extends O.Stringifiable{
   err(msg){
     esolangs.err(`${msg}\n\n${this}`);
@@ -85,7 +93,7 @@ class Program extends Base{
           eqs.push([NEQ, ident, sub.lhsArr]);
 
         const dnf = [DNF, [[SYSTEM, eqs]]];
-        const sol = O.rec(solver.solve, dnf);
+        const sol = O.rec(solver.solve, dnf, {[id]: 1});
 
         if(sol === null){
           assert(subs.size >= 2);
@@ -106,7 +114,7 @@ class Program extends Base{
           eqs.push([NEQ, ident, rule.lhsArr]);
 
         const dnf = [DNF, [[SYSTEM, eqs]]];
-        const sol = O.rec(solver.solve, dnf);
+        const sol = O.rec(solver.solve, dnf, {[id]: 1});
 
         if(sol !== null)
           esolangs.err(`The following expression\n\n${
@@ -114,7 +122,13 @@ class Program extends Base{
       }
     }
 
-    this.rules = rules.filter(rule => rule.isBase);
+    const finalRules = new Set();
+
+    for(const rule of rules)
+      if(rule.isBase)
+        finalRules.add(rule);
+
+    this.rules = finalRules;
   }
 
   get chNum(){ return this.rules.length; }
@@ -165,6 +179,15 @@ class Rule extends Base{
     sub.isBase = 0;
   }
 
+  apply(expr){
+    assert(expr.reduced);
+
+    const idents = O.rec([this.lhs, 'match'], expr);
+    const result = O.rec([this.rhs, 'subst'], idents);
+
+    return result;
+  }
+
   get chNum(){ return 2; }
   getCh(i){ return i === 0 ? this.lhs : this.rhs; }
 
@@ -199,16 +222,61 @@ class Expression extends Base{
     }
   }
 
-  static fromBinStr(binStr){
-    return binStr.toExpr();
+  static fromBin(bin){
+    return Expression.fromInt(bin2int(bin));
+  }
+
+  static fromInt(int){
+    if(int === 0n)
+      return Term.term;
+
+    int--;
+
+    const mainPair = new Pair();
+    const stack = [mainPair];
+
+    while(stack.length !== 0){
+      const pair = O.last(stack);
+      const index = pair.fst === null ? 0 : 1;
+      if(index === 1) stack.pop();
+
+      const last = stack.length === 0;
+      let expr;
+
+      calcExpr: {
+        if(last){
+          if(int === 0n){
+            expr = Term.term;
+            break calcExpr;
+          }
+
+          int--;
+          expr = new Pair();
+
+          break calcExpr;
+        }
+
+        expr = int & 1n ? new Pair() : Term.term;
+        int >>= 1n;
+      }
+
+      if(expr.type === PAIR)
+        stack.push(expr);
+
+      if(index === 0) pair.fst = expr;
+      else pair.snd = expr;
+    }
+
+    return mainPair;
   }
 
   get type(){ O.virtual('type'); }
+  get reduced(){ O.virtual('reduced'); }
 
   *getIdents(){ O.virtual('getIdents'); }
   *toArr(){ O.virtual('toArr'); }
-  *sup(other){ O.virtual('sup'); }
-  *eq(other){ O.virtual('eq'); }
+  *sup(){ O.virtual('sup'); }
+  *eq(){ O.virtual('eq'); }
 
   *sub(other){
     return yield [[other, 'sup'], this];
@@ -225,8 +293,50 @@ class Expression extends Base{
   }
 
   toBin(){
-    return BinStr.fromExpr(this);
+    return int2bin(this.toInt());
   }
+
+  toInt(){
+    const stack = [this];
+    const ops = [];
+
+    while(stack.length !== 0){
+      const expr = stack.pop();
+      const {type} = expr;
+      const last = stack.length === 0;
+
+      assert(type === TERM || type === PAIR);
+
+      if(type === PAIR)
+        stack.push(expr.snd, expr.fst);
+
+      updateInt: {
+        if(last){
+          if(type === TERM)
+            break updateInt;
+
+          ops.push(2);
+          break updateInt;
+        }
+
+        ops.push(type === TERM ? 0 : 1);
+      };
+    }
+
+    let int = 0n;
+
+    for(let i = ops.length - 1; i !== -1; i--){
+      const op = ops[i];
+
+      if(op === 2) int++;
+      else int = (int << 1n) | (op ? 1n : 0n);
+    }
+
+    return int;
+  }
+
+  *match(){ O.virtual('match'); }
+  *subst(){ O.virtual('match'); }
 }
 
 class Term extends Expression{
@@ -246,6 +356,7 @@ class Term extends Expression{
   }
 
   get type(){ return TERM; }
+  get reduced(){ return 1; }
 
   *getIdents(idents=O.obj()){
     return idents;
@@ -263,6 +374,15 @@ class Term extends Expression{
     return other.type === TERM;
   }
 
+  *match(expr, idents=O.obj()){
+    assert(expr.type === TERM);
+    return idents;
+  }
+
+  *subst(idents){
+    return this;
+  }
+
   get chNum(){ return 0; }
 
   toStr(){
@@ -271,14 +391,20 @@ class Term extends Expression{
 }
 
 class Pair extends Expression{
-  constructor(fst, snd){
+  #reduced;
+
+  constructor(fst=null, snd=null){
     super();
 
     this.fst = fst;
     this.snd = snd;
+
+    this.#reduced = fst && snd ?
+      fst.reduced & snd.reduced : 1;
   }
 
   get type(){ return PAIR; }
+  get reduced(){ return this.#reduced; }
 
   *getIdents(idents=O.obj()){
     yield [[this.fst, 'getIdents'], idents];
@@ -309,6 +435,20 @@ class Pair extends Expression{
     );
   }
 
+  *match(expr, idents=O.obj()){
+    assert(expr.type === PAIR);
+    yield [[this.fst, 'match'], expr.fst, idents];
+    yield [[this.snd, 'match'], expr.snd, idents];
+    return idents;
+  }
+
+  *subst(idents){
+    return new Pair(
+      yield [[this.fst, 'subst'], idents],
+      yield [[this.snd, 'subst'], idents],
+    );
+  }
+
   get chNum(){ return 2; }
   getCh(i){ return i === 0 ? this.fst : this.snd; }
 
@@ -325,7 +465,8 @@ class Identifier extends Expression{
   }
 
   get type(){ return IDENT; }
-
+  get reduced(){ return 1; }
+  
   *getIdents(idents=O.obj()){
     const {name} = this;
 
@@ -347,6 +488,15 @@ class Identifier extends Expression{
     return other.type === IDENT;
   }
 
+  *match(expr, idents=O.obj()){
+    idents[this.name] = expr;
+    return idents;
+  }
+
+  *subst(idents){
+    return idents[this.name];
+  }
+
   get chNum(){ return 0; }
 
   toStr(){
@@ -355,13 +505,14 @@ class Identifier extends Expression{
 }
 
 class Call extends Expression{
-  constructor(target){
+  constructor(target=null){
     super();
 
     this.target = target;
   }
 
   get type(){ return CALL; }
+  get reduced(){ return 0; }
 
   *getIdents(idents=O.obj()){
     yield [[this.target, 'getIdents'], idents];
@@ -370,6 +521,12 @@ class Call extends Expression{
 
   *toArr(){
     return [CALL, yield [[this.target, 'toArr']]];
+  }
+
+  *subst(idents){
+    return new Call(
+      yield [[this.target, 'subst'], idents],
+    );
   }
 
   get chNum(){ return 1; }
@@ -383,6 +540,9 @@ class Call extends Expression{
 module.exports = {
   types,
 
+  int2bin,
+  bin2int,
+
   Base,
   Program,
   Rule,
@@ -394,4 +554,3 @@ module.exports = {
 };
 
 const solver = require('./solver');
-const BinStr = require('./bin-str');

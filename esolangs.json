@@ -309,7 +309,6 @@
     "id": "exotic",
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
-    "details": null,
-    "wip": true
+    "details": "https://esolangs.org/wiki/Exotic"
   }
 ]
