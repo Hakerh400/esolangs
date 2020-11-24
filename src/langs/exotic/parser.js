@@ -3,11 +3,9 @@
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
-const cs = require('./ctors');
 const tokenizer = require('./tokenizer');
 
 const {min, max} = Math;
-const {term} = cs.Term;
 
 const parse = (str, type='prog') => {
   const toks = tokenizer.tokenize(str.toString());
@@ -73,7 +71,7 @@ const parseExpr = function*(toks, rhs){
 
     case '*': {
       if(!rhs)
-        err(toks, `The ${O.sf(tok)} command can only be used on the rhs`);
+        err(toks, `The ${O.sf(tok)} command can only be used on the RHS`);
 
       parsed = new cs.Call(yield [parseExpr, toks, rhs]);
     } break;
@@ -101,3 +99,7 @@ const funcs = {
 };
 
 module.exports = funcs;
+
+const cs = require('./ctors');
+
+const {term} = cs.Term;
