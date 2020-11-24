@@ -9,7 +9,7 @@ const run = (src, input) => {
   const inputArr = Array.from(Buffer.from(input));
 
   while(1){
-    src = src.toString('latin1');
+    src = src.toString('binary');
 
     if(src.length < 2)
       esolangs.err('Source code must be at least 2 characters long');

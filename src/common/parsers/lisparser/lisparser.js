@@ -200,7 +200,7 @@ class Parser{
   errc(msg){ this.err(msg, this.cLinePrev, this.cPosPrev); }
   errt(msg){ this.err(msg, this.tLinePrev, this.tPosPrev); }
 
-  sWarn(msg, file, str, line, pos){
+  sWarn(msg, line, pos){
     if(!THROW_ON_WARNING){
       log.inc();
       log(msg);
@@ -209,7 +209,7 @@ class Parser{
       return;
     }
 
-    this.sErr(msg, file, str, line, pos);
+    this.sErr(msg, line, pos);
   }
 
   warn(msg){
@@ -219,13 +219,13 @@ class Parser{
     this.exit();
   }
 
-  sErr(msg, str, line, pos){
+  sErr(msg, line, pos){
     assert(typeof msg === 'string');
 
     let s = `${
       this.file}:${
       line}\n\n${
-      str}\n${
+      O.sanl(this.str)[line - 1]}\n${
       `${' '.repeat(pos - 1)}^`}\n\nError: ${
       msg}`;
 

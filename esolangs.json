@@ -304,5 +304,12 @@
     "name": "Text",
     "id": "text",
     "details": "https://esolangs.org/wiki/Text"
+  }, {
+    "name": "Exotic",
+    "id": "exotic",
+    "inputFormat": "bitArray",
+    "outputFormat": "bitArray",
+    "details": null,
+    "wip": true
   }
 ]

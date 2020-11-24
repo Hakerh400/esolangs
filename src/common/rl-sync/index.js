@@ -4,9 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const O = require('../omikron');
 
-const fdIn = process.stdin.fd;
-
 const rlSync = () => {
+  if(O.isBrowser)
+    throw new O.CustomError('Synchronous readline input is not supported');
+
+  const fdIn = process.stdin.fd;
   const buf = Buffer.alloc(1);
   const arr = [];
 

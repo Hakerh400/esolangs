@@ -8,7 +8,7 @@ const PL = require('./programming-language');
 const StdIO = require('./stdio');
 const cgs = require('./common-graph-nodes');
 
-const DEFAULT_FILE_NAME = 'script.txt';
+const DEFAULT_FILE_NAME = 'program';
 
 class Program extends SG{
   stderr = new StdIO();

@@ -92,7 +92,7 @@ class Error extends SG.Node{
 
     if(script !== null){
       if(script.fileName !== null)
-        lines.push(`${script.fileName}:${lineNumber}:${linePos}\n`);
+        lines.push(`${script.fileName}:${lineNumber}\n`);
 
       lines.push(script.getLine(lineNumber).trimEnd());
       lines.push('^'.padStart(linePos));

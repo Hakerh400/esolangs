@@ -21,7 +21,12 @@ const run = (src, input) => {
     else if(m = tk.match(/^([01\?]*)\.([01\?]*)\.([01\?]*)$/)) O.last(insts).push([1, f(m[1]), f(m[2]), f(m[3])]);
     else if(m = tk.match(/^[01\?]*$/)) O.last(insts).push([2, tk]);
     else if(m = tk.match(/^([01\?]*)\.([01\?]*)\s*\($/)) O.last(insts).push([3, f(m[1]), f(m[2])]), insts.push([]);
-    else O.last(insts[insts.length - 2]).push(insts.pop());
+    else{
+      const len = insts.length;
+      if(len < 2) esolangs.err(`Expected at least two instructions, but found ${len}`);
+
+      O.last(insts[len - 2]).push(insts.pop());
+    }
   }
 
   const root = [];
