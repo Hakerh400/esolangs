@@ -50,11 +50,12 @@ class Program extends Base{
 
           for(let j = i + 1; j !== rulesNum; j++){
             const rule2 = rules[j];
-            const relation = rule1.cmp(rule2);
 
             if(rule1.eq(rule2))
               esolangs.err(`Duplicate rules\n\n${
                 rule1}\n${rule2}`);
+
+            const relation = rule1.cmp(rule2);
 
             if(relation === -1){
               subsMap.get(rule1).add(rule2);
@@ -81,7 +82,7 @@ class Program extends Base{
         }
       }
 
-      // Ensure that each rule can be executed
+      // Ensure that no rule is shadowed by other rules
       for(const rule of rules){
         const {subs} = rule;
 
@@ -104,7 +105,7 @@ class Program extends Base{
         }
       }
 
-      // Ensure that rules cover all values
+      // Ensure that rules cover all expressions
       {
         const id = solver.newIdent();
         const ident = [IDENT, id];
