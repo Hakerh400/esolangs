@@ -19,40 +19,54 @@ const {
   TERM, PAIR, IDENT,
 } = types;
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 let identsNum = DEBUG ? 0 : null;
 
 const run = (src, input) => {
   const prog = parser.parse(src);
 
-  const dnf = [DNF, [
-    [SYSTEM, [
-      [NEQ, [IDENT, 'x'], [PAIR, [IDENT, 'a'], [PAIR, [TERM], [IDENT, 'b']]]],
-      [NEQ, [IDENT, 'x'], [TERM]],
-    ]],
-  ]];
+  const dnf = [DNF, [parseSystem(`
+    x != .
+    x != (. a)
+    x != ((a .) a)
+    x == (((((. .) a) a) a) a)
+  `)]];
 
-  const expr = O.rec(solve, dnf);
+  const sol = O.rec(solve, dnf);
+
+  if(sol === null){
+    log('-');
+  }else{
+    for(const name of O.sortAsc(O.keys(sol)))
+      log(`${name} = ${O.rec(arr2str, sol[name])}`);
+  }
 
   O.exit();
 };
 
 const solve = function*(dnf, vars=null){
+  if(vars === null)
+    vars = yield [getVars, dnf];
+
   if(DEBUG){
+    log(`DNF ${O.keys(vars).join(' ')}`);
     log(yield [arr2str, dnf]);
     log.inc();
   }
 
-  if(vars === null)
-    vars = yield [getVars, dnf];
-
   systemLoop: for(const system of dnf[1]){
+    if(DEBUG){
+      log(`SYSTEM ${O.keys(vars).join(' ')}`);
+      log(yield [arr2str, [DNF, [system]]]);
+      log.inc();
+    }
+
     const eqs = system[1];
     let sol = null;
 
     solveSystem: {
-      if(eqs.length === 1){
+      if(eqs.length === 0){
         sol = O.obj();
 
         for(const name in vars)
@@ -94,6 +108,8 @@ const solve = function*(dnf, vars=null){
           systemsNew.push([SYSTEM, [...intr, ...eqsNew.slice(elim)]]);
         }
 
+        sol = yield [solve, [DNF, systemsNew], varsNew];
+
         if(sol !== null)
           for(const name in substs)
             sol[name] = substs[name];
@@ -116,21 +132,27 @@ const solve = function*(dnf, vars=null){
       };
 
       if(eqType === EQ){
-        log(`---> ${types[t1]} == ${types[t2]}`);
+        if(DEBUG) log(`---> ${types[t1]} == ${types[t2]}`);
 
+        // TERM == IDENT
+        // PAIR == IDENT
+        // IDENT == IDENT
         if(t2 === IDENT){
           yield [next];
           break solveSystem;
         }
 
         if(t2 === TERM){
+          // TERM == TERM
           if(t1 === TERM){
             yield [next];
             break solveSystem;
           }
 
+          // PAIR == TERM
           if(t1 === PAIR) break solveSystem;
 
+          // IDENT == TERM
           if(t1 === IDENT){
             const name = lhs[1];
             yield [next, [1, []], {[name]: rhs}];
@@ -139,8 +161,10 @@ const solve = function*(dnf, vars=null){
         }
 
         if(t2 === PAIR){
+          // TERM == PAIR
           if(t1 === TERM) break solveSystem;
 
+          // PAIR == PAIR
           if(t1 === PAIR){
             yield [next, [1, [
               [EQ, lhs[1], rhs[1]],
@@ -150,6 +174,7 @@ const solve = function*(dnf, vars=null){
             break solveSystem;
           }
 
+          // IDENT == PAIR
           if(t1 === IDENT){
             yield [nextPair];
             break solveSystem;
@@ -160,18 +185,25 @@ const solve = function*(dnf, vars=null){
       }
 
       if(eqType === NEQ){
-        log(`---> ${types[t1]} != ${types[t2]}`);
+        if(DEBUG) log(`---> ${types[t1]} != ${types[t2]}`);
 
+        // TERM != IDENT
+        // PAIR != IDENT
+        // IDENT != IDENT
         if(t2 === IDENT) break solveSystem;
 
         if(t2 === TERM){
-          if(t1 === TERM) break solveSystem;
+          // TERM != TERM
+          if(t1 === TERM)
+            break solveSystem;
 
+          // PAIR != TERM
           if(t1 === PAIR){
             yield [next];
             break solveSystem;
           }
 
+          // IDENT != TERM
           if(t1 === IDENT){
             yield [nextPair];
             break solveSystem;
@@ -179,20 +211,23 @@ const solve = function*(dnf, vars=null){
         }
 
         if(t2 === PAIR){
+          // TERM != PAIR
           if(t1 === TERM){
             yield [next];
             break solveSystem;
           }
 
+          // PAIR != PAIR
           if(t1 === PAIR){
             yield [next, [
-              [1, [[NEQ, lhs[1], rhs[1]]]],
-              [1, [[NEQ, lhs[2], rhs[2]]]],
+              1, [[NEQ, lhs[1], rhs[1]]],
+              1, [[NEQ, lhs[2], rhs[2]]],
             ]];
 
             break solveSystem;
           }
 
+          // IDENT != PAIR
           if(t1 === IDENT){
             const name = lhs[1];
             const name1 = newIdent();
@@ -221,7 +256,7 @@ const solve = function*(dnf, vars=null){
             varsNew[name1] = 1;
             varsNew[name2] = 1;
 
-            yield [solve, [DNF, systemsNew], varsNew];
+            sol = yield [solve, [DNF, systemsNew], varsNew];
 
             if(sol !== null){
               if(sol[name][0] === PAIR)
@@ -242,12 +277,27 @@ const solve = function*(dnf, vars=null){
     }
 
     if(sol !== null){
-      if(DEBUG) log.dec();
+      if(DEBUG){
+        for(let i = 0; i !== 2; i++){
+          log(O.keys(sol).join(' '));
+          log.dec();
+        }
+      }
+
       return sol;
+    }
+
+    if(DEBUG){
+      log('-');
+      log.dec();
     }
   }
 
-  if(DEBUG) log.dec();
+  if(DEBUG){
+    log('-');
+    log.dec();
+  }
+
   return null;
 };
 
@@ -272,7 +322,7 @@ const getVars = function*(arr, vars=O.obj()){
     case TERM: break;
 
     case IDENT:
-      vars[IDENT] = 1;
+      vars[arr[1]] = 1;
       break;
 
     default:
@@ -307,7 +357,9 @@ const subst = function*(arr, vars=O.obj()){
       ];
     } break;
 
-    case TERM: break;
+    case TERM:
+      return arr;
+      break;
 
     case IDENT: {
       const name = arr[1];
@@ -372,11 +424,35 @@ const arr2str = function*(arr){
     } break;
 
     default:
-      assert.fail(types[type] || type);
+      assert.fail(types[type]);
       break;
   }
 
   return str;
+};
+
+const parseSystem = str => {
+  return [SYSTEM, O.sanl(str.trim()).map(a => parseEqOrNeq(a))];
+};
+
+const parseEqOrNeq = str => {
+  if(str.includes('=='))
+    return parseEq(...str.split('=='));
+
+  return parseNeq(...str.split('!='));
+};
+
+const parseEq = (a, b) => {
+  return [EQ, parseExpr(a), parseExpr(b)];
+};
+
+const parseNeq = (a, b) => {
+  return [NEQ, parseExpr(a), parseExpr(b)];
+};
+
+const parseExpr = str => {
+  const expr = parser.parse(str, 'expr');
+  return O.rec([expr, 'toArr']);
 };
 
 const arr2expr = arr => {
@@ -384,7 +460,7 @@ const arr2expr = arr => {
 };
 
 const newIdent = () => {
-  if(DEBUG) return identsNum++;
+  if(DEBUG|1) return identsNum++;
   return Symbol();
 };
 

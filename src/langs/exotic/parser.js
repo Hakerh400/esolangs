@@ -9,9 +9,9 @@ const tokenizer = require('./tokenizer');
 const {min, max} = Math;
 const {term} = cs.Term;
 
-const parse = str => {
+const parse = (str, type='prog') => {
   const toks = tokenizer.tokenize(str.toString());
-  const prog = O.rec(parseProg, [toks, 0]);
+  const prog = O.rec(funcs[type], [toks, 0]);
 
   return prog;
 };
@@ -91,4 +91,13 @@ const err = (toks, msg) => {
   esolangs.err(`${msg}\nNear ${O.sf(toks[0].slice(start).join(' '))}`);
 };
 
-module.exports = {parse};
+const funcs = {
+  parse,
+  prog: parseProg,
+  rule: parseRule,
+  lhs: parseLhs,
+  rhs: parseRhs,
+  expr: parseExpr,
+};
+
+module.exports = funcs;
