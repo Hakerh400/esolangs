@@ -28,9 +28,6 @@ const run = (src, input) => {
 
   const dnf = [DNF, [parseSystem(`
     x != .
-    x != (. a)
-    x != ((a .) a)
-    x == (((((. .) a) a) a) a)
   `)]];
 
   const sol = O.rec(solve, dnf);
@@ -49,15 +46,19 @@ const solve = function*(dnf, vars=null){
   if(vars === null)
     vars = yield [getVars, dnf];
 
+  const varsStr = DEBUG ? O.keys(vars).map(name => {
+    return name2str(name);
+  }).join(' ') : null;
+
   if(DEBUG){
-    log(`DNF ${O.keys(vars).join(' ')}`);
+    log(`DNF ${varsStr}`);
     log(yield [arr2str, dnf]);
     log.inc();
   }
 
   systemLoop: for(const system of dnf[1]){
     if(DEBUG){
-      log(`SYSTEM ${O.keys(vars).join(' ')}`);
+      log(`SYSTEM ${varsStr}`);
       log(yield [arr2str, [DNF, [system]]]);
       log.inc();
     }
@@ -69,7 +70,7 @@ const solve = function*(dnf, vars=null){
       if(eqs.length === 0){
         sol = O.obj();
 
-        for(const name in vars)
+        for(const name of O.keys(vars))
           sol[name] = [TERM];
 
         break solveSystem;
@@ -90,7 +91,7 @@ const solve = function*(dnf, vars=null){
           for(let i = 0; i !== eqsNew.length; i++)
             eqsNew[i] = yield [subst, eqsNew[i], substs];
 
-          for(const name in vars)
+          for(const name of O.keys(vars))
             if(!(name in substs))
               varsNew[name] = 1;
         }
@@ -110,8 +111,8 @@ const solve = function*(dnf, vars=null){
 
         sol = yield [solve, [DNF, systemsNew], varsNew];
 
-        if(sol !== null)
-          for(const name in substs)
+        if(sol !== null && substs !== null)
+          for(const name of O.keys(substs))
             sol[name] = substs[name];
       };
 
@@ -250,7 +251,7 @@ const solve = function*(dnf, vars=null){
 
             const varsNew = O.obj();
 
-            for(const name in vars)
+            for(const name of O.keys(vars))
               varsNew[name] = 1;
 
             varsNew[name1] = 1;
@@ -420,7 +421,7 @@ const arr2str = function*(arr){
     } break;
 
     case IDENT: {
-      str = String(arr[1]);
+      str = name2str(arr[1]);
     } break;
 
     default:
@@ -460,8 +461,13 @@ const arr2expr = arr => {
 };
 
 const newIdent = () => {
-  if(DEBUG|1) return identsNum++;
+  if(DEBUG) return identsNum++;
   return Symbol();
+};
+
+const name2str = name => {
+  if(typeof name === 'symbol') return '#';
+  return name;
 };
 
 module.exports = run;
