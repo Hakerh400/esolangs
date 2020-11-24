@@ -86,7 +86,9 @@ const parseExpr = function*(toks, rhs){
 
 const err = (toks, msg) => {
   const start = max(toks[1] - 1, 0);
-  esolangs.err(`${msg}\nNear ${O.sf(toks[0].slice(start).join(' '))}`);
+  const end = start + 100;
+
+  esolangs.err(`${msg}\nNear ${O.sf(toks[0].slice(start, end).join(' '))}`);
 };
 
 const funcs = {
