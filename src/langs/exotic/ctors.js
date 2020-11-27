@@ -121,14 +121,9 @@ class Program extends Base{
               [EQ, ident, sub2.lhsArr],
             ];
 
-            for(const s1 of sub1.subs){
-              for(const s2 of sub2.subs){
-                eqs.push(
-                  [NEQ, ident, s1.lhsArr],
-                  [NEQ, ident, s2.lhsArr],
-                );
-              }
-            }
+            for(const ss of [sub1.subs, sub2.subs])
+              for(const s of ss)
+                eqs.push([NEQ, ident, s.lhsArr]);
 
             const dnf = [DNF, [[SYSTEM, eqs]]];
             const sol = O.rec(solver.solve, dnf, {[id]: 1});
