@@ -105,6 +105,42 @@ class Program extends Base{
         }
       }
 
+      // Ensure that there are no ambiguous rule definitions
+      for(const rule of rules){
+        const {subs} = rule;
+
+        for(const sub1 of subs){
+          for(const sub2 of subs){
+            if(sub1 === sub2) continue;
+
+            const id = solver.newIdent();
+            const ident = [IDENT, id];
+
+            const eqs = [
+              [EQ, ident, sub1.lhsArr],
+              [EQ, ident, sub2.lhsArr],
+            ];
+
+            for(const s1 of sub1.subs){
+              for(const s2 of sub2.subs){
+                eqs.push(
+                  [NEQ, ident, s1.lhsArr],
+                  [NEQ, ident, s2.lhsArr],
+                );
+              }
+            }
+
+            const dnf = [DNF, [[SYSTEM, eqs]]];
+            const sol = O.rec(solver.solve, dnf, {[id]: 1});
+
+            if(sol !== null)
+              esolangs.err(`The following expression\n\n${
+                O.rec(solver.arr2str, sol[id])}\n\nis covered by multiple non-hierarchical rules\n\n${
+                sub1}\n${sub2}`);
+          }
+        }
+      }
+
       // Ensure that rules cover all expressions
       {
         const id = solver.newIdent();
