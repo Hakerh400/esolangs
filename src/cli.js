@@ -12,6 +12,7 @@ const cwd = __dirname;
 let isInvokedCache = null;
 
 const isInvoked = () => {
+  if(O.isElectron) return 0;
   return require.resolve('..') === require.main.filename;
 };
 

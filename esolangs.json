@@ -310,5 +310,9 @@
     "inputFormat": "bitArray",
     "outputFormat": "bitArray",
     "details": "https://esolangs.org/wiki/Exotic"
+  }, {
+    "name": "Expensive",
+    "id": "expensive",
+    "details": "https://esolangs.org/wiki/Expensive"
   }
 ]
