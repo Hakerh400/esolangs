@@ -314,5 +314,9 @@
     "name": "Expensive",
     "id": "expensive",
     "details": "https://esolangs.org/wiki/Expensive"
+  }, {
+    "name": "JavaScript",
+    "id": "javascript",
+    "details": "https://www.ecma-international.org/publications/standards/Ecma-262.htm"
   }
 ]
