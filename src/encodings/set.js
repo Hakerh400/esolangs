@@ -99,7 +99,7 @@ const decode = num => {
     stack.pop();
   }
   
-  return O.rec(stringify, set);
+  return Buffer.from(O.rec(stringify, set));
 };
 
 const parse = function*(str, index=[0], depth=1){
