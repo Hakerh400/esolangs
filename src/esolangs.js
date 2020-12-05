@@ -41,7 +41,7 @@ const esolangs = {
     return langsIdsObj[id];
   },
 
-  run(name, src, input=null, opts=null){
+  run(name, src, inputBuf=null, opts=O.obj()){
     const info = esolangs.getInfo(name);
 
     if(info === null)
@@ -50,8 +50,10 @@ const esolangs = {
     if(!this.debugMode && O.has(info, 'wip') && info.wip)
       esolangs.err(`Language ${O.sf(name)} is still a work-in-progress`);
 
-    const hasInput = input !== null;
+    const hasInput = inputBuf !== null;
     const outputOnly = O.has(info, 'outputOnly') && info.outputOnly;
+
+    inputBuf = Buffer.from(inputBuf);
 
     if(hasInput && outputOnly)
       esolangs.err(`Language ${O.sf(name)} is an output-only language and does not take input ` +
@@ -61,47 +63,49 @@ const esolangs = {
       esolangs.err(`Language ${O.sf(name)} is not an output-only language and must take input ` +
         `(parameter \`input\` cannot be null)`);
 
-    if('inputFormat' in info){
-      const str = input.toString();
+    let input = null;
 
-      switch(info.inputFormat){
-        case 'bitArray': {
-          input = str.replace(/[\s+]/g, '');
+    formatInput: if(hasInput){
+      const expectedFormat = info.inputFormat || 'buf';
+      const actualFormat = opts.inputFormat || 'buf';
 
-          if(!/^[01]*$/.test(input))
-            esolangs.err(`Input string can only contain bits`);
-        } break;
-
-        case 'nonNegInt': {
-          if(!/^(?:0|[1-9][0-9]*)$/.test(str))
-            esolangs.err(`Input must be a non-negative integer`);
-
-          input = BigInt(str);
-        } break;
-
-        case 'nonNegIntArr': {
-          input = str.split(' ').map(str => {
-            if(!/^(?:0|[1-9][0-9]*)$/.test(str))
-              esolangs.err(`Input must be an array of non-negative integers separated by spaces`);
-
-            return BigInt(str);
-          });
-        } break;
+      if(actualFormat === expectedFormat){
+        input = inputBuf;
+        break formatInput;
       }
-    }else{
-      input = Buffer.from(input);
+
+      const encoded = encoding.encode(actualFormat, inputBuf);
+      if(encoded !== null) input = encoding.decode(expectedFormat, encoded);
+
+      if(input === null)
+        esolangs.err(`Input string is not properly encoded using ${O.sf(actualFormat)} encoding`);
     }
 
     const afterLoad = func => {
-      if(hasInput){
-        const result = func(Buffer.from(src), input, opts);
-        return result;
+      if(hasInput || outputOnly){
+        const outputBuf = func(Buffer.from(src), input, opts);
+        let output = null;
+
+        formatOutput: {
+          const expectedFormat = opts.outputFormat || 'buf';
+          const actualFormat = info.outputFormat || 'buf';
+
+          if(actualFormat === expectedFormat){
+            output = outputBuf;
+            break formatOutput;
+          }
+
+          const encoded = encoding.encode(actualFormat, outputBuf);
+          assert(encoded !== null);
+
+          output = encoding.decode(expectedFormat, encoded);
+          assert(output !== null);
+        }
+
+
+        assert(Buffer.isBuffer(output));
+        return output;
       }
-
-      src = Buffer.from(src);
-
-      if(outputOnly)
-        return func(src, null, opts);
 
       if(!('interactive' in info && info.interactive))
         esolangs.err(`Language ${O.sf(name)} does not support interactive mode`);
@@ -173,3 +177,4 @@ module.exports = Object.assign(esolangs, {
 });
 
 const cli = require('./cli');
+const encoding = require('./encoding');

@@ -9,6 +9,8 @@ const Program = require('./program');
 
 const CHARS = '<>+-,.[]';
 
+let cache = null;
+
 const run = (src, input) => {
   src = src.toString().trim();
 
@@ -16,7 +18,22 @@ const run = (src, input) => {
     esolangs.err(`Source code must consist of a single non-negative integer`);
 
   const targetIndex = BigInt(src);
+  const prog = getProg(targetIndex);
 
+  return esolangs.run('brainfuck', prog, input);
+};
+
+const getProg = targetIndex => {
+  if(cache !== null && cache[0] === targetIndex)
+    return cache[1];
+
+  const prog = findProg(targetIndex);
+  cache = [targetIndex, prog];
+
+  return prog;
+};
+
+const findProg = targetIndex => {
   if(targetIndex === 0n)
     return Buffer.alloc(0);
 
@@ -41,7 +58,7 @@ const run = (src, input) => {
         }
 
         if(++srcsNum === targetIndex)
-          return esolangs.run('brainfuck', prog.src, input);
+          return prog.src;
       }
 
       progsQueue.length = j;

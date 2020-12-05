@@ -74,8 +74,18 @@ for(const name of langs){
         const path2 = path.join(formsDir, formFile);
         const formFunc = require(fs.existsSync(path1) ? path1 : path2);
 
-        for(const [input, expectedOutput] of formFunc(src)){
-          const actualOutput = await esolangs.run(name, src, input);
+        for(const testCase of formFunc(src)){
+          const {
+            0: input,
+            1: expectedOutput,
+            inputFormat='buf',
+            outputFormat='buf',
+          } = testCase;
+
+          const actualOutput = await esolangs.run(name, src, input, {
+            inputFormat,
+            outputFormat,
+          });
 
           assert(Buffer.isBuffer(actualOutput));
           

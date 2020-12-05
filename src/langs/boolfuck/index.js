@@ -8,7 +8,7 @@ const esolangs = require('../..');
 const run = (src, input) => {
   src = src.toString();
 
-  const io = new O.IO(input);
+  const io = new O.IOBit(input, 0);
 
   const insts = [];
   const loops = [];

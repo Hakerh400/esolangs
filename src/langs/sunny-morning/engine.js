@@ -26,7 +26,7 @@ class Engine{
 
   run(){
     const {parsed: prog, input} = this;
-    const io = new O.IO(input, 0, 1);
+    const io = new O.IOBit(input);
 
     let inputExpr = [types.INPUT];
     const stack = [[types.INV, prog.mainDef, inputExpr]];

@@ -39,7 +39,7 @@ const run = (src, input) => {
     },
   ]);
 
-  const io = new O.IO(input, 0, 1);
+  const io = new O.IOBit(input);
   const inputBits = [0, 0];
   while(io.read()) inputBits.push(io.read());
 

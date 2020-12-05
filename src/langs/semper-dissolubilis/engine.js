@@ -29,7 +29,7 @@ class Engine{
 
   run(){
     const {parsed: prog, input, opts} = this;
-    const io = new O.IO(input, 0, 1);
+    const io = new O.IOBit(input);
 
     const {funcsObj} = prog;
 

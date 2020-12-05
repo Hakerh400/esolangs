@@ -13,7 +13,7 @@ const NORMALIZE = 0;
 const run = (src, input) => {
   src = src.toString();
 
-  const io = new O.IO(input);
+  const io = new O.IOBit(input, 0);
 
   const tokens = /\s/.test(src) ? src.trim().split(/\s+/) : src.split('');
   if(tokens.length === 1 && tokens[0] === '') tokens.length = 0;

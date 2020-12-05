@@ -9,7 +9,7 @@ const Engine = require('./engine');
 const run = (src, input) => {
   src = src.toString();
 
-  const io = new O.IO(input, 0, 1);
+  const io = new O.IOBit(input);
   let writeFlag = 1;
   let active = 1;
 

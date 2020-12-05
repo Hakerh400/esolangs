@@ -10,7 +10,7 @@ const run = (src, input) => {
   src = src.toString();
 
   const mem = BitBuffer.from(src);
-  const io = new O.IO(input, 0, 1);
+  const io = new O.IOBit(input);
 
   const ops = [
     ['const', 0, 1, () => {

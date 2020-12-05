@@ -8,8 +8,8 @@ const {Machine} = functional;
 const run = (src, input) => {
   src = src.toString();
 
-  var machine = new Machine(src);
-  var io = new functional.io.IO(machine, input);
+  const machine = new Machine(src);
+  const io = new functional.IO(machine, input);
 
   for(const a of machine.start());
   if(machine.error) esolangs.err('Something went wrong');

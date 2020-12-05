@@ -8,7 +8,7 @@ const esolangs = require('../..');
 const run = (src, input) => {
   src = src.toString();
 
-  const io = new O.IO(input, 0, 1);
+  const io = new O.IOBit(input);
   const stack = [];
 
   O.tokenize(src, [

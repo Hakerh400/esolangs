@@ -8,26 +8,21 @@ const esolangs = require('../..');
 const cs = require('./ctors');
 const types = require('./types');
 
+const DEBUG = 0;
+
 const {ListNode} = List;
 
-const defaultOpts = {
-  debug: 0,
-  useBitIO: 0,
-};
-
 class Engine{
-  constructor(parsed, input, opts){
+  constructor(parsed, input){
     this.parsed = parsed;
     this.input = input;
     this.output = null;
-    this.opts = {...defaultOpts, ...opts};
   }
 
   run(){
     const {parsed, input, opts} = this;
 
-    const ioCtor = opts.useBitIO ? BitIO : O.IO;
-    const io = new ioCtor(input);
+    const io = new O.IOBit(input, 0);
 
     const {root} = parsed.tree;
     const list = new List();
@@ -97,7 +92,7 @@ class Engine{
         continue;
       }
 
-      if(opts.debug) logList(list);
+      if(DEBUG) logList(list);
 
       checkpoints.pop();
 
@@ -164,31 +159,6 @@ class Engine{
   
   getOutput(){
     return this.output;
-  }
-}
-
-class BitIO{
-  constructor(input){
-    this.input = String(input).split('').map(a => a | 0);
-    this.output = [];
-    this.inputIndex = 0;
-  }
-
-  get hasMore(){
-    return this.inputIndex !== this.input.length;
-  }
-
-  read(){
-    if(!this.hasMore) return 0;
-    return this.input[this.inputIndex++];
-  }
-
-  write(bit){
-    this.output.push(bit | 0);
-  }
-
-  getOutput(){
-    return Buffer.from(this.output.join(''));
   }
 }
 
