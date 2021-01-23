@@ -1,0 +1,28 @@
+aa1 1 b a1 a1 0 b aa2 aa2 1 b a2 a2 0 b aa3 aa3 1 b a3 a3 0 b aa4 aa4 1 b a4 a4 1 b aa5 aa5 1 b a5
+a5 0 b aa6 aa6 1 b a6 a6 0 b aa7 aa7 1 b a7 a7 1 b aa8 aa8 1 b a8 a8 0 b aa9 aa9 1 b a9 a9 1 b aa10
+aa10 1 b a10 a10 0 b aa11 aa11 1 b a11 a11 1 b aa12 aa12 1 b a12 a12 0 b aa13 aa13 1 b a13 a13 0 b
+aa14 aa14 1 b a14 a14 1 b aa15 aa15 1 b a15 a15 1 b aa16 aa16 1 b a16 a16 0 b aa17 aa17 1 b a17 a17
+0 b aa18 aa18 1 b a18 a18 0 b aa19 aa19 1 b a19 a19 1 b aa20 aa20 1 b a20 a20 1 b aa21 aa21 1 b a21
+a21 0 b aa22 aa22 1 b a22 a22 1 b aa23 aa23 1 b a23 a23 1 b aa24 aa24 1 b a24 a24 0 b aa25 aa25 1 b
+a25 a25 0 b aa26 aa26 1 b a26 a26 0 b aa27 aa27 1 b a27 a27 1 b aa28 aa28 1 b a28 a28 1 b aa29 aa29
+1 b a29 a29 0 b aa30 aa30 1 b a30 a30 1 b aa31 aa31 1 b a31 a31 1 b aa32 aa32 1 b a32 a32 0 b aa33
+aa33 1 b a33 a33 1 b aa34 aa34 1 b a34 a34 1 b aa35 aa35 1 b a35 a35 1 b aa36 aa36 1 b a36 a36 1 b
+aa37 aa37 1 b a37 a37 0 b aa38 aa38 1 b a38 a38 1 b aa39 aa39 1 b a39 a39 1 b aa40 aa40 1 b a40 a40
+0 b aa41 aa41 1 b a41 a41 0 b aa42 aa42 1 b a42 a42 0 b aa43 aa43 1 b a43 a43 1 b aa44 aa44 1 b a44
+a44 1 b aa45 aa45 1 b a45 a45 0 b aa46 aa46 1 b a46 a46 1 b aa47 aa47 1 b a47 a47 0 b aa48 aa48 1 b
+a48 a48 0 b aa49 aa49 1 b a49 a49 0 b aa50 aa50 1 b a50 a50 0 b aa51 aa51 1 b a51 a51 0 b aa52 aa52
+1 b a52 a52 0 b aa53 aa53 1 b a53 a53 0 b aa54 aa54 1 b a54 a54 1 b aa55 aa55 1 b a55 a55 0 b aa56
+aa56 1 b a56 a56 0 b aa57 aa57 1 b a57 a57 1 b aa58 aa58 1 b a58 a58 1 b aa59 aa59 1 b a59 a59 1 b
+aa60 aa60 1 b a60 a60 0 b aa61 aa61 1 b a61 a61 1 b aa62 aa62 1 b a62 a62 0 b aa63 aa63 1 b a63 a63
+1 b aa64 aa64 1 b a64 a64 0 b aa65 aa65 1 b a65 a65 1 b aa66 aa66 1 b a66 a66 1 b aa67 aa67 1 b a67
+a67 1 b aa68 aa68 1 b a68 a68 1 b aa69 aa69 1 b a69 a69 0 b aa70 aa70 1 b a70 a70 1 b aa71 aa71 1 b
+a71 a71 1 b aa72 aa72 1 b a72 a72 0 b aa73 aa73 1 b a73 a73 0 b aa74 aa74 1 b a74 a74 1 b aa75 aa75
+1 b a75 a75 0 b aa76 aa76 1 b a76 a76 0 b aa77 aa77 1 b a77 a77 1 b aa78 aa78 1 b a78 a78 1 b aa79
+aa79 1 b a79 a79 1 b aa80 aa80 1 b a80 a80 0 b aa81 aa81 1 b a81 a81 0 b aa82 aa82 1 b a82 a82 0 b
+aa83 aa83 1 b a83 a83 1 b aa84 aa84 1 b a84 a84 1 b aa85 aa85 1 b a85 a85 0 b aa86 aa86 1 b a86 a86
+1 b aa87 aa87 1 b a87 a87 1 b aa88 aa88 1 b a88 a88 0 b aa89 aa89 1 b a89 a89 0 b aa90 aa90 1 b a90
+a90 0 b aa91 aa91 1 b a91 a91 1 b aa92 aa92 1 b a92 a92 0 b aa93 aa93 1 b a93 a93 0 b aa94 aa94 1 b
+a94 a94 1 b aa95 aa95 1 b a95 a95 1 b aa96 aa96 1 b a96 a96 0 b aa97 aa97 1 b a97 a97 1 b aa98 aa98
+1 b a98 a98 0 b aa99 aa99 1 b a99 a99 0 b aa100 aa100 1 b a100 a100 0 b aa101 aa101 1 b a101 a101 0
+b aa102 aa102 1 b a102 a102 1 b aa103 aa103 1 b a103 a103 0 b aa104 aa104 1 b a104 a104 0 b b b 0 b
+b

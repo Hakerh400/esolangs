@@ -6,7 +6,7 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 
-const run = (src, input) => {
+const run = async (src, input) => {
   src = src.toString().trim().
     replace(/[ \t]|\/\/[^\r\n]*|\/\*[\s\S]*?\*\//g, '');
 
@@ -120,8 +120,10 @@ const run = (src, input) => {
     return `${lhs} - ${rhsArr[index]}`;
   }).join('\n');
 
-  return esolangs.run('Golden sunrise', src, input, {
+  return await esolangs.run('Golden sunrise', src, input, {
     useBitIO: 1,
+    inputFormat: 'padded-bit-array',
+    outputFormat: 'padded-bit-array',
   });
 };
 

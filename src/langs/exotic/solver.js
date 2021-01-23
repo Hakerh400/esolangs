@@ -382,7 +382,7 @@ const arr2str = function*(arr){
     case PAIR: {
       str = `(${
         yield [arr2str, arr[1]]} ${
-        yield [arr2str, arr[2]]})`
+        yield [arr2str, arr[2]]})`;
     } break;
 
     case TERM: {

@@ -25,6 +25,9 @@ const formsDir = path.join(cwd, 'program-forms');
 const langs = SINGLE_LANG !== null ? [SINGLE_LANG] : esolangs.getLangs();
 const slowTestsObj = O.obj();
 
+const hwStrId = 'hello-world';
+const hwString = esolangs.getStr(hwStrId);
+
 for(const slowTest of slowTests){
   if(typeof slowTest === 'string'){
     slowTestsObj[slowTest] = O.obj();
@@ -53,48 +56,81 @@ for(const name of langs){
     esolangs.debugMode = 1;
   }
 
-  part(`Language ${O.sf(name)}`, () => {
-    const dir = path.join(langsDir, info.id);
-    if(!fs.existsSync(dir)) return;
+  if(O.has(info, 'interactive') && info.interactive){
+    assert(!SINGLE_LANG);
+    continue;
+  }
 
-    const fileNames = O.sortAsc(fs.readdirSync(dir));
+  part(`Language ${O.sf(name)}`, async () => {
+    if(O.has(info, 'tests') && !info.tests){
+      assert(!SINGLE_LANG);
+      return;
+    }
 
-    for(const fileName of fileNames){
-      if(!fileName.endsWith('.txt')) continue;
+    let foundTest = 0;
 
-      const programName = fileName.slice(0, fileName.length - 4);
-      if(slowTest !== null && programName in slowTest) continue;
+    testHwProg: {
+      const hwProg = await esolangs.getHwProg(name);
+      if(hwProg === null) break testHwProg;
 
-      const filePath = path.join(dir, fileName);
-      const src = O.rfs(filePath);
+      foundTest = 1;
 
-      test(programName, async () => {
-        const formFile = `${programName}.js`;
-        const path1 = path.join(dir, formFile);
-        const path2 = path.join(formsDir, formFile);
-        const formFunc = require(fs.existsSync(path1) ? path1 : path2);
-
-        for(const testCase of formFunc(src)){
-          const {
-            0: input,
-            1: expectedOutput,
-            inputFormat='buf',
-            outputFormat='buf',
-          } = testCase;
-
-          const actualOutput = await esolangs.run(name, src, input, {
-            inputFormat,
-            outputFormat,
-          });
-
-          assert(Buffer.isBuffer(actualOutput));
-          
-          eq(
-            actualOutput.toString('binary'),
-            Buffer.from(expectedOutput).toString('binary'),
-          );
-        }
+      test(hwStrId, async () => {
+        const output = await esolangs.run(name, hwProg, '');
+        eq(output.toString('binary').trim(), hwString);
       });
     }
+
+    const dir = path.join(langsDir, info.id);
+    if(fs.existsSync(dir)){
+      const fileNames = O.sortAsc(fs.readdirSync(dir));
+
+      for(const fileName of fileNames){
+        if(!fileName.endsWith('.txt')) continue;
+
+        const programName = fileName.slice(0, fileName.length - 4);
+
+        if(slowTest !== null && programName in slowTest){
+          foundTest = 1;
+          continue;
+        }
+
+        const filePath = path.join(dir, fileName);
+        const src = O.rfs(filePath);
+
+        foundTest = 1;
+
+        test(programName, async () => {
+          const formFile = `${programName}.js`;
+          const path1 = path.join(dir, formFile);
+          const path2 = path.join(formsDir, formFile);
+          const formFunc = require(fs.existsSync(path1) ? path1 : path2);
+
+          for(const testCase of formFunc(src)){
+            const {
+              0: input,
+              1: expectedOutput,
+              inputFormat='byte-array',
+              outputFormat='byte-array',
+            } = testCase;
+
+            const actualOutput = await esolangs.run(name, src, input, {
+              inputFormat,
+              outputFormat,
+            });
+
+            assert(Buffer.isBuffer(actualOutput));
+            
+            eq(
+              actualOutput.toString('binary'),
+              Buffer.from(expectedOutput).toString('binary'),
+            );
+          }
+        });
+      }
+    }
+
+    if(!foundTest)
+      assert.fail(`No tests found`);
   });
 }

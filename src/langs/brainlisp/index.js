@@ -33,7 +33,7 @@ const run = (src, input) => {
           case 'in': mem[ip] = input.shift() & 255; break;
           case 'out': output.push(mem[ip]); break;
           case 'loop': yield [exec, elem]; break;
-          default: fst.err(`Unknown instruction`); break;
+          default: fst.err(`Unknown instruction ${O.sf(type)}`); break;
         }
       }
 

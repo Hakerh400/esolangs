@@ -56,7 +56,7 @@ const decode = num => {
     arr.push(n);
   }
 
-  return arr.join(' ');
+  return Buffer.from(arr.join(' '));
 };
 
 module.exports = {

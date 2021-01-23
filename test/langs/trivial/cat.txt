@@ -1,0 +1,6 @@
+main io = read io (onRead io);
+onRead io bit = write io bit main;
+read io = io 0;
+write io = io 1;
+0 a b = b;
+1 a b = a;

@@ -31,7 +31,7 @@ const run = (src, input) => {
 
   const rulesNum = blocksNum - 8 >> 1;
 
-  let mainStr = `${blocks[0]}${input.replace(/./g, a => {
+  let mainStr = `${blocks[0]}${String(input).replace(/./g, a => {
     return `${blocks[1]}${a}${blocks[2]}`;
   })}${blocks[3]}`;
 

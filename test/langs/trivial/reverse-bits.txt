@@ -1,0 +1,20 @@
+main io = readStr io (onReadStr io);
+
+onReadStr io str = writeStr io str;
+
+readStr io cb = readStr1 io cb (Pair 0 0);
+readStr1 io cb str = read io (onReadFlag io cb str);
+onReadFlag io cb str flag = flag (readBit io cb str) (cb str);
+readBit io cb str = read io (onReadBit io cb str);
+onReadBit io cb str bit = readStr1 io cb (Pair 1 (Pair bit str));
+
+writeStr io str = write io (fst str) (writeStr io (snd str));
+
+Pair a b c = c b a;
+fst pair = pair 0;
+snd pair = pair 1;
+
+read io = io 0;
+write io = io 1;
+0 a b = b;
+1 a b = a;

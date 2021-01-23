@@ -2,8 +2,10 @@
 
 const fs = require('fs');
 const path = require('path');
+const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
+const debug = require('../../common/debug');
 
 const {min, max, abs, floor, sin, cos} = Math;
 const {pi, pih} = O;
@@ -54,7 +56,7 @@ const run = (src, input) => {
 
   const states = O.obj();
 
-  let str = input;
+  let str = String(input);
   let helixIndex = 0;
   let instIndex = 0;
 

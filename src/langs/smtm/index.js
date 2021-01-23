@@ -7,14 +7,11 @@ const O = require('omikron');
 const esolangs = require('../..');
 const debug = require('../../common/debug');
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 const run = (src, input) => {
   src = src.toString().replace(/\/\/(?:[^\r\n]*)/g, '');
-  input = input.toString().replace(/\s+/g, '');
-
-  if(/[^01]/.test(input))
-    esolangs.err(`Input string may contain only characters '0' and '1'`);
+  input = String(input);
 
   const mem = O.obj();
 

@@ -22,7 +22,7 @@ const run = (src, input) => {
   const prog = parser.parse(src);
   const {rules} = prog;
 
-  const inputExpr = cs.Expression.fromBin(input);
+  const inputExpr = cs.Expression.fromBin(String(input));
   const mainExpr = new cs.Call(new cs.Pair(cs.Term.term, inputExpr));
 
   const reduce = function*(expr){

@@ -194,7 +194,7 @@ class Parser{
     assert(typeof line === 'number');
     assert(typeof pos === 'number');
 
-    this.sErr(msg, this.file, O.sanl(this.str)[line - 1], line, pos);
+    this.sErr(msg, line, pos);
   }
 
   errc(msg){ this.err(msg, this.cLinePrev, this.cPosPrev); }
@@ -235,9 +235,9 @@ class Parser{
     O.exit(s);
   }
 
-  err(msg){
-    O.exit(msg);
-  }
+  // err(msg){
+  //   O.exit(msg);
+  // }
 }
 
 class ListElement extends O.Stringifiable{

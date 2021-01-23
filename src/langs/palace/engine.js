@@ -11,7 +11,7 @@ const cs = require('./ctors');
 class Engine{
   constructor(parsed, input){
     this.parsed = parsed;
-    this.input = input;
+    this.input = String(input).split(' ').map(a => BigInt(a));
     this.output = null;
   }
 

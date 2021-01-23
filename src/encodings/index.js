@@ -7,15 +7,13 @@ const O = require('omikron');
 const encData = require('./encodings-data');
 
 const has = type => {
-  return type in encData;
+  return O.has(encData, type);
 };
 
 const get = type => {
   assert(has(type));
 
-const enc = require(`./${type}`);
-
-  return enc;
+  return require(`./${type}`);
 };
 
 module.exports = {

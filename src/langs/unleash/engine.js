@@ -16,30 +16,12 @@ const emptyList = cs.List.empty;
 class Engine{
   constructor(parsed, input){
     this.parsed = parsed;
-    this.input = input;
-    this.output = null;
+    this.io = new O.IOBit(input);
   }
 
   run(){
-    const {parsed: prog, input} = this;
+    const {parsed: prog, io} = this;
     const output = [];
-
-    let inputIndex = 0;
-    let inputFlag = 0;
-
-    const read = () => {
-      if(inputIndex === input.length)
-        return 0;
-
-      if(inputFlag ^= 1)
-        return 1;
-
-      return input[inputIndex++] | 0;
-    };
-
-    const write = bit => {
-      output.push(bit | 0);
-    };
 
     const dbg = () => {
       log(`${'Code:'.padEnd(7)}${code}`);
@@ -93,7 +75,7 @@ class Engine{
             stack.insert(a, e.elems);
             break;
           }
-          const bit = read();
+          const bit = io.read();
           if(bit) stack.insert(a, [e]);
         } break;
 
@@ -104,7 +86,7 @@ class Engine{
             code.insert(0, e.elems);
             break;
           }
-          write(e.type >= 3);
+          io.write(e.type >= 3);
         } break;
 
         default:
@@ -114,12 +96,10 @@ class Engine{
     }
 
     if(DEBUG) dbg();
-
-    this.output = Buffer.from(output.join(''));
   }
   
   getOutput(){
-    return this.output;
+    return this.io.getOutput();
   }
 }
 

@@ -14,7 +14,7 @@ const syntax = O.rfs(path.join(cwd, 'syntax.txt'), 1);
 
 const run = (src, input, opts) => {
   const parsed = parser.parse(syntax, src, ast);
-  const eng = new Engine(parsed, Buffer.from(input), opts);
+  const eng = new Engine(parsed, input, opts);
   
   eng.run();
 

@@ -2,5 +2,9 @@
   ["Functional()", "99-bottles"],
   ["Functional()", "fizz-buzz"],
   ["Referencement", "reverse-bits"],
-  ["Sunny morning", "reverse-bits"]
+  ["Sunny morning", "reverse-bits"],
+  ["Seclusion", "bf"],
+  ["Siterip", "cat"],
+  ["Integer", "shl"],
+  ["Integer", "shr"]
 ]

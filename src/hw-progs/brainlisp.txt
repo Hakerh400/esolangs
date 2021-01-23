@@ -1,0 +1,5 @@
+(inc) (loop (dec) (dec) (right) (dec) (loop (right) (right) (inc) (right) (dec) (dec) (dec) (dec)
+(dec) (left) (left)) (left) (dec) (dec) (left) (dec) (dec) (dec)) (right) (dec) (out) (right)
+(right) (right) (inc) (out) (right) (right) (out) (out) (inc) (inc) (inc) (loop (out) (right))
+(left) (left) (left) (left) (out) (inc) (inc) (inc) (out) (dec) (dec) (dec) (dec) (dec) (dec) (out)
+(left) (left) (dec) (out) (right) (right) (right) (right) (inc) (out)

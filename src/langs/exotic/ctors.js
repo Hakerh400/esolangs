@@ -368,7 +368,7 @@ class Expression extends Base{
   }
 
   *match(){ O.virtual('match'); }
-  *subst(){ O.virtual('match'); }
+  *subst(){ O.virtual('subst'); }
 }
 
 class Term extends Expression{

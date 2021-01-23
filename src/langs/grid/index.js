@@ -8,7 +8,7 @@ const Vector = require('./vector');
 const run = (src, input) => {
   src = src.toString();
 
-  const io = new O.IO(input, 0, 1);
+  const io = new O.IOBit(input);
 
   let w = 3;
   let h = 3;

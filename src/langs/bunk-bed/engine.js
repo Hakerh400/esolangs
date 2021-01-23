@@ -13,20 +13,16 @@ const DEBUG = 0;
 class Engine{
   constructor(parsed, input){
     this.parsed = parsed;
-    this.input = input.split('').map(a => a | 0);
-    this.output = null;
+    this.io = new O.IOBit(input, 0);
   }
 
   run(){
-    const {parsed: prog, input} = this;
+    const {parsed: prog, io} = this;
     const {insts} = prog;
     const instsNum = insts.length;
 
     const vars = O.obj();
     let index = 0;
-
-    const output = [];
-    let inputIndex = 0;
 
     const getVar = name => {
       if(!(name in vars))
@@ -98,19 +94,17 @@ class Engine{
       }
 
       if(inst instanceof cs.Inp){
-        if(inputIndex === input.length || input[inputIndex++] === 0)
-          index++;
+        if(!io.read()) index++;
         continue;
       }
 
       if(inst instanceof cs.Eof){
-        if(inputIndex !== input.length)
-          index++;
+        if(io.hasMore) index++;
         continue;
       }
 
       if(inst instanceof cs.Out){
-        output.push(inst.bit);
+        io.write(inst.bit);
         continue;
       }
 
@@ -119,12 +113,10 @@ class Engine{
 
       assert.fail(inst.constructor.name);
     }
-
-    this.output = Buffer.from(output.join(''));
   }
   
   getOutput(){
-    return this.output;
+    return this.io.getOutput();
   }
 }
 

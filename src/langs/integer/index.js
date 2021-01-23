@@ -8,7 +8,7 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 
 const run = (src, input) => {
-  src = src.toString();
+  src = src.toString().replace(/\s+/g, '');
 
   if(!/^(?:0|[1-9][0-9]*)$/.test(src))
     esolangs.err(`Source code must be a non-negative integer`);
@@ -18,7 +18,7 @@ const run = (src, input) => {
   let e = 2n;
   while(src % e) e++;
 
-  let n = f1(e, src / e, f1(e, 0n, f4(e, input)));
+  let n = f1(e, src / e, f1(e, 0n, f4(e, BigInt(input))));
 
   while(1){
     const a = f2(e, n);
@@ -57,7 +57,7 @@ const run = (src, input) => {
     assert.fail(String(g));
   }
 
-  return f5(e, f3(e, f3(e, n)));
+  return Buffer.from(String(f5(e, f3(e, f3(e, n)))));
 };
 
 const f1 = (e, a, b) => a + b ? a % e + e * (b % e + e * f1(e, a / e, b / e)) : 0n;

@@ -20,7 +20,7 @@ const defaultOpts = {
 const run = (src, input, optsArg={}) => {
   const opts = Object.assign(O.obj(), defaultOpts, optsArg);
 
-  let frame = new sf.Global(parser.parse(src, input));
+  let frame = new sf.Global(parser.parse(src, String(input)));
   let output = '';
 
   if(opts.format)

@@ -1,0 +1,9 @@
+main io = read io (onReadFlag io);
+onReadFlag io flag = flag (write io 1 (readBit io)) (write io 0);
+readBit io = read io (onReadBit io);
+onReadBit io bit = write io (not bit) main;
+not bit = bit 0 1;
+read io = io 0;
+write io = io 1;
+0 a b = b;
+1 a b = a;

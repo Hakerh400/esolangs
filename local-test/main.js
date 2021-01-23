@@ -15,8 +15,8 @@ const srcFile = path.join(cwd, `srcs/${info.id}.txt`);
 const inputFile = path.join(cwd, 'input.txt');
 
 const opts = {
-  debug: 0,
-  useBitIO: 0,
+  // inputFormat: 'padded-bit-array',
+  // outputFormat: 'padded-bit-array',
 };
 
 const main = async () => {

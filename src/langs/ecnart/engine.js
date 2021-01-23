@@ -130,23 +130,11 @@ class Engine{
 }
 
 const buf2num = buf => {
-  let num = 0n;
-
-  for(let i = buf.length - 1; i !== -1; i--)
-    num = (num << 8n) | BigInt(buf[i]);
-
-  return num;
+  return BigInt(String(buf));
 };
 
 const num2buf = num => {
-  const arr = [];
-
-  while(num !== 0n){
-    arr.push(Number(num & 255n));
-    num >>= 8n;
-  }
-
-  return Buffer.from(arr);
+  return Buffer.from(String(num));
 };
 
 module.exports = Engine;

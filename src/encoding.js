@@ -11,14 +11,14 @@ const checkType = type => {
     esolangs.err(`Unknown encoding ${type}`);
 };
 
-const encode = (type, data) => {
+const encode = async (data, type) => {
   checkType(type);
-  return encodings.get(type).encode(data);
+  return (await encodings.get(type)).encode(data);
 };
 
-const decode = (type, data) => {
+const decode = async (data, type) => {
   checkType(type);
-  return encodings.get(type).decode(data);
+  return (await encodings.get(type)).decode(data);
 };
 
 module.exports = {

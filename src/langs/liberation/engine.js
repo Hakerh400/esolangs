@@ -30,7 +30,7 @@ class Engine{
     {
       list.push(list.activeNode(active));
 
-      for(const bit of input)
+      for(const bit of String(input))
         list.push(list.bitNode(bit | 0));
     }
 

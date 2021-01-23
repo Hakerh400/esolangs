@@ -1,0 +1,19 @@
+()(.String 0()->0(bit 1).Bit0 1(next 2).Bit0 2(next 3).Bit0 3(next 4).Bit1 4(next 5).Bit0 5(next 6)
+.Bit0 6(next 7).Bit1 7(next 8).Bit0 8(next 9).Bit1 9(next 10).Bit0 10(next 11).Bit1 11(next 12).Bit0
+12(next 13).Bit0 13(next 14).Bit1 14(next 15).Bit1 15(next 16).Bit0 16(next 17).Bit0 17(next 18)
+.Bit0 18(next 19).Bit1 19(next 20).Bit1 20(next 21).Bit0 21(next 22).Bit1 22(next 23).Bit1 23(next
+24).Bit0 24(next 25).Bit0 25(next 26).Bit0 26(next 27).Bit1 27(next 28).Bit1 28(next 29).Bit0 29(
+next 30).Bit1 30(next 31).Bit1 31(next 32).Bit0 32(next 33).Bit1 33(next 34).Bit1 34(next 35).Bit1
+35(next 36).Bit1 36(next 37).Bit0 37(next 38).Bit1 38(next 39).Bit1 39(next 40).Bit0 40(next 41)
+.Bit0 41(next 42).Bit0 42(next 43).Bit1 43(next 44).Bit1 44(next 45).Bit0 45(next 46).Bit1 46(next
+47).Bit0 47(next 48).Bit0 48(next 49).Bit0 49(next 50).Bit0 50(next 51).Bit0 51(next 52).Bit0 52(
+next 53).Bit0 53(next 54).Bit1 54(next 55).Bit0 55(next 56).Bit0 56(next 57).Bit1 57(next 58).Bit1
+58(next 59).Bit1 59(next 60).Bit0 60(next 61).Bit1 61(next 62).Bit0 62(next 63).Bit1 63(next 64)
+.Bit0 64(next 65).Bit1 65(next 66).Bit1 66(next 67).Bit1 67(next 68).Bit1 68(next 69).Bit0 69(next
+70).Bit1 70(next 71).Bit1 71(next 72).Bit0 72(next 73).Bit0 73(next 74).Bit1 74(next 75).Bit0 75(
+next 76).Bit0 76(next 77).Bit1 77(next 78).Bit1 78(next 79).Bit1 79(next 80).Bit0 80(next 81).Bit0
+81(next 82).Bit0 82(next 83).Bit1 83(next 84).Bit1 84(next 85).Bit0 85(next 86).Bit1 86(next 87)
+.Bit1 87(next 88).Bit0 88(next 89).Bit0 89(next 90).Bit0 90(next 91).Bit1 91(next 92).Bit0 92(next
+93).Bit0 93(next 94).Bit1 94(next 95).Bit1 95(next 96).Bit0 96(next 97).Bit1 97(next 98).Bit0 98(
+next 99).Bit0 99(next 100).Bit0 100(next 101).Bit0 101(next 102).Bit1 102(next 103).Bit0 103(next
+104).Bit0 104(next nil))

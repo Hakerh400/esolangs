@@ -26,6 +26,7 @@
   }, {
     "name": "Unary",
     "id": "unary",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/Unary"
   }, {
     "name": "BitBounce",
@@ -65,7 +66,7 @@
     "details": "https://esolangs.org/wiki/Boolfuck"
   }, {
     "name": "Intramodular Transaction",
-    "id": "intramodular-transaction",
+    "id": "imtx",
     "inputFormat": "padded-bit-array",
     "outputFormat": "padded-bit-array",
     "details": "https://esolangs.org/wiki/Intramodular_Transaction"
@@ -149,6 +150,7 @@
   }, {
     "name": "!!SuperPrime",
     "id": "super-prime",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/!!SuperPrime"
   }, {
     "name": "Semper dissolubilis",
@@ -176,16 +178,20 @@
   }, {
     "name": "Siterip",
     "id": "siterip",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/Siterip"
   }, {
     "name": "dc",
     "id": "dc",
-    "details": "https://esolangs.org/wiki/%44%41%4d%4e%5f%43%4f%56%49%44%2d%31%39"
+    "hwProg": false,
+    "tests": false,
+    "details": "https://esolangs.org/wiki/%44%41%4D%4E%5F%43%4F%56%49%44%2D%31%39"
   }, {
     "name": "Self-modifying Turing machine",
     "id": "smtm",
     "inputFormat": "padded-bit-array",
     "outputFormat": "padded-bit-array",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/Self-modifying_Turing_machine"
   }, {
     "name": "Liberation",
@@ -196,10 +202,12 @@
   }, {
     "name": "Entrance",
     "id": "entrance",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/Entrance"
   }, {
     "name": "Minimal operation language",
     "id": "mol",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/Minimal_operation_language",
     "interactive": true
   }, {
@@ -240,6 +248,8 @@
   }, {
     "name": "User:Zzo38/Untitled 4",
     "id": "untitled-4",
+    "hwProg": false,
+    "tests": false,
     "details": "https://esolangs.org/wiki/User:Zzo38/Untitled_4"
   }, {
     "name": "Highlighter",
@@ -249,6 +259,7 @@
   }, {
     "name": "Jumplang",
     "id": "jumplang",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/Jumplang"
   }, {
     "name": "1.1",
@@ -275,12 +286,14 @@
     "name": "Beautiful day",
     "id": "beautiful-day",
     "outputFormat": "bit",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/Beautiful_day"
   }, {
     "name": "Integer",
     "id": "integer",
     "inputFormat": "nat",
     "outputFormat": "nat",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/Integer"
   }, {
     "name": "Serenity",
@@ -302,8 +315,9 @@
   }, {
     "name": "Palace",
     "id": "palace",
-    "inputFormat": "nat-arr",
-    "outputFormat": "nat-arr",
+    "inputFormat": "nat-array",
+    "outputFormat": "nat",
+    "hwProg": false,
     "details": "https://esolangs.org/wiki/Palace"
   }, {
     "name": "Unleash",
@@ -349,10 +363,24 @@
   }, {
     "name": "Expensive",
     "id": "expensive",
+    "browserSupport": false,
     "details": "https://esolangs.org/wiki/Expensive"
   }, {
     "name": "JavaScript",
     "id": "javascript",
     "details": "https://www.ecma-international.org/publications/standards/Ecma-262.htm"
+  }, {
+    "name": "Tropical",
+    "id": "tropical",
+    "inputFormat": "padded-bit-array",
+    "outputFormat": "padded-bit-array",
+    "details": null,
+    "wip": true
+  }, {
+    "name": "Trivial",
+    "id": "trivial",
+    "inputFormat": "padded-bit-array",
+    "outputFormat": "padded-bit-array",
+    "details": "https://esolangs.org/wiki/Trivial"
   }
 ]

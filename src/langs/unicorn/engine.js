@@ -22,7 +22,7 @@ class Engine{
     const {insts} = prog;
     const instsNum = insts.length;
 
-    const vars = [new Variable(input), new Variable()];
+    const vars = [new Variable(String(input)), new Variable()];
     let index = 0;
 
     while(index !== instsNum){
@@ -70,17 +70,14 @@ class Engine{
 }
 
 class Variable{
-  constructor(buf=null){
-    const arr = this.arr = [];
+  constructor(str=null){
+    const arr = [];
 
-    if(buf !== null){
-      for(let i = buf.length - 1; i !== -1; i--){
-        const byte = buf[i];
+    if(str !== null)
+      for(const char of O.rev(str))
+        arr.push(char | 0, 1);
 
-        for(let j = 7; j !== -1; j--)
-          arr.push(byte & (1 << j) ? 1 : 0, 1);
-      }
-    }
+    this.arr = arr;
   }
 
   get last(){
@@ -110,7 +107,7 @@ class Variable{
   }
 
   toBuf(){
-    const io = new O.IO();
+    const io = new O.IOBit();
     let even = 1;
 
     for(const bit of this.arr){

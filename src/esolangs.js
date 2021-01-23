@@ -20,6 +20,7 @@ for(const info of langsList){
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
+const hwProgsDir = path.join(cwd, 'hw-progs');
 
 const esolangs = {
   version: packageJson.version,
@@ -41,7 +42,7 @@ const esolangs = {
     return langsIdsObj[id];
   },
 
-  run(name, src, inputBuf=null, opts=O.obj()){
+  async run(name, src, inputBuf=null, opts=O.obj()){
     const info = esolangs.getInfo(name);
 
     if(info === null)
@@ -66,63 +67,56 @@ const esolangs = {
     let input = null;
 
     formatInput: if(hasInput){
-      const expectedFormat = info.inputFormat || 'buf';
-      const actualFormat = opts.inputFormat || 'buf';
+      const expectedFormat = info.inputFormat || 'byte-array';
+      const actualFormat = opts.inputFormat || 'byte-array';
 
       if(actualFormat === expectedFormat){
         input = inputBuf;
         break formatInput;
       }
 
-      const encoded = encoding.encode(actualFormat, inputBuf);
-      if(encoded !== null) input = encoding.decode(expectedFormat, encoded);
+      const encoded = await encoding.encode(inputBuf, actualFormat);
+      if(encoded !== null) input = await encoding.decode(encoded, expectedFormat);
 
       if(input === null)
         esolangs.err(`Input string is not properly encoded using ${O.sf(actualFormat)} encoding`);
     }
 
-    const afterLoad = func => {
-      if(hasInput || outputOnly){
-        const outputBuf = func(Buffer.from(src), input, opts);
-        let output = null;
+    const pth = path.join(langsDir, info.id);
+    const func = await require(pth);
 
-        formatOutput: {
-          const expectedFormat = opts.outputFormat || 'buf';
-          const actualFormat = info.outputFormat || 'buf';
+    if(hasInput || outputOnly){
+      assert(Buffer.isBuffer(input));
 
-          if(actualFormat === expectedFormat){
-            output = outputBuf;
-            break formatOutput;
-          }
+      const outputBuf = await func(Buffer.from(src), input, opts);
+      assert(Buffer.isBuffer(outputBuf));
 
-          const encoded = encoding.encode(actualFormat, outputBuf);
-          assert(encoded !== null);
+      let output = null;
 
-          output = encoding.decode(expectedFormat, encoded);
-          assert(output !== null);
+      formatOutput: {
+        const expectedFormat = opts.outputFormat || 'byte-array';
+        const actualFormat = info.outputFormat || 'byte-array';
+
+        if(actualFormat === expectedFormat){
+          output = outputBuf;
+          break formatOutput;
         }
 
+        const encoded = await encoding.encode(outputBuf, actualFormat);
+        assert(encoded !== null);
 
-        assert(Buffer.isBuffer(output));
-        return output;
+        output = await encoding.decode(encoded, expectedFormat);
+        assert(output !== null);
       }
 
-      if(!('interactive' in info && info.interactive))
-        esolangs.err(`Language ${O.sf(name)} does not support interactive mode`);
-
-      func(src, null, opts);
-    };
-
-    load: {
-      const pth = path.join(langsDir, info.id);
-
-      if(!O.isBrowser)
-        return afterLoad(require(pth));
-
-      return (async () => {
-        return afterLoad(await require(pth));
-      })();
+      assert(Buffer.isBuffer(output));
+      return output;
     }
+
+    if(!('interactive' in info && info.interactive))
+      esolangs.err(`Language ${O.sf(name)} does not support interactive mode`);
+
+    func(src, null, opts);
   },
 
   async runSafe(name, src, input, opts=null, sbxOpts=null){
@@ -149,6 +143,16 @@ const esolangs = {
     const {strs} = commonStrs;
     if(!(name in strs)) return null;
     return strs[name];
+  },
+
+  async getHwProg(name){
+    const info = esolangs.getInfo(name);
+    if(info.wip || info.hwProg === false) return null;
+
+    const {id} = info;
+    const file = path.join(hwProgsDir, `${id}.txt`);
+
+    return O.rfs(file);
   },
 
   /*

@@ -1,0 +1,12 @@
+read:
+  EOF
+  JMP end
+  INP
+  JMP 1
+  OUT 0
+  JMP read
+1:
+  OUT 1
+  JMP read
+end:
+  NOP
