@@ -64,8 +64,13 @@ class Stack extends Base{
     return this.elems.shift();
   }
 
-  dup(){
-    return new Stack(this.elems);
+  *dup(){
+    const stack = new Stack();
+
+    for(const elem of this.elems)
+      stack.push(yield [[elem, 'dup']]);
+
+    return stack.rev();
   }
 
   get int(){ return this.len; }

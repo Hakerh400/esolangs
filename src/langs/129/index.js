@@ -50,7 +50,7 @@ const run = (src, input) => {
       halt = 1;
       return;
     }
-    
+
     output.push(byte);
   };
 
@@ -84,7 +84,7 @@ const run = (src, input) => {
           if(DEBUG) log('Duplicate');
           const s = mainStack.top();
           if(!check(s)) return;
-          mainStack.push(s.dup());
+          mainStack.push(O.rec([s, 'dup']));
         } break;
 
         case '((()(()))())': {
