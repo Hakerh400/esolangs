@@ -21,9 +21,10 @@ const EAGER = 0;
 const FILTER_IDENTS = 0;
 const DEBUG_ON_REDUCE = 0;
 const SHOW_PERF = 0;
+const SHOW_IO = 0;
 
 const run = (src, input) => {
-  const t = SHOW_PERF ? performance.now() : 0;
+  const t = SHOW_PERF ? performance.now() : null;
 
   const prog = parser.parseProg(String(src));
   const io = new O.IOBit(input);
@@ -211,7 +212,7 @@ const run = (src, input) => {
       const arg = pop();
       const bit = read();
 
-      if(DEBUG) log(`---> IN ${bit}`);
+      if(SHOW_IO) log(`---> IN ${bit}`);
 
       pushArr([arg, bit ? core.BIT1 : core.BIT0]);
     },
@@ -220,12 +221,12 @@ const run = (src, input) => {
       pushArr([arg, core.WRITE1, core.WRITE0]);
     },
     [core.WRITE0](){
-      if(DEBUG) log(`---> OUT 0`);
+      if(SHOW_IO) log(`---> OUT 0`);
 
       write(0);
     },
     [core.WRITE1](){
-      if(DEBUG) log(`---> OUT 1`);
+      if(SHOW_IO) log(`---> OUT 1`);
 
       write(1);
     },

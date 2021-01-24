@@ -382,5 +382,9 @@
     "inputFormat": "padded-bit-array",
     "outputFormat": "padded-bit-array",
     "details": "https://esolangs.org/wiki/Trivial"
+  }, {
+    "name": "129",
+    "id": "129",
+    "details": "https://esolangs.org/wiki/129"
   }
 ]
