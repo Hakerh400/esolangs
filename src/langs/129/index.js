@@ -10,7 +10,12 @@ const cs = require('./ctors');
 
 const DEBUG = 0;
 
-const VERSION = [0, 1, 0];
+const supportedVersions = {
+  0: {
+    1: 0,
+    2: 0,
+  },
+};
 
 const run = (src, input) => {
   const mainStack = new cs.Stack();
@@ -19,22 +24,8 @@ const run = (src, input) => {
   if(srcStack === null)
     esolangs.err(`Unmatched parentheses`);
 
-  checkVersion: {
-    const ver = srcStack.pop();
-
-    if(ver === null)
-      esolangs.err(`Missing program version`);
-
-    const verInfo = ver.ints;
-
-    if(verInfo.length !== VERSION.length)
-      esolangs.err(`The length of the version stack must be ${VERSION.length}`);
-
-    if(verInfo.some((a, b) => a !== VERSION[b]))
-      esolangs.err(`Expected version ${
-        ver2str(VERSION)}, but found ${
-        ver2str(verInfo)}`);
-  }
+  const ver = getVersion(srcStack);
+  const [major, minor, patch] = ver;
 
   input = [...input];
   const output = [];
@@ -53,6 +44,14 @@ const run = (src, input) => {
 
     output.push(byte);
   };
+
+  const inputCmd = minor === 1 ?
+    '(()(((()))))' :
+    '(()((()())))';
+
+  const outputCmd = minor === 1 ?
+    '((((())))())' :
+    '(((()()))())';
 
   const exec = function*(stack){
     if(DEBUG) O.logb();
@@ -127,13 +126,13 @@ const run = (src, input) => {
           if(DEBUG) log.dec();
         } break;
 
-        case '(()(((()))))': {
+        case inputCmd: {
           if(DEBUG) log('Input');
           const n = read();
           mainStack.push(cs.Stack.fromInt(n));
         } break;
 
-        case '((((())))())': {
+        case outputCmd: {
           if(DEBUG) log('Output');
           const s = mainStack.pop();
           if(!check(s)) return;
@@ -156,14 +155,38 @@ const run = (src, input) => {
   return Buffer.from(output);
 };
 
+const getVersion = srcStack => {
+  const verStack = srcStack.pop();
+
+  if(verStack === null)
+    esolangs.err(`Missing program version`);
+
+  const ver = verStack.ints;
+
+  if(ver.length !== 3)
+    esolangs.err(`The length of the version stack must be 3`);
+
+  const supported = ver.reduce((v, n, i) => {
+    if(i !== 2){
+      if(v === null) return null;
+      if(!O.has(v, n)) return null;
+      return v[n];
+    }
+
+    if(v === null) return 0;
+    return n <= v;
+  }, supportedVersions);
+
+  if(!supported)
+    esolangs.err(`Unsupported version ${ver.join('.')}`);
+
+  return ver;
+};
+
 const check = stack => {
   if(stack !== null) return 1;
   if(DEBUG) assert.fail();
   return 0;
-};
-
-const ver2str = ver => {
-  return ver.join('.');
 };
 
 module.exports = run;
