@@ -5,13 +5,9 @@ const path = require('path');
 const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
-const parser = require('./parser');
-const cs = require('./ctors');
 
-const DEBUG = 0;
+class Base extends O.Stringifiable{}
 
-const run = (src, input) => {
-  return Buffer.from([]);
+module.exports = {
+  Base,
 };
-
-module.exports = run;
