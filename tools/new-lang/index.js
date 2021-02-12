@@ -47,11 +47,9 @@ const run = async args => {
     const langDir = path.join(langsDir, id);
 
     const files = [
-      ['index.js', 0],
-      ['syntax.txt', 1],
-      ['ast.js', 1],
+      ['index.js', 1],
+      ['parser.js', 1],
       ['ctors.js', 1],
-      ['engine.js', 1],
     ];
 
     fs.mkdirSync(langDir);

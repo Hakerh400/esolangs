@@ -5,7 +5,7 @@ const path = require('path');
 const O = require('omikron');
 const esolangs = require('..');
 
-const TEXT = 1;
+const BITS = 1;
 
 const cwd = __dirname;
 
@@ -16,7 +16,7 @@ const info = esolangs.getInfo(name);
 const srcFile = path.join(cwd, `srcs/${info.id}.txt`);
 const inputFile = path.join(cwd, 'input.txt');
 
-const opts = !TEXT ? {
+const opts = BITS ? {
   inputFormat: 'padded-bit-array',
   outputFormat: 'padded-bit-array',
 } : {};

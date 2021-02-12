@@ -72,8 +72,8 @@ const solve = function*(dnf, vars=null){
         const systemsNew = [];
 
         for(let i = 0; i < elimIntrInfo.length; i += 2){
-          const elim = elimIntrInfo[i] ?? 1;
-          const intr = elimIntrInfo[i + 1] ?? [];
+          const [elim=1] = [elimIntrInfo[i]];
+          const [intr=[]] = [elimIntrInfo[i + 1]];
 
           systemsNew.push([SYSTEM, [...intr, ...eqsNew.slice(elim)]]);
         }

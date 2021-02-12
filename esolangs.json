@@ -390,5 +390,10 @@
     "name": "0587",
     "id": "0587",
     "details": "https://esolangs.org/wiki/0587"
+  }, {
+    "name": "PRSCNT",
+    "id": "prscnt",
+    "details": null,
+    "wip": true
   }
 ]
