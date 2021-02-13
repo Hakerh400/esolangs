@@ -1,7 +1,8 @@
 {
   "byte-array": "Byte array",
   "bit": "Bit",
-  "padded-bit-array": "Padded bit array",
+  "bit-array": "Bit array",
+  "text": "Text",
   "nat": "Natural number",
   "nat-array": "Array of natural numbers",
   "set": "Set"

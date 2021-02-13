@@ -14,14 +14,14 @@
   }, {
     "name": "Functional()",
     "id": "functional",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Functional%28%29"
   }, {
     "name": "Bitwise Trance",
     "id": "bitwise-trance",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Bitwise_Trance"
   }, {
     "name": "Unary",
@@ -31,56 +31,56 @@
   }, {
     "name": "BitBounce",
     "id": "bit-bounce",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/BitBounce"
   }, {
     "name": "Functasy",
     "id": "functasy",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Functasy"
   }, {
     "name": "Examinable Invocation Vector",
     "id": "eiv",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Examinable_Invocation_Vector"
   }, {
     "name": "Realm",
     "id": "realm",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Realm"
   }, {
     "name": "Grid",
     "id": "grid",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Grid"
   }, {
     "name": "Boolfuck",
     "id": "boolfuck",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Boolfuck"
   }, {
     "name": "Intramodular Transaction",
     "id": "imtx",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Intramodular_Transaction"
   }, {
     "name": "Encapsulation",
     "id": "encapsulation",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Encapsulation"
   }, {
     "name": "Transceternal",
     "id": "transceternal",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Transceternal"
   }, {
     "name": "Seclusion",
@@ -113,8 +113,8 @@
   }, {
     "name": "Referencement",
     "id": "referencement",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Referencement"
   }, {
     "name": "Cheap",
@@ -138,14 +138,14 @@
   }, {
     "name": "Golden sunrise",
     "id": "golden-sunrise",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Golden_sunrise"
   }, {
     "name": "Sunny morning",
     "id": "sunny-morning",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Sunny_morning"
   }, {
     "name": "!!SuperPrime",
@@ -155,8 +155,8 @@
   }, {
     "name": "Semper dissolubilis",
     "id": "semper-dissolubilis",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Semper_dissolubilis"
   }, {
     "name": "int**",
@@ -189,15 +189,15 @@
   }, {
     "name": "Self-modifying Turing machine",
     "id": "smtm",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "hwProg": false,
     "details": "https://esolangs.org/wiki/Self-modifying_Turing_machine"
   }, {
     "name": "Liberation",
     "id": "liberation",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Liberation"
   }, {
     "name": "Entrance",
@@ -213,14 +213,14 @@
   }, {
     "name": "Hello today I am a unicorn",
     "id": "unicorn",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Hello_today_I_am_a_unicorn"
   }, {
     "name": "Bunk bed",
     "id": "bunk-bed",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Bunk_bed"
   }, {
     "name": "Stopwatch",
@@ -230,20 +230,20 @@
   }, {
     "name": "Gummy Bear",
     "id": "gummy-bear",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Gummy_Bear"
   }, {
     "name": "Happy Fantasy",
     "id": "happy-fantasy",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Happy_Fantasy"
   }, {
     "name": "Double Helix",
     "id": "double-helix",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Double_Helix"
   }, {
     "name": "User:Zzo38/Untitled 4",
@@ -268,8 +268,8 @@
   }, {
     "name": "Fading Rainbow",
     "id": "fading-rainbow",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Fading_Rainbow"
   }, {
     "name": "DJ Qarkegs - Above The Sky",
@@ -278,8 +278,8 @@
   }, {
     "name": "Bullean",
     "id": "bullean",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": null,
     "wip": true
   }, {
@@ -302,14 +302,14 @@
   }, {
     "name": "Transortogonal Polymorphism",
     "id": "topm",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Transortogonal_Polymorphism"
   }, {
     "name": "μ",
     "id": "mu",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": null,
     "wip": true
   }, {
@@ -322,14 +322,14 @@
   }, {
     "name": "Unleash",
     "id": "unleash",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Unleash"
   }, {
     "name": "Conglument",
     "id": "conglument",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Conglument"
   }, {
     "name": "1L_a",
@@ -343,8 +343,8 @@
   }, {
     "name": "Detrovert",
     "id": "detrovert",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Detrovert"
   }, {
     "name": "Brainlisp",
@@ -357,8 +357,8 @@
   }, {
     "name": "Exotic",
     "id": "exotic",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Exotic"
   }, {
     "name": "Expensive",
@@ -372,15 +372,15 @@
   }, {
     "name": "Tropical",
     "id": "tropical",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": null,
     "wip": true
   }, {
     "name": "Trivial",
     "id": "trivial",
-    "inputFormat": "padded-bit-array",
-    "outputFormat": "padded-bit-array",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Trivial"
   }, {
     "name": "129",

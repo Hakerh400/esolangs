@@ -70,10 +70,10 @@ const esolangs = {
       const expectedFormat = info.inputFormat || 'byte-array';
       const actualFormat = opts.inputFormat || 'byte-array';
 
-      if(actualFormat === expectedFormat){
-        input = inputBuf;
-        break formatInput;
-      }
+      // if(actualFormat === expectedFormat){
+      //   input = inputBuf;
+      //   break formatInput;
+      // }
 
       const encoded = await encoding.encode(inputBuf, actualFormat);
       if(encoded !== null) input = await encoding.decode(encoded, expectedFormat);
@@ -97,10 +97,10 @@ const esolangs = {
         const expectedFormat = opts.outputFormat || 'byte-array';
         const actualFormat = info.outputFormat || 'byte-array';
 
-        if(actualFormat === expectedFormat){
-          output = outputBuf;
-          break formatOutput;
-        }
+        // if(actualFormat === expectedFormat){
+        //   output = outputBuf;
+        //   break formatOutput;
+        // }
 
         const encoded = await encoding.encode(outputBuf, actualFormat);
         assert(encoded !== null);
