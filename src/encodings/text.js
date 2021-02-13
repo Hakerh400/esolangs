@@ -8,17 +8,12 @@ const esolangs = require('..');
 
 const encode = buf => {
   const ser = new O.NatSerializer();
-  let str = buf.toString();
 
-  if(!/^[01]*$/.test(str))
-    return null;
-
-  while(str.length & 7)
-    str += '0';
-
-  for(let i = 0; i !== str.length; i++){
-    ser.inc();
-    ser.write(str[i]);
+  for(const byte of buf){
+    for(let i = 0; i !== 8; i++){
+      ser.inc();
+      ser.write(byte & (1 << i) ? 1 : 0);
+    }
   }
 
   return ser.output;
