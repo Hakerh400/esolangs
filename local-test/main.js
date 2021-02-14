@@ -5,7 +5,7 @@ const path = require('path');
 const O = require('omikron');
 const esolangs = require('..');
 
-const BITS = 1;
+const BITS = 0;
 
 const cwd = __dirname;
 
@@ -17,9 +17,12 @@ const srcFile = path.join(cwd, `srcs/${info.id}.txt`);
 const inputFile = path.join(cwd, 'input.txt');
 
 const opts = BITS ? {
-  inputFormat: 'padded-bit-array',
-  outputFormat: 'padded-bit-array',
-} : {};
+  inputFormat: 'bit-array',
+  outputFormat: 'bit-array',
+} : {
+  inputFormat: 'text',
+  outputFormat: 'text',
+};
 
 const main = async () => {
   esolangs.debugMode = 1;
@@ -29,8 +32,8 @@ const main = async () => {
   const src = O.rfs(srcFile);
   const input = !outputOnly ? O.rfs(inputFile) : null;
   const output = await esolangs.run(name, src, input, opts);
-  
-  log(String(output));
+
+  log(output.toString());
 };
 
 main().catch(O.error);

@@ -1,0 +1,1 @@
+process.stdout.write(input.split('').reverse().join(''));

@@ -24,8 +24,8 @@ const run = (src, input) => {
       },
     };
 
-    const func = new Function('process', 'console', 'input', src.toString());
-    func(process, console, input);
+    const func = new Function('process', 'write', 'console', 'log', 'input', src.toString());
+    func(process, process.write, console, console.log, input.toString());
 
     return Buffer.concat(output);
   }catch(err){
