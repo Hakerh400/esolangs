@@ -13,16 +13,16 @@ const cs = {
 
 module.exports = cs;
 
-require('./base');
-require('./queue');
-require('./expression');
-require('./system');
-require('./scope');
-require('./unique-symbol');
-require('./func-def');
-require('./temp-struct');
-require('./sol-struct');
-require('./target');
-require('./equation');
-require('./binding');
-require('./solver');
+const Base = require('./base');
+const Queue = require('./queue');
+const Expression = require('./expression');
+const System = require('./system');
+const Scope = require('./scope');
+const UniqueSymbol = require('./unique-symbol');
+const FunctionDefinition = require('./func-def');
+const TemporaryStructure = require('./temp-struct');
+const SolutionStructure = require('./sol-struct');
+const Target = require('./target');
+const Equation = require('./equation');
+const Binding = require('./binding');
+const Solver = require('./solver');

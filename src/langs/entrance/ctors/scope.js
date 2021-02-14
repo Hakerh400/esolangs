@@ -12,6 +12,8 @@ const {Base} = cs;
 
 const identChars = O.chars('A', 26);
 
+log('SCOPE')
+
 class Scope extends Base{
   #symbols = O.obj();
   #nameIndex = 0n;
