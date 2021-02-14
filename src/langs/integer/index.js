@@ -60,11 +60,47 @@ const run = (src, input) => {
   return Buffer.from(String(f5(e, f3(e, f3(e, n)))));
 };
 
-const f1 = (e, a, b) => a + b ? a % e + e * (b % e + e * f1(e, a / e, b / e)) : 0n;
-const f2 = (e, a) => a ? a % e + e * f2(e, a / (e * e)) : 0n;
-const f3 = (e, a) => f2(e, a / e);
-const f4 = (e, a) => e ** a - 1n;
-const f5 = (e, a) => a % e ? 1n + f5(e, a / e) : 0n;
-const f6 = (e, a, b) => b ? f6(e, f3(e, a), b - 1n) : f2(e, a);
+const f1 = (...args) => O.rec(g1, ...args);
+const f2 = (...args) => O.rec(g2, ...args);
+const f3 = (...args) => O.rec(g3, ...args);
+const f4 = (...args) => O.rec(g4, ...args);
+const f5 = (...args) => O.rec(g5, ...args);
+const f6 = (...args) => O.rec(g6, ...args);
+
+const g1 = function*(e, a, b){
+  if(a + b)
+    return a % e + e * (b % e + e * (yield [g1, e, a / e, b / e]));
+
+  return 0n;
+};
+
+const g2 = function*(e, a){
+  if(a)
+    return a % e + e * (yield [g2, e, a / (e * e)]);
+
+  return 0n;
+};
+
+const g3 = function*(e, a){
+  yield O.tco(g2, e, a / e);
+};
+
+const g4 = function*(e, a){
+  return e ** a - 1n;
+};
+
+const g5 = function*(e, a){
+  if(a % e)
+    return 1n + (yield [g5, e, a / e]);
+
+  return 0n;
+};
+
+const g6 = function*(e, a, b){
+  if(b)
+    yield O.tco(g6, e, yield [g3, e, a], b - 1n);
+
+  yield O.tco(g2, e, a);
+};
 
 module.exports = run;

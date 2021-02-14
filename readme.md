@@ -1,6 +1,6 @@
 # Esolangs
 
-<!-- ![](https://api.travis-ci.org/Hakerh400/esolangs.svg?branch=master) -->
+![](https://api.travis-ci.org/Hakerh400/esolangs.svg?branch=master)
 
 This is a collection of interpreters for [esoteric programming languages](https://esolangs.org/wiki/Main_Page).
 

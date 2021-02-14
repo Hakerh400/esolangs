@@ -16,7 +16,7 @@ const args = process.argv.slice(2);
 
 const SINGLE_LANG = null;
 const TEST_CLI = SINGLE_LANG === null;
-const INCLUDE_SLOW_TESTS = 0;
+const INCLUDE_SLOW_TESTS = 1;
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
@@ -76,7 +76,12 @@ for(const name of langs){
       foundTest = 1;
 
       test(hwStrId, async () => {
-        const output = await esolangs.run(name, hwProg, '');
+        const opts = {
+          inputAdapter: 'text',
+          outputAdapter: 'text',
+        };
+
+        const output = await esolangs.run(name, hwProg, '', opts);
         eq(output.toString('binary').trim(), hwString);
       });
     }
@@ -107,17 +112,21 @@ for(const name of langs){
           const formFunc = require(fs.existsSync(path1) ? path1 : path2);
 
           for(const testCase of formFunc(src)){
-            const {
-              0: input,
-              1: expectedOutput,
-              inputFormat='byte-array',
-              outputFormat='byte-array',
-            } = testCase;
+            const [
+              input,
+              expectedOutput,
+              [
+                inputAdapter = 'text',
+                outputAdapter = 'text',
+              ] = [],
+            ] = testCase;
 
-            const actualOutput = await esolangs.run(name, src, input, {
-              inputFormat,
-              outputFormat,
-            });
+            const opts = {
+              inputAdapter,
+              outputAdapter,
+            };
+
+            const actualOutput = await esolangs.run(name, src, input, opts);
 
             assert(Buffer.isBuffer(actualOutput));
             

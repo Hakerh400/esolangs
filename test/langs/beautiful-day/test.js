@@ -12,8 +12,5 @@ module.exports = src => {
     ['AAAAA', '1'],
     ['AAABA', '0'],
     ['C', '0'],
-  ].map(a => {
-    a.outputFormat = 'bit';
-    return a;
-  });
+  ].map(a => [...a, ['text', null]]);
 };

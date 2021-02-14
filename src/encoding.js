@@ -28,4 +28,4 @@ module.exports = {
   decode,
 };
 
-const esolangs = require('.');
+const esolangs = require('./esolangs');

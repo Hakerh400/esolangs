@@ -7,11 +7,10 @@ const esolangs = require('../../..');
 
 module.exports = src => {
   return [
-    {
-      0: '{{}, {{}}, {{}, {{}}}}',
-      1: '{{{}}, {}}',
-      inputFormat: 'set',
-      outputFormat: 'set',
-    },
+    [
+      '{{}, {{}}, {{}, {{}}}}',
+      '{{}, {{}}}',
+      ['set', 'set'],
+    ],
   ];
 };

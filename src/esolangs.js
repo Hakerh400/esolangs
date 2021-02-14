@@ -66,9 +66,15 @@ const esolangs = {
 
     let input = null;
 
+    const inputFormat = opts.inputAdapter || info.inputFormat || 'byte-array';
+    const outputFormat = opts.outputAdapter || info.outputFormat || 'byte-array';
+
     formatInput: if(hasInput){
       const expectedFormat = info.inputFormat || 'byte-array';
-      const actualFormat = opts.inputFormat || 'byte-array';
+      let actualFormat = inputFormat || 'byte-array';
+
+      if(expectedFormat === 'byte-array' && actualFormat === 'text')
+        actualFormat = expectedFormat;
 
       // if(actualFormat === expectedFormat){
       //   input = inputBuf;
@@ -94,8 +100,11 @@ const esolangs = {
       let output = null;
 
       formatOutput: {
-        const expectedFormat = opts.outputFormat || 'byte-array';
+        let expectedFormat = outputFormat || 'byte-array';
         const actualFormat = info.outputFormat || 'byte-array';
+
+        if(actualFormat === 'byte-array' && expectedFormat === 'text')
+          expectedFormat = actualFormat;
 
         // if(actualFormat === expectedFormat){
         //   output = outputBuf;

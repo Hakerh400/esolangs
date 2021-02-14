@@ -8,9 +8,7 @@ const esolangs = require('../../..');
 module.exports = src => {
   return [
     ['123', '123'],
-  ].map(a => {
-    a.inputFormat = 'nat-array';
-    a.outputFormat = 'nat';
-    return a;
+  ].map(([...a]) => {
+    return [...a, ['nat-array', 'nat']];
   });
 };
