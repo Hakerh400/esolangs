@@ -7,12 +7,6 @@ const esolangs = require('../..');
 
 module.exports = src => {
   return [
-    '',
-    'A',
-    '123',
-  ].map(a => {
-    return [a, Buffer.from(Buffer.from(a).map(a => {
-      return a ^ 255;
-    }), 'binary')];
-  });
+    ['1011', '0100', ['bit-array', 'bit-array']],
+  ];
 };

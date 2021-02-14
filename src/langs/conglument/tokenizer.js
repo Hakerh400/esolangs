@@ -12,7 +12,7 @@ class Tokenizer{
   emittedEof = 0;
 
   constructor(src){
-    this.src = src.toString('binary').replace(/\s+/g, '');
+    this.src = src.toString().replace(/\s+/g, '');
     this.srcPrev = this.src;
   }
 

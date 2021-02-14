@@ -82,7 +82,7 @@ for(const name of langs){
         };
 
         const output = await esolangs.run(name, hwProg, '', opts);
-        eq(output.toString('binary').trim(), hwString);
+        eq(output.toString().trim(), hwString);
       });
     }
 
@@ -131,8 +131,8 @@ for(const name of langs){
             assert(Buffer.isBuffer(actualOutput));
             
             eq(
-              actualOutput.toString('binary'),
-              Buffer.from(expectedOutput).toString('binary'),
+              actualOutput.toString(),
+              Buffer.from(expectedOutput).toString(),
             );
           }
         });
