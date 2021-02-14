@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const O = require('omikron');
-const tools = require('./tools');
+const tools = require('.');
 
 const args = process.argv.slice(2);
 

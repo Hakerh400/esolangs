@@ -16,7 +16,7 @@ const args = process.argv.slice(2);
 
 const SINGLE_LANG = null;
 const TEST_CLI = SINGLE_LANG === null;
-const INCLUDE_SLOW_TESTS = 1;
+const INCLUDE_SLOW_TESTS = 0;
 
 const cwd = __dirname;
 const langsDir = path.join(cwd, 'langs');
