@@ -9,8 +9,14 @@ const parser = require('./parser');
 const cs = require('./ctors');
 
 const DEBUG = 0;
+const WARNINGS = 0;
 
 const run = (src, input) => {
+  const prog = parser.parse(src.toString());
+
+  log(prog+'')
+
+  O.exit();
   return Buffer.from([]);
 };
 
