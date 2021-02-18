@@ -60,6 +60,7 @@ const run = (src, input) => {
       const stateNew = O.rec([tran, 'next']);
       if(stateNew === null) continue;
 
+      tran.pri = 0;
       queue.push(stateNew);
       queue.push(tran);
 
