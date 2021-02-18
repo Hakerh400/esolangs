@@ -1,0 +1,39 @@
+SET A, B
+INP A
+INP B
+
+INC Continueloop
+
+SET Label
+EQU Label, Startloop
+GSO
+
+CFS
+EQU Label, Continueloop
+NEQ B, 0
+
+INC A
+
+
+SET B_dec, B_dec_copy
+EQU B_dec, B_dec_copy
+INC B_dec
+EQU B_dec, B
+SET B
+EQU B_dec_copy, B
+
+SET Label
+
+CFS
+EQU Label, Startloop
+
+SET Label
+EQU Label, Continueloop
+GSO
+
+
+CFS
+EQU Label, Continueloop
+EQU B, 0
+
+OUT A

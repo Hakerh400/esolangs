@@ -393,7 +393,6 @@
   }, {
     "name": "PRSCNT",
     "id": "prscnt",
-    "details": null,
-    "wip": true
+    "details": "https://esolangs.org/wiki/PRSCNT"
   }
 ]

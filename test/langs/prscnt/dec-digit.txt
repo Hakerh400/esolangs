@@ -1,0 +1,11 @@
+SET Var
+INP Var
+
+SET Var--, Var--_copy
+EQU Var--, Var--_copy
+INC Var--
+EQU Var--, Var
+SET Var
+EQU Var--_copy, Var
+
+OUT Var

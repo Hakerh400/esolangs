@@ -32,6 +32,14 @@ const parse = src => {
       esolangs.err(`Unknown command ${O.sf(cmd)}`);
 
     const ctor = cs.cmds[cmd];
+
+    if(isOp(ctor)){
+      for(const v of vars)
+        prog.addCmd(new ctor([v]));
+
+      continue;
+    }
+
     prog.addCmd(new ctor(vars));
   }
 
@@ -53,6 +61,10 @@ const parseLine = line => {
       esolangs.err(`Invalid variable name ${O.sf(v)}`);
 
   return [cmd, vars];
+};
+
+const isOp = ctor => {
+  return cs.Operation.isPrototypeOf(ctor);
 };
 
 module.exports = {
