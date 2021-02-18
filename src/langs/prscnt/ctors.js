@@ -141,7 +141,7 @@ class State extends Monad{
 
     if(v.length === 1){
       if(WARN_DEL_LAST_VAR)
-        log(`Attampt to delete the last instance of variable ${
+        log(`Attempt to delete the last instance of variable ${
           O.sf(name)}`);
 
       return;
