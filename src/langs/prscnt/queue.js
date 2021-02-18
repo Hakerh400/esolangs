@@ -6,7 +6,6 @@ const assert = require('assert');
 const O = require('omikron');
 const {ArrayList} = require('@hakerh400/list');
 const esolangs = require('../..');
-const cs = require('./ctors');
 
 class Queue extends ArrayList{
   states = 0;
