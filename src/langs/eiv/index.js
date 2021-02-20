@@ -5,6 +5,8 @@ const path = require('path');
 const O = require('omikron');
 const esolangs = require('../..');
 
+const STRICT_OUTPUT = 0;
+
 const run = (src, input) => {
   src = src.toString();
 
@@ -367,10 +369,14 @@ const run = (src, input) => {
 
     const b0 = isZero(bit);
     const b1 = isOne(bit);
-    if(!(b0 || b1)) esolangs.err('Invalid output');
+
+    if(STRICT_OUTPUT){
+      if(!(b0 || b1))
+        esolangs.err('Invalid output');
+    }
 
     if(flag = !flag){
-      if(b0) break;
+      if(!b1) break;
       continue;
     }
 
