@@ -5,7 +5,7 @@ const path = require('path');
 const O = require('omikron');
 const esolangs = require('..');
 
-const BITS = 0;
+const BITS = 1;
 
 const cwd = __dirname;
 
@@ -17,11 +17,11 @@ const srcFile = path.join(cwd, `srcs/${info.id}.txt`);
 const inputFile = path.join(cwd, 'input.txt');
 
 const opts = BITS ? {
-  inputFormat: 'bit-array',
-  outputFormat: 'bit-array',
+  // inputAdapter: 'bit-array',
+  // outputAdapter: 'bit-array',
 } : {
-  inputFormat: 'text',
-  outputFormat: 'text',
+  inputAdapter: 'text',
+  outputAdapter: 'text',
 };
 
 const main = async () => {
