@@ -394,5 +394,12 @@
     "name": "PRSCNT",
     "id": "prscnt",
     "details": "https://esolangs.org/wiki/PRSCNT"
+  }, {
+    "name": "PhD",
+    "id": "phd",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
+    "details": "https://esolangs.org/wiki/PhD",
+    "wip": true
   }
 ]
