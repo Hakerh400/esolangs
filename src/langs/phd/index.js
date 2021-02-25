@@ -71,7 +71,7 @@ const run = (src, input) => {
 
     const getSnapshot = () => {
       assert(test);
-      return [...test.pth, stack.slice(-test.size)];
+      return [...test.pth, ...stack.slice(-test.size)];
     };
 
     if(test) test.pth.push(0);
