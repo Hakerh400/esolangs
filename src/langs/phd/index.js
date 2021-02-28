@@ -78,7 +78,7 @@ const run = (src, input) => {
 
     for(let i = 0; i !== len; i++){
       if(test){
-        if(!test.halts) return;
+        if(!test.halts) break;
 
         O.setLast(test.pth, i);
 
@@ -86,7 +86,7 @@ const run = (src, input) => {
 
         if(test.map.has(snapshot)){
           test.halts = 0;
-          return;
+          break;
         }
 
         test.map.set(snapshot, 1);
