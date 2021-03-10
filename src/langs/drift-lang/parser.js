@@ -81,7 +81,7 @@ const parse = str => {
 
     // Function definition
 
-    if(toks[0] !== tt.VAR) err(`Function name must be in lowercase`);
+    if(toks[0] !== tt.VAR) err(`Function name must start with a lowercase letter`);
 
     const funcIdent = toks[1];
     const func = ident2sym(funcIdent);
