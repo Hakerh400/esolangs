@@ -406,5 +406,10 @@
     "inputFormat": "bit-array",
     "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/DriftLang"
+  }, {
+    "name": "2 Bits, 1 Byte",
+    "id": "2bits1byte",
+    "hwProg": false,
+    "details": "https://esolangs.org/wiki/2_Bits,_1_Byte"
   }
 ]

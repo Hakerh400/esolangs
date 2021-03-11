@@ -232,7 +232,8 @@ const run = async (src, input) => {
     const {expr} = list;
 
     if(!(isPair(expr) && expr[0] === tList))
-      esolangs.err(`Output must be of type "List ~Bit"`);
+      esolangs.err(`Output must be of type "List ~Bit"\n\n${
+        O.rec(info2str, list)}`);
 
     const bits = [];
     let info = expr[1];
