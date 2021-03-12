@@ -144,7 +144,7 @@ const run = async (src, input) => {
 
           if(illegalConstructor)
             err(`Function ${
-              O.sf(func.sym.description)} is not allowed to contruct type ${
+              O.sf(func.sym.description)} is not allowed to explicitly contruct type ${
               O.sf(sym.description)}`);
 
           if(O.has(vars, sym)){

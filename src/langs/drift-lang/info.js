@@ -15,4 +15,4 @@ class Info{
   argsNum = null;
 }
 
-module.exports = Object.assign(Info);
+module.exports = Info;
