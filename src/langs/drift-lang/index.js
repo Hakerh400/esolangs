@@ -150,7 +150,7 @@ const run = async (src, input) => {
           if(O.has(vars, sym)){
             if(!escaped && !O.has(refs, sym))
               errCtx(`Variable ${
-                O.sf(sym.description)} from the case ${
+                O.sf(sym.description)} from case ${
                 i + 1} of function ${
                 O.sf(func.sym.description)} cannot be referenced in this context`);
 
