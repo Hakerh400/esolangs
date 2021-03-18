@@ -411,5 +411,10 @@
     "id": "2bits1byte",
     "hwProg": false,
     "details": "https://esolangs.org/wiki/2_Bits,_1_Byte"
+  }, {
+    "name": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "id": "e3b0c442",
+    "details": null,
+    "wip": true
   }
 ]
