@@ -83,9 +83,7 @@ const run = async (src, input) => {
         error(`${msg}\n\n${O.rec(info2str, info)}${ctxStr}`);
       };
 
-      const match = function*(formal, actual, left=0, escaped=0){
-        const ref = !(left || escaped);
-
+      const match = function*(formal, actual, escaped=0){
         if(formal instanceof cs.Type){
           const info = yield [reduceExpr, formal.sym];
           return info === actual;
@@ -94,7 +92,7 @@ const run = async (src, input) => {
         if(formal instanceof cs.Variable){
           const {sym} = formal;
 
-          if(ref) refs[sym] = 1;
+          if(!escaped) refs[sym] = 1;
 
           if(!O.has(vars, sym)){
             vars[sym] = actual;
@@ -109,16 +107,17 @@ const run = async (src, input) => {
           if(isSym(expr)) return 0;
 
           const [fst, snd] = expr;
+          const sndEscaped = fst.baseSym === tilde && fst.argsNum === 0;
 
           return (
-            (yield [match, formal.fst, fst, 1, escaped]) &&
-            (yield [match, formal.snd, snd, 0, escaped || fst.baseSym === tilde])
+            (yield [match, formal.fst, fst, 1]) &&
+            (yield [match, formal.snd, snd, sndEscaped])
           );
         }
 
         if(formal instanceof cs.AsPattern){
           for(const expr of formal.exprs)
-            if(!(yield [match, expr, actual, left, escaped]))
+            if(!(yield [match, expr, actual, escaped]))
               return 0;
 
           return 1;
@@ -161,8 +160,9 @@ const run = async (src, input) => {
         }
 
         if(expr instanceof cs.Call){
-          const fst = yield [simplify, expr.fst, escaped];
-          const snd = yield [simplify, expr.snd, escaped || fst.baseSym === tilde];
+          const fst = yield [simplify, expr.fst, 0];
+          const sndEscaped = fst.baseSym === tilde && fst.argsNum === 0;
+          const snd = yield [simplify, expr.snd, sndEscaped];
           const info = db.getInfo([fst, snd]);
 
           return O.tco(reduce, info);
