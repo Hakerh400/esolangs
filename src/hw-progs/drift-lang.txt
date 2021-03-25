@@ -1,13 +1,10 @@
-main * = func ~(c a b a a a a b a b b a a b a a a b b a b b a a a b b b a a b a a b b a b b b b a b
-  a b a b b b a a b a a a a a a a b a b b a a a b b a b b b b a b b a b b a a a b b a b b a a a b b
-  a a b a b a b a a b a a a)
+main * = func ~(2~0~1~0~0~0~0~1~0~1~1~0~0~1~0~0~0~1~1~0~1~1~0~0~0~1~1~1~0~0~1~0~0~1~1~0~1~1~1~1~0~1~
+  0~1~0~1~1~1~0~0~1~0~0~0~0~0~0~0~1~0~1~1~0~0~0~1~1~0~1~1~1~1~0~1~1~0~1~1~0~0~0~1~1~0~1~1~0~0~0~1~1~
+  0~0~1~0~1~0~1~0~0~1~0~0~0)
 func ~(a b) = list (cons (toBit b) (func ~a))
 func ~2 = list (nil ~Bit)
-toBit 0 = bit bit0
-toBit 1 = bit bit1
+toBit ~0 = bit bit0
+toBit ~1 = bit bit1
 0:
-  a = 0
 1:
-  b = 1
 2:
-  c = 2
