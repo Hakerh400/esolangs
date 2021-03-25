@@ -160,7 +160,7 @@ const run = async (src, input) => {
         }
 
         if(expr instanceof cs.Call){
-          const fst = yield [simplify, expr.fst, 0];
+          const fst = yield [simplify, expr.fst, escaped];
           const sndEscaped = fst.baseSym === tilde && fst.argsNum === 0;
           const snd = yield [simplify, expr.snd, sndEscaped];
           const info = db.getInfo([fst, snd]);
