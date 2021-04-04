@@ -4,11 +4,11 @@
 
 This is a collection of interpreters for [esoteric programming languages](https://esolangs.org/wiki/Main_Page).
 
-**Number of languages:** 77
+**Number of languages:** 78
 
 ## How to install
 
-First install [Node.js](https://nodejs.org/download/) version 15.3.0 or newer, then run:
+First install [Node.js](https://nodejs.org/download/) version 15.13.0 or newer, then run:
 
 ```
 npm i @hakerh400/esolangs

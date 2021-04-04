@@ -416,5 +416,11 @@
     "id": "e3b0c442",
     "details": null,
     "wip": true
+  }, {
+    "name": "Forest",
+    "id": "forest",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
+    "details": "https://esolangs.org/wiki/Forest"
   }
 ]

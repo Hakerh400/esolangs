@@ -1,0 +1,27 @@
+script{ s0 labelOrInst*s0 s0 }
+
+labelOrInst{ label | inst }
+
+label{ ident ":" }
+
+inst{
+  copy |
+  comp |
+  jump
+}
+
+copy{ addr "." addr }
+comp{ addr "?" addr }
+jump{ ":" ident }
+
+addr{ [01]* }
+ident{ [a-zA-Z0-9\-_]+ }
+
+whitespace{ [ \r\n\t] }
+comment{ inlineComment | multilineComment }
+inlineComment{ "//" [^\r\n]* }
+multilineComment{ "/*" .*? "*/"}
+
+s{ whitespace | comment }
+s0{ s* }
+s1{ s+ }
