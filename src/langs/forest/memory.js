@@ -38,8 +38,8 @@ class Memory{
     seen1.add(node2);
 
     return (
-      (yield [[node1, 'getLeft']]) === (yield [[node2, 'getLeft']]) &&
-      (yield [[node1, 'getRight']]) === (yield [[node2, 'getRight']])
+      (yield [[this, 'cmpNodes'], (yield [[node1, 'getLeft']]), (yield [[node2, 'getLeft']])]) &&
+      (yield [[this, 'cmpNodes'], (yield [[node1, 'getRight']]), (yield [[node2, 'getRight']])])
     );
   }
 
