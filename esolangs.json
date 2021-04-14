@@ -422,5 +422,12 @@
     "inputFormat": "bit-array",
     "outputFormat": "bit-array",
     "details": "https://esolangs.org/wiki/Forest"
+  }, {
+    "name": "мне с тобою так повезло",
+    "id": "povezlo",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
+    "details": null,
+    "wip": true
   }
 ]
