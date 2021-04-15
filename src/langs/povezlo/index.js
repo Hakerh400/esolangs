@@ -16,17 +16,26 @@ Error.stackTraceLimit = O.N;
 
 const run = (src, input) => {
   const prog = parser.parse(src);
-  const inp = Bit.fromArr(input, 0);
+
+  const inp = new Bit(function*(){
+    return [0, Bit.fromArr(input, 1)];
+  });
+
+  let inCallDbg = 0;
 
   const call = function*(func, arg){
-    log('CALL');
-    log.inc();
-    log(func.toString());
-    log();
-    log(arg.toString());
-    log.dec();
-    O.logb();
-    debug();
+    if(DEBUG && !inCallDbg){
+      log('CALL');
+      log.inc();
+      inCallDbg = 1;
+      log(func.toString());
+      log();
+      log(arg.toString());
+      inCallDbg = 0;
+      log.dec();
+      O.logb();
+      debug();
+    }
 
     assert(func instanceof cs.Function);
     assert(arg instanceof Bit);
