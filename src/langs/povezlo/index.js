@@ -8,13 +8,14 @@ const esolangs = require('../..');
 const debug = require('../../common/debug');
 
 const DEBUG = 0;
+const DBG_SUFFIX = 0 ? '\t' : '';
 
 const GeneratorFunction = function*(){}.constructor;
 
 const run = (src, input) => {
   src = src.toString();
 
-  const m = src.match(/[^\s\#\(\)\*\.01\<\>\@\[\]\|]/);
+  const m = src.match(/[^\s\#\(\)\*\.01\<\>\[\]\|\@]/);
   if(m !== null) esolangs.err(`Invalid character ${m[0]}`);
 
   src = src.
@@ -28,7 +29,7 @@ const run = (src, input) => {
     const srcPrev = src;
 
     src = src.replace(/\[([^\[\]]*)\]/, (a, b) => {
-      return `\`${b.replace(/\`/g, `\\\``)}\``;
+      return `\`${b.replace(/(?=[\`\\])/g, `\\`)}\``;
     });
 
     if(src === srcPrev)
@@ -49,27 +50,32 @@ const run = (src, input) => {
   return Buffer.from(output);
 };
 
-const call = function*(arg, src0=null, src1=null){
-  arg = arg.replace(/\@+$/g, '');
+const call = function*(arg='', src0='', src1=''){
+  arg = arg.replace(/\ +$/g, '');
 
   const src = arg.startsWith('1') ? src1 : src0;
-  assert(src !== null);
 
   arg = arg.slice(1);
 
   if(DEBUG){
-    log(src);
+    log(normStr(src));
     log();
     log('.'.repeat(20));
     log();
-    log(arg);
+    yield [logArg, arg];
     O.logb();
   }
 
-  const func = new GeneratorFunction(
-    'arg, func, call, pair, fst, snd',
-    `return(${src})`,
-  );
+  let func;
+
+  try{
+    func = new GeneratorFunction(
+      'arg, func, call, pair, fst, snd',
+      `return(${src})`,
+    );
+  }catch(err){
+    esolangs.err(`Invalid program`);
+  }
 
   const result = yield [func, arg, src, call, pair, fst, snd];
 
@@ -91,24 +97,26 @@ const call = function*(arg, src0=null, src1=null){
   return result;
 };
 
-const pair = function*(str1, str2){
-  return `${str1.length}.${str1}${str2}`;
+const pair = function*(str1='', str2='', suffix=DBG_SUFFIX){
+  if(!(str1 || str2)) return '';
+
+  return (
+    (str1[0] || ' ') +
+    (str2[0] || ' ') +
+    (yield [pair, str1.slice(1), str2.slice(1),'']) +
+    (DEBUG ? suffix : '')
+  );
 };
 
-const fst = function*(str){
-  const match = str.match(/^[0-9]*/)[0];
-  const len = Math.min(+match, str.length);
-  const start = match.length + 1;
+const fst = function*(str=''){
+  if(str === '') return '';
+  // if(str.startsWith(' ')) return '';
 
-  return str.slice(start, start + len);
+  return (str[0] + (yield [fst, str.slice(2)]));
 };
 
-const snd = function*(str){
-  const match = str.match(/^[0-9]*/)[0];
-  const len = Math.min(+match, str.length);
-  const start = match.length + len + 1;
-  
-  return str.slice(start);
+const snd = function*(str=''){
+  return O.tco(fst, str.slice(1));
 };
 
 const initInput = str => {
@@ -124,6 +132,31 @@ const parseOutput = str => {
   }
 
   return s;
+};
+
+const logArg = function*(arg){
+  if(DBG_SUFFIX && arg.endsWith(DBG_SUFFIX)){
+    arg = arg.slice(0, -1);
+
+    log('PAIR');
+    log.inc();
+
+    yield [logArg, yield [fst, arg]];
+    yield [logArg, yield [snd, arg]];
+
+    log.dec();
+    return;
+  }
+
+  log(normStr(arg));
+};
+
+const normStr = str => {
+  return O.sanl(str.trim()).map((line, index) => {
+    line = line.trim();
+    if(index === 0) return line;
+    return `${' '.repeat(2)}${line}`;
+  }).join('\n') || '(empty)';
 };
 
 module.exports = run;
