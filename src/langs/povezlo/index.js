@@ -6,74 +6,124 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 const debug = require('../../common/debug');
-const parser = require('./parser');
-const cs = require('./ctors');
-const Bit = require('./bit');
 
 const DEBUG = 0;
 
-Error.stackTraceLimit = O.N;
+const GeneratorFunction = function*(){}.constructor;
 
 const run = (src, input) => {
-  const prog = parser.parse(src);
+  src = src.toString();
 
-  const inp = new Bit(function*(){
-    return [0, Bit.fromArr(input, 1)];
-  });
+  const m = src.match(/[^\s\#\(\)\*\.01\<\>\@\[\]\|]/);
+  if(m !== null) esolangs.err(`Invalid character ${m[0]}`);
 
-  let inCallDbg = 0;
+  src = src.
+    replace(/[\.\#\*\@\<\>]/g, a => ` ${
+      ['arg', 'func', 'call', 'pair', 'fst', 'snd']['.#*@<>'.indexOf(a)]} `).
+    replace(/(?<=[a-z]\b|[\)\]\|])(?!\s*(?:[\)\]\|]|$))/g, ',');
 
-  const call = function*(func, arg){
-    if(DEBUG && !inCallDbg){
-      log('CALL');
-      log.inc();
-      inCallDbg = 1;
-      log(func.toString());
-      log();
-      log(arg.toString());
-      inCallDbg = 0;
-      log.dec();
+  // O.exit(src);
+
+  while(/[\[\]]/.test(src)){
+    const srcPrev = src;
+
+    src = src.replace(/\[([^\[\]]*)\]/, (a, b) => {
+      return `\`${b.replace(/\`/g, `\\\``)}\``;
+    });
+
+    if(src === srcPrev)
+      esolangs.err('Unbalanced parentheses');
+  }
+
+  src = src.
+    replace(/(?=call|pair|fst|snd)/g, '[').
+    replace(/\[/g, 'yield[').
+    replace(/\|/g, ']').
+    replace(/[01]+/g, a => `'${a}'+`);
+
+  // O.exit(src);
+
+  const result = O.rec(call, initInput(input.toString()), src);
+  const output = parseOutput(result);
+
+  return Buffer.from(output);
+};
+
+const call = function*(arg, src0=null, src1=null){
+  arg = arg.replace(/\@+$/g, '');
+
+  const src = arg.startsWith('1') ? src1 : src0;
+  assert(src !== null);
+
+  arg = arg.slice(1);
+
+  if(DEBUG){
+    log(src);
+    log();
+    log('.'.repeat(20));
+    log();
+    log(arg);
+    O.logb();
+  }
+
+  const func = new GeneratorFunction(
+    'arg, func, call, pair, fst, snd',
+    `return(${src})`,
+  );
+
+  const result = yield [func, arg, src, call, pair, fst, snd];
+
+  if(typeof result !== 'string'){
+    const type = typeof result;
+
+    if(DEBUG){
       O.logb();
-      debug();
+      log(type);
+      log();
+      log(result);
+      O.logb();
+      assert.fail();
     }
 
-    assert(func instanceof cs.Function);
-    assert(arg instanceof Bit);
+    esolangs.err(`The result has type ${O.sf(type)}`);
+  }
 
-    const argBit = yield [[arg, 'getBit']];
-    const argNext = yield [[arg, 'getNext']];
+  return result;
+};
 
-    const expr = argBit === 0 ? func.case0 : func.case1;
+const pair = function*(str1, str2){
+  return `${str1.length}.${str1}${str2}`;
+};
 
-    return expr2bit(expr, argNext);
-  };
+const fst = function*(str){
+  const match = str.match(/^[0-9]*/)[0];
+  const len = Math.min(+match, str.length);
+  const start = match.length + 1;
 
-  const expr2bit = (expr, arg) => new Bit(function*(){
-    if(expr instanceof cs.Argument){
-      return [yield [[arg, 'getBit']], yield [[arg, 'getNext']]];
-    }
+  return str.slice(start, start + len);
+};
 
-    if(expr instanceof cs.Bit){
-      return [expr.bit, expr2bit(expr.next, arg)];
-    }
+const snd = function*(str){
+  const match = str.match(/^[0-9]*/)[0];
+  const len = Math.min(+match, str.length);
+  const start = match.length + len + 1;
+  
+  return str.slice(start);
+};
 
-    if(expr instanceof cs.Call){
-      const func = yield [cs.Function.parse, expr2bit(expr.target, arg)];
-      // O.logb();
-      // log('---> ' + expr.target)
-      // log('---> ' + func)
-      // O.exit()
-      const funcArg = expr2bit(expr.arg, arg);
-      const bits = yield [call, func, funcArg];
-      return [yield [[bits, 'getBit']], yield [[bits, 'getNext']]];
-    }
+const initInput = str => {
+  return `0${str.replace(/./g, a => `1${a}`)}`;
+};
 
-    assert.fail(expr);
-  });
+const parseOutput = str => {
+  let s = '';
 
-  const out = O.rec(call, prog, inp);
+  while(str.startsWith('1')){
+    s += str[1] === '1' ? '1' : '0';
+    str = str.slice(2);
+  }
 
-  return Buffer.from(O.rec([out, 'getOutput']));
+  return s;
 };
 
 module.exports = run;
