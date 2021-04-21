@@ -6,10 +6,15 @@ const assert = require('assert');
 const O = require('omikron');
 const esolangs = require('../..');
 
+const ws = [0x09, 0x0A, 0x0D, 0x20];
+
 const parse = src => {
   let ser = new O.NatSerializer();
 
   for(const byte of src){
+    if(ws.includes(byte))
+      continue;
+
     if(byte < 0x21 || byte > 0x7e)
       esolangs.err(`Invalid character`);
 
