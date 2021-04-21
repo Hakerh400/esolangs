@@ -428,5 +428,11 @@
     "inputFormat": "bit-array",
     "outputFormat": "bit-array",
     "details": "https://esolangs.org/w/index.php?title=%u041C%u043D%u0435_%u0441_%u0442%u043E%u0431%u043E%u044E_%u0442%u0430%u043A_%u043F%u043E%u0432%u0435%u0437%u043B%u043E"
+  }, {
+    "name": "Undocumented",
+    "id": "undocumented",
+    "inputFormat": "bit-array",
+    "outputFormat": "bit-array",
+    "details": "https://esolangs.org/wiki/Undocumented"
   }
 ]
