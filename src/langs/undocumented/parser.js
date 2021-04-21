@@ -16,7 +16,7 @@ const parse = src => {
       continue;
 
     if(byte < 0x21 || byte > 0x7e)
-      esolangs.err(`Invalid character`);
+      esolangs.err(`Illegal character`);
 
     ser.inc();
     ser.write(94, byte - 0x21);
