@@ -15,7 +15,7 @@ const parse = src => {
     if(ws.includes(byte))
       continue;
 
-    if(byte < 0x21 || byte > 0x7e)
+    if(byte < 0x21 || byte > 0x7E)
       esolangs.err(`Illegal character`);
 
     ser.inc();
